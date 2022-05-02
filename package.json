@@ -1,0 +1,28 @@
+{
+  "name": "story-machines",
+  "version": "0.0.1",
+  "description": "A runtime and abstractions for building interactive storytelling experiences",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/jest",
+    "typecheck": "./node_modules/.bin/tsc --noEmit",
+    "build": "./node_modules/.bin/tsc",
+    "cli": "npm run build && ./dist/cli-visualizer.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.1",
+    "@types/jest": "^26.0.20",
+    "@types/node": "^14.14.31",
+    "@types/parsimmon": "^1.10.6",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.5.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "inkjs": "^1.11.0",
+    "parsimmon": "^1.16.0"
+  }
+}
