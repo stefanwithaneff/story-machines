@@ -58,7 +58,14 @@ export class InkMachine implements ChoiceBasedStoryMachine {
     this.initialized = true;
     this.setExternalState(externalState);
 
-    return this.getCurrentOutput();
+    const output = this.getCurrentOutput();
+
+    // Ink initializes the story without actually starting it, so we need to move to the first passage
+    if (output.passages.length === 0) {
+      return this.next(externalState);
+    }
+
+    return output;
   }
 
   next(externalState: any, input?: Choice) {

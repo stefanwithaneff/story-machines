@@ -64,7 +64,6 @@ async function promptForChoice(
 }
 
 async function run() {
-  console.log("Running");
   const externalState = {};
   const inkJson = fs.readFileSync(
     path.resolve(process.cwd(), inkJsonFilename),
@@ -76,13 +75,8 @@ async function run() {
   const machine = new InkMachine(inkObj);
 
   let output = machine.start(externalState);
-  // Skip ahead to the first actual text node since Inkjs initializes with an empty state
-  if (machine.getCurrentOutput().passages.length === 0) {
-    output = machine.next(externalState);
-  }
 
   do {
-    console.log(output);
     displayOutput(output);
     const choice = await promptForChoice(output);
     output = machine.next(externalState, choice);
