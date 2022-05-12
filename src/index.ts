@@ -1,8 +1,2 @@
-export {
-  StoryMachine,
-  Choice,
-  ChoiceBasedStoryResult,
-  Effect,
-  ChoiceBasedStoryMachine,
-} from "./machines/types";
-export { InkMachine } from "./machines/ink/ink";
+export { StoryMachine, Choice, Effect } from "./machines/base/story-machine";
+export { Ink } from "./machines/ink/ink";

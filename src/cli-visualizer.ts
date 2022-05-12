@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
 import readline from "readline";
-import { ChoiceBasedStoryResult, Choice } from "./machines/types";
-import { InkMachine } from "./machines/ink/ink";
+import { Output, Choice } from "./machines/base/story-machine";
+import { Ink } from "./machines/ink/ink";
 
 const rl = readline.createInterface(process.stdin, process.stdout);
 const inkJsonFilename = process.argv[2];
@@ -12,15 +12,15 @@ if (!inkJsonFilename) {
   process.exit(1);
 }
 
-function displayOutput(result: ChoiceBasedStoryResult) {
+function displayOutput(result: Output) {
   // Print passages
-  result.passages.forEach((passage) => {
+  result.text.forEach((passage) => {
     console.log(passage);
   });
 
   if (result.choices.length > 0) {
     result.choices.forEach((choice, index) => {
-      console.log(`${index}. ${choice.description}`);
+      console.log(`${index}. ${choice.text}`);
     });
   }
 }
@@ -31,9 +31,7 @@ function promptUser(prompt: string): Promise<string> {
   });
 }
 
-async function promptForChoice(
-  result: ChoiceBasedStoryResult
-): Promise<Choice | undefined> {
+async function promptForChoice(result: Output): Promise<Choice | undefined> {
   const hasChoices = result.choices.length > 0;
 
   const prompt = hasChoices
@@ -72,7 +70,7 @@ async function run() {
 
   const inkObj = JSON.parse(inkJson.trim());
 
-  const machine = new InkMachine(inkObj);
+  const machine = new Ink(inkObj);
 
   let output = machine.start(externalState);
 

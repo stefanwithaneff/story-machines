@@ -3,7 +3,8 @@
   "compilerOptions": {
     "lib": ["ES2021"],
     "outDir": "dist",
-    "useUnknownInCatchVariables": false
+    "useUnknownInCatchVariables": false,
+    "strict": true
   },
   "exclude": ["node_modules"]
 }
