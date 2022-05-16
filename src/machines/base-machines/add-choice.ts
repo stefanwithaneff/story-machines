@@ -1,31 +1,25 @@
 import { getOutputBuilder } from "../../utils/output-builder";
-import { StoryMachine, StoryMachineRuntime } from "./story-machine";
+import { Context, Result, Choice } from "../../types";
 import {
-  ProcessorFactory,
-  ProcessFn,
-  Context,
-  Result,
-  ID,
-  Choice,
-} from "./types";
+  StoryMachine,
+  StoryMachineAttributes,
+} from "../base-classes/story-machine";
 
 interface AddChoiceContext extends Context {
   displayText?: string;
-  choiceId?: ID;
+  choiceId?: string;
   metadata?: Record<string, any>;
 }
 
-export class AddChoice extends StoryMachine {
-  protected generateProcessFn(): ProcessFn {
-    return addChoice();
-  }
+interface AddChoiceAttributes extends StoryMachineAttributes {
+  choice?: Choice;
 }
 
-export const addChoice: ProcessorFactory<[] | [Choice]> = (choice?: Choice) => {
-  return (context: AddChoiceContext): Result => {
+export class AddChoice extends StoryMachine<AddChoiceAttributes> {
+  process(context: AddChoiceContext): Result {
     let choiceToAdd: Choice;
-    if (choice) {
-      choiceToAdd = choice;
+    if (this.attrs.choice) {
+      choiceToAdd = this.attrs.choice;
     } else {
       const { displayText, choiceId, metadata } = context;
       if (!displayText || !choiceId) {
@@ -40,7 +34,5 @@ export const addChoice: ProcessorFactory<[] | [Choice]> = (choice?: Choice) => {
     const builder = getOutputBuilder(context);
     builder.addChoice(choiceToAdd);
     return { status: "Completed" };
-  };
-};
-
-StoryMachineRuntime.registerMachines(AddChoice);
+  }
+}

@@ -1,28 +1,23 @@
 import { getOutputBuilder } from "../utils/output-builder";
 import {
+  SimpleCompositeAttributes,
   SimpleCompositeMachine,
-  StoryMachine,
-  StoryMachineRuntime,
-} from "./base/story-machine";
-import {
-  CompositeFactory,
-  ElementTree,
-  ID,
-  Effect,
-  ProcessFn,
-  Context,
-  Result,
-} from "./base/types";
+} from "./base-classes/simple-composite-machine";
+import { ElementTree, Effect, ProcessFn, Context, Result } from "../types";
 
-// Harder to build with the functional pattern because no ID is available on the functions
-// TODO: Should the functional version use some kind of factory that attaches the ID and other relevant context?
+// TODO: How to implement a EffectHandler on a sequence?
+// TODO How to implement an Effect as a Node?
+
 // TODO: How/where should effects be defined since they're likely exclusively related to the specific machine?
+/**
+ * Allows for explicit traversal of Nodes in the sequence using a GO_TO effect
+ */
 export class GotoSequence extends SimpleCompositeMachine {
-  private currentNodeId: ID;
+  private currentNodeId: string;
 
-  constructor(tree: ElementTree) {
-    super(tree);
-    this.currentNodeId = this.nodes[0].id;
+  constructor(attrs: SimpleCompositeAttributes) {
+    super(attrs);
+    this.currentNodeId = this.children[0].id;
   }
 
   private handleEffect(effect: Effect): Effect[] {
@@ -33,28 +28,24 @@ export class GotoSequence extends SimpleCompositeMachine {
     return [effect];
   }
 
-  protected generateProcessFn(): ProcessFn {
-    return (context: Context): Result => {
-      const currentNode = this.nodes.find(
-        (node) => node.id === this.currentNodeId
-      );
+  process(context: Context): Result {
+    const currentNode = this.children.find(
+      (node) => node.id === this.currentNodeId
+    );
 
-      if (!currentNode) {
-        return { status: "Terminated" };
-      }
+    if (!currentNode) {
+      return { status: "Terminated" };
+    }
 
-      const result = currentNode.process(context);
-      const builder = getOutputBuilder(context);
-      builder.processEffects(this.handleEffect.bind(this));
-      return result;
-    };
+    const result = currentNode.process(context);
+    const builder = getOutputBuilder(context);
+    builder.processEffects(this.handleEffect.bind(this));
+    return result;
   }
 }
 
-export type GotoEffect = Effect<{ id: ID }>;
+export type GotoEffect = Effect<{ id: string }>;
 
 function isGotoEffect(effect: Effect): effect is GotoEffect {
-  return effect.type === "GO_TO";
+  return effect.type === "@Goto/GO_TO";
 }
-
-StoryMachineRuntime.registerMachines(GotoSequence);

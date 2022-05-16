@@ -1,92 +1,94 @@
-import fs from "fs";
-import path from "path";
-import readline from "readline";
-import { Output, Choice } from "./machines/base/story-machine";
-import { Ink } from "./machines/ink/ink";
+// import fs from "fs";
+// import path from "path";
+// import readline from "readline";
+// import { Output, Choice } from "./machines/base-machines/story-machine";
+// import { Ink } from "./machines/ink/ink";
 
-const rl = readline.createInterface(process.stdin, process.stdout);
-const inkJsonFilename = process.argv[2];
+// // TODO: Get Visualizer working again
 
-if (!inkJsonFilename) {
-  console.error("No filename provided");
-  process.exit(1);
-}
+// const rl = readline.createInterface(process.stdin, process.stdout);
+// const inkJsonFilename = process.argv[2];
 
-function displayOutput(result: Output) {
-  // Print passages
-  result.text.forEach((passage) => {
-    console.log(passage);
-  });
+// if (!inkJsonFilename) {
+//   console.error("No filename provided");
+//   process.exit(1);
+// }
 
-  if (result.choices.length > 0) {
-    result.choices.forEach((choice, index) => {
-      console.log(`${index}. ${choice.text}`);
-    });
-  }
-}
+// function displayOutput(result: Output) {
+//   // Print passages
+//   result.text.forEach((passage) => {
+//     console.log(passage);
+//   });
 
-function promptUser(prompt: string): Promise<string> {
-  return new Promise((res) => {
-    rl.question(prompt, res);
-  });
-}
+//   if (result.choices.length > 0) {
+//     result.choices.forEach((choice, index) => {
+//       console.log(`${index}. ${choice.text}`);
+//     });
+//   }
+// }
 
-async function promptForChoice(result: Output): Promise<Choice | undefined> {
-  const hasChoices = result.choices.length > 0;
+// function promptUser(prompt: string): Promise<string> {
+//   return new Promise((res) => {
+//     rl.question(prompt, res);
+//   });
+// }
 
-  const prompt = hasChoices
-    ? "What do you want to do?\n"
-    : "Press ENTER to continue\n";
+// async function promptForChoice(result: Output): Promise<Choice | undefined> {
+//   const hasChoices = result.choices.length > 0;
 
-  const response = await promptUser(prompt);
+//   const prompt = hasChoices
+//     ? "What do you want to do?\n"
+//     : "Press ENTER to continue\n";
 
-  if (!hasChoices) {
-    return undefined;
-  }
+//   const response = await promptUser(prompt);
 
-  let choiceIndex = parseInt(response);
+//   if (!hasChoices) {
+//     return undefined;
+//   }
 
-  while (
-    isNaN(choiceIndex) ||
-    choiceIndex < 0 ||
-    choiceIndex >= result.choices.length
-  ) {
-    choiceIndex = parseInt(
-      await promptUser(
-        "Please enter the number of the choice you wish to choose:\n"
-      )
-    );
-  }
+//   let choiceIndex = parseInt(response);
 
-  return result.choices[choiceIndex];
-}
+//   while (
+//     isNaN(choiceIndex) ||
+//     choiceIndex < 0 ||
+//     choiceIndex >= result.choices.length
+//   ) {
+//     choiceIndex = parseInt(
+//       await promptUser(
+//         "Please enter the number of the choice you wish to choose:\n"
+//       )
+//     );
+//   }
 
-async function run() {
-  const externalState = {};
-  const inkJson = fs.readFileSync(
-    path.resolve(process.cwd(), inkJsonFilename),
-    { encoding: "utf8" }
-  );
+//   return result.choices[choiceIndex];
+// }
 
-  const inkObj = JSON.parse(inkJson.trim());
+// async function run() {
+//   const externalState = {};
+//   const inkJson = fs.readFileSync(
+//     path.resolve(process.cwd(), inkJsonFilename),
+//     { encoding: "utf8" }
+//   );
 
-  const machine = new Ink(inkObj);
+//   const inkObj = JSON.parse(inkJson.trim());
 
-  let output = machine.start(externalState);
+//   const machine = new Ink(inkObj);
 
-  do {
-    displayOutput(output);
-    const choice = await promptForChoice(output);
-    output = machine.next(externalState, choice);
-  } while (output.status !== "Done");
+//   let output = machine.start(externalState);
 
-  console.log("The end. Thanks for playing!");
-  process.exit(0);
-}
+//   do {
+//     displayOutput(output);
+//     const choice = await promptForChoice(output);
+//     output = machine.next(externalState, choice);
+//   } while (output.status !== "Done");
 
-try {
-  run();
-} catch (e) {
-  console.error(e.message);
-  process.exit(1);
-}
+//   console.log("The end. Thanks for playing!");
+//   process.exit(0);
+// }
+
+// try {
+//   run();
+// } catch (e) {
+//   console.error(e.message);
+//   process.exit(1);
+// }

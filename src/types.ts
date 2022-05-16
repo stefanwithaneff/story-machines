@@ -1,24 +1,22 @@
 export type StoryMachineStatus = "Running" | "Completed" | "Terminated";
 
-export type ID = number | string | Symbol;
-
 export type Metadata = Record<string, any>;
 
 export interface Choice {
-  id: ID;
+  id: string;
   text: string;
   metadata: Metadata;
 }
 
 export interface Effect<T = any> {
-  type: string | Symbol;
+  type: string;
   payload: T;
 }
 
 export interface ChoiceInput {
   type: "Choice";
   payload: {
-    id: ID;
+    id: string;
   };
 }
 
@@ -59,3 +57,5 @@ export type CompositeFactory<A extends any[] = []> = (
   fns: ProcessFn[],
   ...args: [...A]
 ) => ProcessFn;
+
+export type EffectHandler = (effect: Effect) => Effect[];

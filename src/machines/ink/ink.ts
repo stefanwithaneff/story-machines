@@ -1,179 +1,180 @@
-import { Story } from "inkjs/engine/Story";
-import { EffectParser } from "./effect-parser";
-import {
-  StoryMachine,
-  Choice,
-  Effect,
-  StoryMachineStatus,
-  Input,
-  Output,
-} from "../base/story-machine";
-import { ElementTree } from "../base/story-machine";
+// TODO: Get Ink machine working again
+// import { Story } from "inkjs/engine/Story";
+// import { EffectParser } from "./effect-parser";
+// import {
+//   StoryMachine,
+//   Choice,
+//   Effect,
+//   StoryMachineStatus,
+//   Input,
+//   Output,
+// } from "../base-machines/story-machine";
+// import { ElementTree } from "../base-machines/story-machine";
 
-type InkChoice = Story["currentChoices"][0];
+// type InkChoice = Story["currentChoices"][0];
 
-function transformInkChoice(choice: InkChoice, id: Choice["id"]): Choice {
-  return {
-    id,
-    text: choice.text,
-    metadata: {},
-  };
-}
+// function transformInkChoice(choice: InkChoice, id: Choice["id"]): Choice {
+//   return {
+//     id,
+//     text: choice.text,
+//     metadata: {},
+//   };
+// }
 
-function parseEffectFromInkTag(tag: string): Effect | null {
-  const result = EffectParser.parse(tag);
+// function parseEffectFromInkTag(tag: string): Effect | null {
+//   const result = EffectParser.parse(tag);
 
-  if (result.status === false) {
-    return null;
-  }
+//   if (result.status === false) {
+//     return null;
+//   }
 
-  return result.value;
-}
+//   return result.value;
+// }
 
-function getEffectsFromInkTags(tags: Story["currentTags"]): Effect[] {
-  const effects: Effect[] = [];
+// function getEffectsFromInkTags(tags: Story["currentTags"]): Effect[] {
+//   const effects: Effect[] = [];
 
-  if (tags === null) {
-    return effects;
-  }
+//   if (tags === null) {
+//     return effects;
+//   }
 
-  for (const tag of tags) {
-    const effect = parseEffectFromInkTag(tag);
+//   for (const tag of tags) {
+//     const effect = parseEffectFromInkTag(tag);
 
-    if (effect !== null) {
-      effects.push(effect);
-    }
-  }
+//     if (effect !== null) {
+//       effects.push(effect);
+//     }
+//   }
 
-  return effects;
-}
+//   return effects;
+// }
 
-export class Ink extends StoryMachine {
-  private story: Story;
+// export class Ink extends StoryMachine {
+//   private story: Story;
 
-  constructor(tree: ElementTree) {
-    super(tree);
+//   constructor(tree: ElementTree) {
+//     super(tree);
 
-    const { filename } = tree.attributes;
+//     const { filename } = tree.attributes;
 
-    const inkJson = "{}"; // TODO: Figure out how to retrieve the file in question, probably with fs sync methods (which basically means Ink is only supported out of browser...)
+//     const inkJson = "{}"; // TODO: Figure out how to retrieve the file in question, probably with fs sync methods (which basically means Ink is only supported out of browser...)
 
-    this.story = new Story(inkJson);
-  }
+//     this.story = new Story(inkJson);
+//   }
 
-  getChildren() {
-    return [];
-  }
+//   getChildren() {
+//     return [];
+//   }
 
-  getChildState(externalState: any) {
-    return externalState;
-  }
+//   getChildState(externalState: any) {
+//     return externalState;
+//   }
 
-  private setExternalState(externalState: any) {
-    for (const [key, value] of Object.entries(externalState)) {
-      this.story.variablesState.$(key, value);
-    }
-  }
+//   private setExternalState(externalState: any) {
+//     for (const [key, value] of Object.entries(externalState)) {
+//       this.story.variablesState.$(key, value);
+//     }
+//   }
 
-  private continueStory(): Output {
-    if (this.story.canContinue) {
-      const text = [this.story.Continue() ?? ""];
-      const choices = this.story.currentChoices.map(transformInkChoice);
+//   private continueStory(): Output {
+//     if (this.story.canContinue) {
+//       const text = [this.story.Continue() ?? ""];
+//       const choices = this.story.currentChoices.map(transformInkChoice);
 
-      const effects = getEffectsFromInkTags(this.story.currentTags);
+//       const effects = getEffectsFromInkTags(this.story.currentTags);
 
-      return { status: "Active" as const, text, choices, effects };
-    }
+//       return { status: "Active" as const, text, choices, effects };
+//     }
 
-    return { status: "Done" as const, text: [], choices: [], effects: [] };
-  }
+//     return { status: "Done" as const, text: [], choices: [], effects: [] };
+//   }
 
-  produceOutput(
-    externalState: any,
-    _: Output[],
-    input?: Input | undefined
-  ): Output {
-    this.setExternalState(externalState);
-    if (input) {
-      this.story.ChooseChoiceIndex(input.id as any);
-    }
-    return this.continueStory();
-  }
+//   produceOutput(
+//     externalState: any,
+//     _: Output[],
+//     input?: Input | undefined
+//   ): Output {
+//     this.setExternalState(externalState);
+//     if (input) {
+//       this.story.ChooseChoiceIndex(input.id as any);
+//     }
+//     return this.continueStory();
+//   }
 
-  // internalState = null; // This class is simply a container for the Inkjs engine and delegates state tracking to the engine itself
-  // initialized = false;
-  // private story: Story;
+//   // internalState = null; // This class is simply a container for the Inkjs engine and delegates state tracking to the engine itself
+//   // initialized = false;
+//   // private story: Story;
 
-  // constructor(inkJson: object) {
-  //   this.story = new Story(inkJson);
-  // }
+//   // constructor(inkJson: object) {
+//   //   this.story = new Story(inkJson);
+//   // }
 
-  // start(externalState: any) {
-  //   this.initialized = true;
-  //   this.setExternalState(externalState);
+//   // start(externalState: any) {
+//   //   this.initialized = true;
+//   //   this.setExternalState(externalState);
 
-  //   const output = this.getCurrentOutput();
+//   //   const output = this.getCurrentOutput();
 
-  //   // Ink initializes the story without actually starting it, so we need to move to the first passage
-  //   if (output.passages.length === 0) {
-  //     return this.next(externalState);
-  //   }
+//   //   // Ink initializes the story without actually starting it, so we need to move to the first passage
+//   //   if (output.passages.length === 0) {
+//   //     return this.next(externalState);
+//   //   }
 
-  //   return output;
-  // }
+//   //   return output;
+//   // }
 
-  // next(externalState: any, input?: Choice) {
-  //   this.setExternalState(externalState);
-  //   if (input) {
-  //     this.story.ChooseChoiceIndex(input.key as any);
-  //   }
-  //   return this.continueStory();
-  // }
+//   // next(externalState: any, input?: Choice) {
+//   //   this.setExternalState(externalState);
+//   //   if (input) {
+//   //     this.story.ChooseChoiceIndex(input.key as any);
+//   //   }
+//   //   return this.continueStory();
+//   // }
 
-  // setExternalState(externalState: any) {
-  //   for (const [key, value] of Object.entries(externalState)) {
-  //     this.story.variablesState.$(key, value);
-  //   }
-  // }
+//   // setExternalState(externalState: any) {
+//   //   for (const [key, value] of Object.entries(externalState)) {
+//   //     this.story.variablesState.$(key, value);
+//   //   }
+//   // }
 
-  // continueStory() {
-  //   if (this.story.canContinue) {
-  //     const passages = [this.story.Continue() ?? ""];
-  //     const choices = this.story.currentChoices.map(transformInkChoice);
+//   // continueStory() {
+//   //   if (this.story.canContinue) {
+//   //     const passages = [this.story.Continue() ?? ""];
+//   //     const choices = this.story.currentChoices.map(transformInkChoice);
 
-  //     const effects = getEffectsFromInkTags(this.story.currentTags);
+//   //     const effects = getEffectsFromInkTags(this.story.currentTags);
 
-  //     return { status: "Active" as const, passages, choices, effects };
-  //   }
+//   //     return { status: "Active" as const, passages, choices, effects };
+//   //   }
 
-  //   return { status: "Done" as const, passages: [], choices: [], effects: [] };
-  // }
+//   //   return { status: "Done" as const, passages: [], choices: [], effects: [] };
+//   // }
 
-  // getCurrentOutput() {
-  //   const status: StoryMachineStatus = this.getCurrentStatus();
-  //   return {
-  //     status,
-  //     passages: this.story.currentText ? [this.story.currentText] : [],
-  //     choices: this.story.currentChoices.map(transformInkChoice),
-  //     effects: getEffectsFromInkTags(this.story.currentTags),
-  //   };
-  // }
+//   // getCurrentOutput() {
+//   //   const status: StoryMachineStatus = this.getCurrentStatus();
+//   //   return {
+//   //     status,
+//   //     passages: this.story.currentText ? [this.story.currentText] : [],
+//   //     choices: this.story.currentChoices.map(transformInkChoice),
+//   //     effects: getEffectsFromInkTags(this.story.currentTags),
+//   //   };
+//   // }
 
-  // getCurrentStatus() {
-  //   if (!this.initialized) {
-  //     return "Uninitialized";
-  //   }
-  //   if (this.story.canContinue) {
-  //     return "Active";
-  //   }
-  //   return "Done";
-  // }
+//   // getCurrentStatus() {
+//   //   if (!this.initialized) {
+//   //     return "Uninitialized";
+//   //   }
+//   //   if (this.story.canContinue) {
+//   //     return "Active";
+//   //   }
+//   //   return "Done";
+//   // }
 
-  // save(): string {
-  //   return this.story.state.ToJson();
-  // }
+//   // save(): string {
+//   //   return this.story.state.ToJson();
+//   // }
 
-  // load(jsonState: string) {
-  //   this.story.state.LoadJson(jsonState);
-  // }
-}
+//   // load(jsonState: string) {
+//   //   this.story.state.LoadJson(jsonState);
+//   // }
+// }
