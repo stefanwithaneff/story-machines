@@ -5,7 +5,7 @@ import {
   DecoratorAttributes,
   DecoratorMachine,
 } from "./base-classes/decorator-machine";
-import { DecoratorFactory, ProcessFn, Context, Result } from "../types";
+import { Context, Result } from "../types";
 import { StoryMachine } from "./base-classes/story-machine";
 
 interface SetScopeAttributes extends DecoratorAttributes {
