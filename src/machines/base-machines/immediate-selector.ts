@@ -1,7 +1,7 @@
-import { SimpleCompositeMachine } from "../base-classes/simple-composite-machine";
+import { CompositeMachine } from "../base-classes/composite-machine";
 import { Context, Result } from "../../types";
 
-export class ImmediateSelector extends SimpleCompositeMachine {
+export class ImmediateSelector extends CompositeMachine {
   process(context: Context): Result {
     const results = this.children.map((child) => child.process(context));
 

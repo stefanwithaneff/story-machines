@@ -4,7 +4,7 @@ export interface SimpleCompositeAttributes extends StoryMachineAttributes {
   children: StoryMachine[];
 }
 
-export abstract class SimpleCompositeMachine<
+export abstract class CompositeMachine<
   A extends SimpleCompositeAttributes = SimpleCompositeAttributes
 > extends StoryMachine<A> {
   protected children: StoryMachine[];

@@ -1,8 +1,8 @@
 import { getOutputBuilder } from "../utils/output-builder";
 import {
   SimpleCompositeAttributes,
-  SimpleCompositeMachine,
-} from "./base-classes/simple-composite-machine";
+  CompositeMachine,
+} from "./base-classes/composite-machine";
 import { ElementTree, Effect, ProcessFn, Context, Result } from "../types";
 
 // TODO: How to implement a EffectHandler on a sequence?
@@ -12,7 +12,7 @@ import { ElementTree, Effect, ProcessFn, Context, Result } from "../types";
 /**
  * Allows for explicit traversal of Nodes in the sequence using a GO_TO effect
  */
-export class GotoSequence extends SimpleCompositeMachine {
+export class GotoSequence extends CompositeMachine {
   private currentNodeId: string;
 
   constructor(attrs: SimpleCompositeAttributes) {
