@@ -5,6 +5,11 @@ import {
 } from "./machines/base-classes/story-machine";
 import { ElementTree } from "./types";
 import { ChoiceCompiler } from "./machines/choice";
+import { SequenceCompiler } from "./machines/base-machines/sequence";
+import { TextCompiler } from "./machines/text";
+import { ChoiceTextCompiler } from "./machines/choice-text";
+import { ImmediateSequenceCompiler } from "./machines/base-machines/immediate-sequence";
+import { ImmediateSelectorCompiler } from "./machines/base-machines/immediate-selector";
 
 type MachineRegistration = [string | string[], StoryMachineCompiler];
 
@@ -74,4 +79,9 @@ export class StoryMachineRuntime {
 const baseElements: MachineRegistration[] = [
   //
   ["Choice", ChoiceCompiler],
+  ["ChoiceText", ChoiceTextCompiler],
+  ["ImmediateSelector", ImmediateSelectorCompiler],
+  ["ImmediateSequence", ImmediateSequenceCompiler],
+  ["Sequence", SequenceCompiler],
+  ["Text", TextCompiler],
 ];

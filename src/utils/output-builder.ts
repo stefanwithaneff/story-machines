@@ -39,7 +39,7 @@ export class OutputBuilder {
 
 export function getOutputBuilder(context: Context): OutputBuilder {
   if (!context.__builder) {
-    context._builder = new OutputBuilder(context.output);
+    context.__builder = new OutputBuilder(context.output);
   }
   return context.__builder;
 }

@@ -38,9 +38,9 @@ export interface Result {
   status: StoryMachineStatus;
 }
 
-export interface ElementTree<A extends Record<string, any> = {}> {
+export interface ElementTree {
   type: string;
-  attributes: A;
+  attributes: Record<string, any>;
   elements: ElementTree[];
 }
 
@@ -59,7 +59,3 @@ export type CompositeFactory<A extends any[] = []> = (
 ) => ProcessFn;
 
 export type EffectHandler = (effect: Effect) => Effect[];
-
-export interface StoryMachineCompiler {
-  compile(runtime: StoryMachineRuntime, tree: ElementTree): StoryMachine<any>;
-}

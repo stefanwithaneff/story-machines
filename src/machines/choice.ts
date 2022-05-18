@@ -21,7 +21,7 @@ interface ChoiceAttributes extends CompositeMachineAttributes {
 }
 
 export const ChoiceCompiler: StoryMachineCompiler = {
-  compile(runtime: StoryMachineRuntime, tree: ElementTree<ChoiceAttributes>) {
+  compile(runtime, tree) {
     const children = runtime.compileChildElements(tree.elements);
     const conditions: StoryMachine[] = [];
     const choiceBuilders = children.filter(isChoiceBuilder);

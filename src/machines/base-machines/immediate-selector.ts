@@ -1,5 +1,6 @@
 import { CompositeMachine } from "../base-classes/composite-machine";
 import { Context, Result } from "../../types";
+import { StoryMachineCompiler } from "../base-classes/story-machine";
 
 export class ImmediateSelector extends CompositeMachine {
   process(context: Context): Result {
@@ -15,3 +16,10 @@ export class ImmediateSelector extends CompositeMachine {
     return { status: "Running" };
   }
 }
+
+export const ImmediateSelectorCompiler: StoryMachineCompiler = {
+  compile(runtime, tree) {
+    const children = runtime.compileChildElements(tree.elements);
+    return new ImmediateSelector({ ...tree.attributes, children });
+  },
+};
