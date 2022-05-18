@@ -1,9 +1,5 @@
-import { getOutputBuilder } from "../../utils/output-builder";
-import { Context, Result, Choice } from "../../types";
-import {
-  StoryMachine,
-  StoryMachineAttributes,
-} from "../base-classes/story-machine";
+import { Context, Result } from "../../types";
+import { StoryMachine } from "../base-classes/story-machine";
 
 export class Wait extends StoryMachine {
   private hasRun: boolean = false;

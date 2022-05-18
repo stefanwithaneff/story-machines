@@ -6,9 +6,9 @@ import {
 } from "../base-classes/story-machine";
 
 interface AddChoiceContext extends Context {
-  displayText?: string;
+  choiceText?: string;
   choiceId?: string;
-  metadata?: Record<string, any>;
+  choiceMetadata?: Record<string, any>;
 }
 
 interface AddChoiceAttributes extends StoryMachineAttributes {
@@ -21,14 +21,14 @@ export class AddChoice extends StoryMachine<AddChoiceAttributes> {
     if (this.attrs.choice) {
       choiceToAdd = this.attrs.choice;
     } else {
-      const { displayText, choiceId, metadata } = context;
-      if (!displayText || !choiceId) {
+      const { choiceText, choiceId, choiceMetadata } = context;
+      if (!choiceText || !choiceId) {
         return { status: "Terminated" };
       }
       choiceToAdd = {
         id: choiceId,
-        text: displayText,
-        metadata: metadata ?? {},
+        text: choiceText,
+        metadata: choiceMetadata ?? {},
       };
     }
     const builder = getOutputBuilder(context);
