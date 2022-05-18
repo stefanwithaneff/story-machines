@@ -1,10 +1,4 @@
-import {
-  Choice,
-  Effect,
-  Output,
-  Metadata,
-  Context,
-} from "../machines/base/types";
+import { Choice, Effect, Output, Metadata, Context } from "../types";
 
 export class OutputBuilder {
   constructor(private output: Output) {}

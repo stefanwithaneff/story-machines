@@ -7,8 +7,10 @@ import {
 } from "./base-classes/composite-machine";
 import { StoryMachine } from "./base-classes/story-machine";
 import { AddChoice } from "./base-machines/add-choice";
+import { DeleteContext } from "./base-machines/delete-context";
 import { Once } from "./base-machines/once";
 import { Sequence } from "./base-machines/sequence";
+import { SetContext } from "./base-machines/set-context";
 import { Wait } from "./base-machines/wait";
 import { ChoiceText } from "./choice-text";
 
@@ -42,9 +44,15 @@ export class Choice extends CompositeMachine<ChoiceAttributes> {
           child: new Sequence({
             children: [
               ...conditions,
+              new SetContext({
+                key: "choiceId",
+                val: attrs.choiceId ?? this.id,
+              }),
               ...choiceBuilders,
               new AddChoice({}),
-              // TODO: Clean up context here
+              new DeleteContext({ key: "choiceId" }),
+              new DeleteContext({ key: "choiceText" }),
+              new DeleteContext({ key: "choiceMetadata" }),
             ],
           }),
         }),
