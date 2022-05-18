@@ -3,19 +3,15 @@ import { Context, Result } from "../../types";
 
 export class ImmediateSequence extends SimpleCompositeMachine {
   process(context: Context): Result {
-    let results: Result[] = [];
-    for (const child of this.children) {
-      const result = child.process(context);
-      results.push(result);
-      if (result.status === "Terminated") {
-        return result;
-      }
-    }
+    const results = this.children.map((child) => child.process(context));
 
+    if (results.some((result) => result.status === "Terminated")) {
+      return { status: "Terminated" };
+    }
     if (results.every((result) => result.status === "Completed")) {
       return { status: "Completed" };
-    } else {
-      return { status: "Running" };
     }
+
+    return { status: "Running" };
   }
 }
