@@ -1,6 +1,6 @@
 import { getOutputBuilder } from "../utils/output-builder";
 import {
-  SimpleCompositeAttributes,
+  CompositeMachineAttributes,
   CompositeMachine,
 } from "./base-classes/composite-machine";
 import { ElementTree, Effect, ProcessFn, Context, Result } from "../types";
@@ -15,7 +15,7 @@ import { ElementTree, Effect, ProcessFn, Context, Result } from "../types";
 export class GotoSequence extends CompositeMachine {
   private currentNodeId: string;
 
-  constructor(attrs: SimpleCompositeAttributes) {
+  constructor(attrs: CompositeMachineAttributes) {
     super(attrs);
     this.currentNodeId = this.children[0].id;
   }

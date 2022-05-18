@@ -3,6 +3,7 @@ import { Context, Result } from "../../types";
 
 export interface StoryMachineAttributes {
   id?: string;
+  textContent?: string;
 }
 
 export abstract class StoryMachine<

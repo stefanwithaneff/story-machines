@@ -24,8 +24,10 @@ export class Text extends StoryMachine<TextAttributes> {
   constructor(attrs: TextAttributes) {
     super(attrs);
 
+    const { textContent } = attrs;
+
     this.processor = new Once({
-      child: new AddText({ text: this.attrs.textContent }),
+      child: new AddText({ textContent }),
     });
   }
 

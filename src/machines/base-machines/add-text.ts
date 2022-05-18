@@ -9,15 +9,11 @@ interface AddTextContext extends Context {
   displayText?: string;
 }
 
-interface AddTextAttributes extends StoryMachineAttributes {
-  text?: string;
-}
-
-export class AddText extends StoryMachine<AddTextAttributes> {
+export class AddText extends StoryMachine {
   process(context: AddTextContext): Result {
     const builder = getOutputBuilder(context);
     const { displayText } = context;
-    const textToAdd = this.attrs.text ?? displayText;
+    const textToAdd = this.attrs.textContent ?? displayText;
     if (!textToAdd) {
       return { status: "Terminated" };
     }
