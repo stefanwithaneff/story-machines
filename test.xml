@@ -1,0 +1,14 @@
+<Sequence>
+  <Sequence>
+    <Text>Once upon a time, there was an ugly barnacle. He was so ugly...</Text>
+    <Choice>
+      <ChoiceText>...everyone died.</ChoiceText>
+      <Text>"That didn't help at all", Spongebob said with tears welling in his eyes.</Text>
+    </Choice>
+    <Choice>
+      <ChoiceText>...that he decided to be beautiful of spirit instead, and everyone loved him.</ChoiceText>
+      <Text>"Thanks Patrick, I feel a little better", Spongebob said, the world feeling a bit lighter.</Text>
+    </Choice>
+  </Sequence>
+  <Text>The end.</Text>
+</Sequence>

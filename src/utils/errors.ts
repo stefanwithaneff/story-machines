@@ -4,3 +4,8 @@ export class XMLParseError extends Error {
     super(`XMLParseError: ${msg}`);
   }
 }
+export class CompileError extends Error {
+  constructor(msg: string) {
+    super(`CompileError: ${msg}`);
+  }
+}

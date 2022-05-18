@@ -1,60 +1,53 @@
 import { parseXMLToTree } from "./utils/parse-xml-to-tree";
-import { StoryMachine } from "./machines/base-classes/story-machine";
+import {
+  StoryMachine,
+  StoryMachineCompiler,
+} from "./machines/base-classes/story-machine";
 import { ElementTree } from "./types";
+import { ChoiceCompiler } from "./machines/choice";
 
-export interface StoryMachineClass {
-  new (...args: ConstructorParameters<typeof StoryMachine>): StoryMachine;
-  compileNodeFromTree(
-    runtime: StoryMachineRuntime,
-    tree: ElementTree
-  ): StoryMachine;
-}
-
-interface RegisterMachineOptions {
-  aliases?: string[];
-}
+type MachineRegistration = [string | string[], StoryMachineCompiler];
 
 export class StoryMachineRuntime {
-  private registeredMachines: Map<string, StoryMachineClass> = new Map();
+  private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
 
   constructor() {
     this.registerMachines(baseElements);
   }
 
   registerMachine(
-    classVal: StoryMachineClass,
-    opts: RegisterMachineOptions = {}
+    name: string | string[],
+    compiler: StoryMachineCompiler
   ): void {
-    this.registeredMachines.set(classVal.name.toLowerCase(), classVal);
-    const aliases = opts.aliases ?? [];
-    for (const alias of aliases) {
-      this.registeredMachines.set(alias.toLowerCase(), classVal);
+    const elementNames = Array.isArray(name) ? name : [name];
+    for (const elName of elementNames) {
+      this.registeredMachines.set(elName.toLowerCase(), compiler);
     }
   }
 
-  registerMachines(classes: StoryMachineClass[]): void {
-    for (const classVal of classes) {
-      this.registeredMachines.set(classVal.name.toLowerCase(), classVal);
+  registerMachines(machineDefs: MachineRegistration[]): void {
+    for (const [name, compiler] of machineDefs) {
+      this.registerMachine(name, compiler);
     }
   }
 
-  getMachineClassForTypename(typename: string) {
-    const typeClass = this.registeredMachines.get(typename.toLowerCase());
-    if (!typeClass) {
+  getMachineCompilerForTypename(typename: string) {
+    const compiler = this.registeredMachines.get(typename.toLowerCase());
+    if (!compiler) {
       throw new Error(`Element type not supported: ${typename}`);
     }
-    return typeClass;
+    return compiler;
   }
 
-  hasMachineClassForTypename(typename: string): boolean {
+  hasMachineCompilerForTypename(typename: string): boolean {
     return this.registeredMachines.has(typename.toLowerCase());
   }
 
   compileChildElements(elements: ElementTree[]): StoryMachine[] {
     const childMachines: StoryMachine[] = [];
     for (const element of elements) {
-      const typeClass = this.getMachineClassForTypename(element.type);
-      const machine = typeClass.compileNodeFromTree(this, element);
+      const compiler = this.getMachineCompilerForTypename(element.type);
+      const machine = compiler.compile(this, element);
       childMachines.push(machine);
     }
     return childMachines;
@@ -73,9 +66,12 @@ export class StoryMachineRuntime {
       tree = json;
     }
 
-    const typeClass = this.getMachineClassForTypename(tree.type);
-    return typeClass.compileNodeFromTree(this, tree);
+    const compiler = this.getMachineCompilerForTypename(tree.type);
+    return compiler.compile(this, tree);
   }
 }
 
-const baseElements: StoryMachineClass[] = [];
+const baseElements: MachineRegistration[] = [
+  //
+  ["Choice", ChoiceCompiler],
+];

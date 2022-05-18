@@ -1,5 +1,6 @@
 import { nanoid } from "nanoid";
-import { Context, Result } from "../../types";
+import { StoryMachineRuntime } from "../../runtime";
+import { Context, Result, ElementTree } from "../../types";
 
 export interface StoryMachineAttributes {
   id?: string;
@@ -18,4 +19,8 @@ export abstract class StoryMachine<
   }
 
   abstract process(context: Context): Result;
+}
+
+export interface StoryMachineCompiler {
+  compile(runtime: StoryMachineRuntime, tree: ElementTree): StoryMachine<any>;
 }

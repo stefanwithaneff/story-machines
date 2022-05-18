@@ -1,4 +1,4 @@
-import { ElementTree } from "../machines/base/types";
+import { ElementTree } from "../types";
 
 export function getAllDirectDescendentsOfType(
   tree: ElementTree,

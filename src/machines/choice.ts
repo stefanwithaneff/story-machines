@@ -1,35 +1,32 @@
-import { Context, Result } from "../types";
+import { nanoid } from "nanoid";
+import { StoryMachineRuntime } from "../runtime";
+import { Context, ElementTree } from "../types";
 import { createStoryMachine } from "../utils/create-story-machine";
 import { ValidationError } from "../utils/errors";
+import { CompositeMachineAttributes } from "./base-classes/composite-machine";
 import {
-  CompositeMachine,
-  CompositeMachineAttributes,
-} from "./base-classes/composite-machine";
-import { StoryMachine } from "./base-classes/story-machine";
+  StoryMachine,
+  StoryMachineCompiler,
+} from "./base-classes/story-machine";
 import { AddChoice } from "./base-machines/add-choice";
 import { DeleteContext } from "./base-machines/delete-context";
-import { Once } from "./base-machines/once";
-import { Sequence } from "./base-machines/sequence";
+import { ImmediateSequence } from "./base-machines/immediate-sequence";
+import { MemorySequence } from "./base-machines/memory-sequence";
 import { SetContext } from "./base-machines/set-context";
 import { Wait } from "./base-machines/wait";
 import { ChoiceText } from "./choice-text";
 
 interface ChoiceAttributes extends CompositeMachineAttributes {
   choiceId?: string;
-  outcome?: StoryMachine;
 }
-export class Choice extends CompositeMachine<ChoiceAttributes> {
-  private processor: StoryMachine;
 
-  constructor(attrs: ChoiceAttributes) {
-    super(attrs);
-
+export const ChoiceCompiler: StoryMachineCompiler = {
+  compile(runtime: StoryMachineRuntime, tree: ElementTree<ChoiceAttributes>) {
+    const children = runtime.compileChildElements(tree.elements);
     const conditions: StoryMachine[] = [];
-    const choiceBuilders = attrs.children.filter(isChoiceBuilder);
+    const choiceBuilders = children.filter(isChoiceBuilder);
 
-    const outcomeNodes = attrs.children.filter(
-      (node) => !isChoiceBuilder(node)
-    );
+    const outcomeNodes = children.filter((node) => !isChoiceBuilder(node));
 
     if (outcomeNodes.length > 1) {
       throw new ValidationError(
@@ -37,50 +34,45 @@ export class Choice extends CompositeMachine<ChoiceAttributes> {
       );
     }
 
-    this.processor = new Sequence({
+    const id = tree.attributes.choiceId ?? tree.attributes.id ?? nanoid();
+
+    return new MemorySequence({
       children: [
         // Present Choice to user
-        new Once({
-          child: new Sequence({
-            children: [
-              ...conditions,
-              new SetContext({
-                key: "choiceId",
-                val: attrs.choiceId ?? this.id,
-              }),
-              ...choiceBuilders,
-              new AddChoice({}),
-              new DeleteContext({ key: "choiceId" }),
-              new DeleteContext({ key: "choiceText" }),
-              new DeleteContext({ key: "choiceMetadata" }),
-            ],
-          }),
+        new ImmediateSequence({
+          children: [
+            ...conditions,
+            new SetContext({
+              key: "choiceId",
+              val: id,
+            }),
+            ...choiceBuilders,
+            new AddChoice({}),
+            // TODO: Is there a better way to handle this kind of scoping and cleanup?
+            new DeleteContext({ key: "choiceId" }),
+            new DeleteContext({ key: "choiceText" }),
+            new DeleteContext({ key: "choiceMetadata" }),
+          ],
         }),
-        // Wait one tick to avoid cascading input
+        // Wait until next tick to avoid cascading input
         new Wait({}),
         // Check if the incoming input is a matching choice
-        new Once({
-          child: createStoryMachine((context: Context) => {
-            const { input } = context;
-            if (!input || input.type !== "Choice") {
-              return { status: "Running" };
-            }
-            if (input.payload.id !== attrs.id) {
-              return { status: "Terminated" };
-            }
-            return { status: "Completed" };
-          }),
+        createStoryMachine((context: Context) => {
+          const { input } = context;
+          if (!input || input.type !== "Choice") {
+            return { status: "Running" };
+          }
+          if (input.payload.id !== id) {
+            return { status: "Terminated" };
+          }
+          return { status: "Completed" };
         }),
         // Present outcome to user if it exists
         ...outcomeNodes,
       ],
     });
-  }
-
-  process(context: Context): Result {
-    return this.processor.process(context);
-  }
-}
+  },
+};
 
 function isChoiceBuilder(node: StoryMachine): boolean {
   const choiceBuilderClasses: Function[] = [ChoiceText];
