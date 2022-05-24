@@ -11,8 +11,6 @@ import { ChoiceTextCompiler } from "./machines/choice-text";
 import { ImmediateSequenceCompiler } from "./machines/base-machines/immediate-sequence";
 import { ImmediateSelectorCompiler } from "./machines/base-machines/immediate-selector";
 
-type MachineRegistration = [string | string[], StoryMachineCompiler];
-
 export class StoryMachineRuntime {
   private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
 
@@ -30,8 +28,8 @@ export class StoryMachineRuntime {
     }
   }
 
-  registerMachines(machineDefs: MachineRegistration[]): void {
-    for (const [name, compiler] of machineDefs) {
+  registerMachines(machineDefs: Record<string, StoryMachineCompiler>): void {
+    for (const [name, compiler] of Object.entries(machineDefs)) {
       this.registerMachine(name, compiler);
     }
   }
@@ -76,12 +74,13 @@ export class StoryMachineRuntime {
   }
 }
 
-const baseElements: MachineRegistration[] = [
-  //
-  ["Choice", ChoiceCompiler],
-  ["ChoiceText", ChoiceTextCompiler],
-  ["ImmediateSelector", ImmediateSelectorCompiler],
-  ["ImmediateSequence", ImmediateSequenceCompiler],
-  ["Sequence", SequenceCompiler],
-  ["Text", TextCompiler],
-];
+const baseElements: Record<string, StoryMachineCompiler> = {
+  Choice: ChoiceCompiler,
+  Choices: ImmediateSelectorCompiler,
+  ChoiceText: ChoiceTextCompiler,
+  ImmediateSelector: ImmediateSelectorCompiler,
+  ImmediateSequence: ImmediateSequenceCompiler,
+  Passage: ImmediateSequenceCompiler,
+  Sequence: SequenceCompiler,
+  Text: TextCompiler,
+};
