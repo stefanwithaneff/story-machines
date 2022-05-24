@@ -96,7 +96,6 @@ async function run() {
     const input = await promptForChoice(context.output);
     context = getEmptyContext(input);
     result = machine.process(context);
-    console.log(context.output);
   } while (result.status === "Running");
 
   displayOutput(context.output);
