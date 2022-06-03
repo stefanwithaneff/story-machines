@@ -20,6 +20,16 @@ class ContextRef implements Expression {
   }
 }
 
+class FunctionCall implements Expression {
+  constructor(private variableRef: Expression, private args: Expression[]) {}
+  calc(context: Context) {
+    const func = this.variableRef.calc(context);
+    const args = this.args.map((arg) => arg.calc(context));
+
+    return func(...args);
+  }
+}
+
 class Negation implements Expression {
   constructor(private expr: Expression) {}
   calc(context: Context) {
@@ -126,6 +136,18 @@ const ContextRefParser = Parsimmon.seqMap(
 );
 const VariableRefParser: Parser<Expression> = Parsimmon.alt(ContextRefParser);
 
+const FunctionCallParser: Parser<Expression> = Parsimmon.lazy(() =>
+  Parsimmon.seq(
+    VariableRefParser,
+    Parsimmon.string("("),
+    ExpressionParser.sepBy(Parsimmon.string(",")),
+    Parsimmon.string(")")
+  ).map(
+    ([variableRef, _1, expressions, _2]) =>
+      new FunctionCall(variableRef, expressions)
+  )
+);
+
 const ParentheticalParser: Parser<Expression> = Parsimmon.lazy(() =>
   ExpressionParser.wrap(Parsimmon.string("("), Parsimmon.string(")"))
 );
@@ -137,6 +159,7 @@ const NegationParser: Parser<Expression> = Parsimmon.lazy(() =>
 const ExpressionAtomParser: Parser<Expression> = Parsimmon.alt(
   NegationParser,
   ParentheticalParser,
+  FunctionCallParser,
   VariableRefParser,
   ConstantParser
 ).trim(Parsimmon.optWhitespace);

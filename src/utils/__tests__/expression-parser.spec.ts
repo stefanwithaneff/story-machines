@@ -66,6 +66,32 @@ describe("Expression Parser", () => {
     };
     runTests(tests);
   });
+  describe("Function calls", () => {
+    const tests: TestSuite = {
+      "calls the function referenced with the arguments provided": {
+        input: '$ctx.call(3, "a", true)',
+        context: {
+          call(num: number, str: string, bool: boolean) {
+            return `It's ${bool} that I said ${str} ${num} times`;
+          },
+        },
+        expected: "It's true that I said a 3 times",
+      },
+      "supports expressions inside the function call": {
+        input: "$ctx.call(7 * $ctx.exp(2, 3))",
+        context: {
+          call(val: number) {
+            return val;
+          },
+          exp(base: number, exp: number) {
+            return base ** exp;
+          },
+        },
+        expected: 56,
+      },
+    };
+    runTests(tests);
+  });
   describe("Parentheses", () => {
     const tests: TestSuite = {
       "references the value wrapped by parentheses": {
