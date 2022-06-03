@@ -8,7 +8,6 @@ const TEXT_NAME = "#text";
 
 const xmlParser = new XMLParser({
   preserveOrder: true,
-  commentPropName: COMMENT_NAME,
   attributeNamePrefix: "",
   ignoreAttributes: false,
 });

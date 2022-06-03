@@ -7,7 +7,7 @@ interface Expression {
 }
 
 class Constant implements Expression {
-  constructor(private val: string | number | boolean) {}
+  constructor(private val: string | number | boolean | null) {}
   calc() {
     return this.val;
   }
@@ -96,6 +96,7 @@ class Ternary implements Expression {
   }
 }
 
+const NullParser = Parsimmon.regexp(/null/i).map(() => null);
 const BooleanParser = Parsimmon.alt(
   Parsimmon.string("true"),
   Parsimmon.string("false")
@@ -110,7 +111,8 @@ const NumberParser = Parsimmon.regexp(/-?[0-9]+(\.[0-9]+)?/).map((res) =>
 const ConstantParser = Parsimmon.alt(
   StringParser,
   NumberParser,
-  BooleanParser
+  BooleanParser,
+  NullParser
 ).map((val) => new Constant(val));
 
 const DotAccessorParser = Parsimmon.regexp(/(\.[a-zA-Z0-9_]+)*/i).map(

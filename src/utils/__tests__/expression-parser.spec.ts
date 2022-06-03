@@ -45,6 +45,14 @@ describe("Expression Parser", () => {
         input: "false",
         expected: false,
       },
+      "parses null": {
+        input: "null",
+        expected: null,
+      },
+      "parses the string `null`": {
+        input: '"null"',
+        expected: "null",
+      },
     };
     runTests(tests);
   });
