@@ -199,11 +199,3 @@ const TernaryParser: Parser<Expression> = Parsimmon.seq(
 export const ExpressionParser: Parser<Expression> = Parsimmon.lazy(() =>
   Parsimmon.alt(TernaryParser, MathParser, LogicParser, ExpressionAtomParser)
 );
-
-export const WrappedExpressionParser: Parser<Expression> =
-  ExpressionParser.trim(Parsimmon.optWhitespace).wrap(
-    Parsimmon.string("{{"),
-    Parsimmon.string("}}")
-  );
-
-export const ManyExpressionParser = ExpressionParser.many();

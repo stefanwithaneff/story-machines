@@ -1,6 +1,6 @@
 <Sequence>
   <Passage>
-    <Text>Once upon a time, there was an ugly barnacle. He was so ugly...</Text>
+    <Text>Once upon a time, there was an ugly barnacle named {{ $ctx.barnacleName }}. He was so {{ "ugly" }}...</Text>
     <Choices>
       <Choice>
         <ChoiceText>...everyone died.</ChoiceText>

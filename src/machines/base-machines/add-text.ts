@@ -1,9 +1,7 @@
 import { getOutputBuilder } from "../../utils/output-builder";
-import { Context, Result, Choice } from "../../types";
-import {
-  StoryMachine,
-  StoryMachineAttributes,
-} from "../base-classes/story-machine";
+import { Context, Result } from "../../types";
+import { StoryMachine } from "../base-classes/story-machine";
+import { ExpressionParser } from "../../utils/expression-parser";
 
 interface AddTextContext extends Context {
   displayText?: string;
@@ -14,10 +12,19 @@ export class AddText extends StoryMachine {
     const builder = getOutputBuilder(context);
     const { displayText } = context;
     const textToAdd = this.attrs.textContent ?? displayText;
+
     if (!textToAdd) {
       return { status: "Terminated" };
     }
-    builder.addText(textToAdd);
+    try {
+      const parsedText = textToAdd.replace(/{{([^}]*)}}/g, (_, match) =>
+        ExpressionParser.tryParse(match).calc(context)
+      );
+
+      builder.addText(parsedText);
+    } catch (e) {
+      return { status: "Terminated" };
+    }
     return { status: "Completed" };
   }
 }
