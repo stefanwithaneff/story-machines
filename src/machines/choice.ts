@@ -1,32 +1,32 @@
 import { nanoid } from "nanoid";
-import { StoryMachineRuntime } from "../runtime";
-import { Context, ElementTree } from "../types";
+import { Context } from "../types";
 import { createStoryMachine } from "../utils/create-story-machine";
 import { ValidationError } from "../utils/errors";
-import { CompositeMachineAttributes } from "./base-classes/composite-machine";
 import {
   StoryMachine,
   StoryMachineCompiler,
 } from "./base-classes/story-machine";
 import { AddChoice } from "./base-machines/add-choice";
+import { Condition } from "./base-machines/condition";
 import { DeleteContext } from "./base-machines/delete-context";
-import { ImmediateSequence } from "./base-machines/immediate-sequence";
+import { Sequence } from "./base-machines/sequence";
 import { MemorySequence } from "./base-machines/memory-sequence";
 import { SetContext } from "./base-machines/set-context";
 import { Wait } from "./base-machines/wait";
 import { ChoiceText } from "./choice-text";
 
-interface ChoiceAttributes extends CompositeMachineAttributes {
-  choiceId?: string;
-}
-
 export const ChoiceCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const children = runtime.compileChildElements(tree.elements);
-    const conditions: StoryMachine[] = [];
+    const conditions: StoryMachine[] = children.filter(
+      (node) => node.constructor === Condition
+    );
+
     const choiceBuilders = children.filter(isChoiceBuilder);
 
-    const outcomeNodes = children.filter((node) => !isChoiceBuilder(node));
+    const outcomeNodes = children.filter(
+      (node) => !choiceBuilders.includes(node) && !conditions.includes(node)
+    );
 
     if (outcomeNodes.length > 1) {
       throw new ValidationError(
@@ -39,7 +39,7 @@ export const ChoiceCompiler: StoryMachineCompiler = {
     return new MemorySequence({
       children: [
         // Present Choice to user
-        new ImmediateSequence({
+        new Sequence({
           children: [
             ...conditions,
             new SetContext({

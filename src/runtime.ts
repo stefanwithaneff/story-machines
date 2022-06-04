@@ -10,6 +10,7 @@ import { TextCompiler } from "./machines/text";
 import { ChoiceTextCompiler } from "./machines/choice-text";
 import { ImmediateSequenceCompiler } from "./machines/base-machines/immediate-sequence";
 import { ImmediateSelectorCompiler } from "./machines/base-machines/immediate-selector";
+import { ConditionCompiler } from "./machines/base-machines/condition";
 
 export class StoryMachineRuntime {
   private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
@@ -78,6 +79,7 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   Choice: ChoiceCompiler,
   Choices: ImmediateSelectorCompiler,
   ChoiceText: ChoiceTextCompiler,
+  Condition: ConditionCompiler,
   ImmediateSelector: ImmediateSelectorCompiler,
   ImmediateSequence: ImmediateSequenceCompiler,
   Passage: ImmediateSequenceCompiler,

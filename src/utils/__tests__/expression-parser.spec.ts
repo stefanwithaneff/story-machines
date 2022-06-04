@@ -151,44 +151,44 @@ describe("Expression Parser", () => {
   describe("Logic", () => {
     const tests: TestSuite = {
       "supports less than operator": {
-        input: "1 < 3",
+        input: "1 lt 3",
         expected: true,
       },
       "supports greater than operator": {
-        input: "1 > 3",
+        input: "1 gt 3",
         expected: false,
       },
       "supports the less than or equal to operator": {
-        input: "1 <= 3",
+        input: "1 lte 3",
         expected: true,
       },
       "supports the greater than or equal to operator": {
-        input: "1 >= 3",
+        input: "1 gte 3",
         expected: false,
       },
       "supports the equality operator": {
-        input: "2 == 2",
+        input: "2 eq 2",
         expected: true,
       },
       "supports the inequality operator": {
-        input: "2 != 2",
+        input: "2 neq 2",
         expected: false,
       },
       "supports the boolean AND operator": {
-        input: "true && false",
+        input: "true and false",
         expected: false,
       },
       "supports the boolean OR operator": {
-        input: "true || false",
+        input: "true or false",
         expected: true,
       },
       "operates with variable references": {
-        input: "$ctx.num > 5",
+        input: "$ctx.num gt 5",
         context: { num: 7 },
         expected: true,
       },
       "operates with parentheticals": {
-        input: "true && (true || false)",
+        input: "true AND (true OR false)",
         expected: true,
       },
     };

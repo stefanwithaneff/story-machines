@@ -2,7 +2,7 @@ import { get } from "lodash";
 import Parsimmon, { Parser } from "parsimmon";
 import { Context } from "../types";
 
-interface Expression {
+export interface Expression {
   calc(context: Context): any;
 }
 
@@ -68,22 +68,22 @@ class Logic implements Expression {
   calc(context: Context) {
     const leftResult = this.leftOp.calc(context);
     const rightResult = this.rightOp.calc(context);
-    switch (this.operator) {
-      case "<":
+    switch (this.operator.toLowerCase()) {
+      case "lt":
         return leftResult < rightResult;
-      case ">":
+      case "gt":
         return leftResult > rightResult;
-      case "<=":
+      case "lte":
         return leftResult <= rightResult;
-      case ">=":
+      case "gte":
         return leftResult >= rightResult;
-      case "==":
+      case "eq":
         return leftResult === rightResult;
-      case "!=":
+      case "neq":
         return leftResult != rightResult;
-      case "||":
+      case "or":
         return leftResult || rightResult;
-      case "&&":
+      case "and":
         return leftResult && rightResult;
     }
   }
@@ -173,14 +173,14 @@ const MathParser: Parser<Expression> = Parsimmon.seq(
 const LogicParser: Parser<Expression> = Parsimmon.seq(
   ExpressionAtomParser,
   Parsimmon.alt(
-    Parsimmon.string(">="),
-    Parsimmon.string("<="),
-    Parsimmon.string(">"),
-    Parsimmon.string("<"),
-    Parsimmon.string("=="),
-    Parsimmon.string("!="),
-    Parsimmon.string("||"),
-    Parsimmon.string("&&")
+    Parsimmon.regexp(/gte/i),
+    Parsimmon.regexp(/lte/i),
+    Parsimmon.regexp(/lt/i),
+    Parsimmon.regexp(/gt/i),
+    Parsimmon.regexp(/eq/i),
+    Parsimmon.regexp(/neq/i),
+    Parsimmon.regexp(/or/i),
+    Parsimmon.regexp(/and/i)
   ),
   ExpressionAtomParser
 ).map(([leftOp, operator, rightOp]) => new Logic(operator, leftOp, rightOp));

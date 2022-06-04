@@ -10,6 +10,8 @@ const xmlParser = new XMLParser({
   preserveOrder: true,
   attributeNamePrefix: "",
   ignoreAttributes: false,
+  parseAttributeValue: false,
+  parseTagValue: false,
 });
 
 function extractText(parsedXML: Record<string, any>[]): {
