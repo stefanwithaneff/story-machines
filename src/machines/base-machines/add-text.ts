@@ -1,7 +1,7 @@
 import { getOutputBuilder } from "../../utils/output-builder";
 import { Context, Result } from "../../types";
 import { StoryMachine } from "../base-classes/story-machine";
-import { ExpressionParser } from "../../utils/expression-parser";
+import { evalAndReplace } from "../../utils/expression-parser";
 
 interface AddTextContext extends Context {
   displayText?: string;
@@ -17,9 +17,7 @@ export class AddText extends StoryMachine {
       return { status: "Terminated" };
     }
     try {
-      const parsedText = textToAdd.replace(/{{([^}]*)}}/g, (_, match) =>
-        ExpressionParser.tryParse(match).calc(context)
-      );
+      const parsedText = evalAndReplace(context, textToAdd);
 
       builder.addText(parsedText);
     } catch (e) {

@@ -199,3 +199,9 @@ const TernaryParser: Parser<Expression> = Parsimmon.seq(
 export const ExpressionParser: Parser<Expression> = Parsimmon.lazy(() =>
   Parsimmon.alt(TernaryParser, MathParser, LogicParser, ExpressionAtomParser)
 );
+
+export function evalAndReplace(context: Context, text: string) {
+  return text.replace(/{{([^}]*)}}/g, (_, match) =>
+    ExpressionParser.tryParse(match).calc(context)
+  );
+}

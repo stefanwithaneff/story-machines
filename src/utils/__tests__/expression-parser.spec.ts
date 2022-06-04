@@ -37,6 +37,10 @@ describe("Expression Parser", () => {
         input: '"hello world"',
         expected: "hello world",
       },
+      "parses the empty string": {
+        input: '""',
+        expected: "",
+      },
       "parses true": {
         input: "true",
         expected: true,

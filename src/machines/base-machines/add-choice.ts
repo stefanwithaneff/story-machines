@@ -4,6 +4,10 @@ import {
   StoryMachine,
   StoryMachineAttributes,
 } from "../base-classes/story-machine";
+import {
+  evalAndReplace,
+  ExpressionParser,
+} from "../../utils/expression-parser";
 
 interface AddChoiceContext extends Context {
   choiceText?: string;
@@ -31,8 +35,13 @@ export class AddChoice extends StoryMachine<AddChoiceAttributes> {
         metadata: choiceMetadata ?? {},
       };
     }
-    const builder = getOutputBuilder(context);
-    builder.addChoice(choiceToAdd);
+    try {
+      const parsedText = evalAndReplace(context, choiceToAdd.text);
+      const builder = getOutputBuilder(context);
+      builder.addChoice({ ...choiceToAdd, text: parsedText });
+    } catch (e) {
+      return { status: "Terminated" };
+    }
     return { status: "Completed" };
   }
 }
