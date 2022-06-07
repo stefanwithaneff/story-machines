@@ -1,5 +1,10 @@
 import { CompositeMachine } from "../base-classes/composite-machine";
-import { Context, Result } from "../../types";
+import { Context, ElementTree, Result } from "../../types";
+import {
+  StoryMachine,
+  StoryMachineCompiler,
+} from "../base-classes/story-machine";
+import { StoryMachineRuntime } from "../../runtime";
 
 export class Selector extends CompositeMachine {
   process(context: Context): Result {
@@ -12,3 +17,10 @@ export class Selector extends CompositeMachine {
     return { status: "Terminated" };
   }
 }
+
+export const SelectorCompiler: StoryMachineCompiler = {
+  compile(runtime: StoryMachineRuntime, tree: ElementTree): StoryMachine<any> {
+    const children = runtime.compileChildElements(tree.elements);
+    return new Selector({ ...tree.attributes, children });
+  },
+};

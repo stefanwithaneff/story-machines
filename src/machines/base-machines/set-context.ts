@@ -2,6 +2,7 @@ import { set } from "lodash";
 import {
   StoryMachine,
   StoryMachineAttributes,
+  StoryMachineCompiler,
 } from "../base-classes/story-machine";
 import { Context, Result } from "../../types";
 
@@ -16,3 +17,10 @@ export class SetContext extends StoryMachine<SetContextAttributes> {
     return { status: "Completed" };
   }
 }
+
+export const SetContextCompiler: StoryMachineCompiler = {
+  compile(runtime, tree) {
+    const { key, val } = tree.attributes;
+    return new SetContext({ key, val });
+  },
+};

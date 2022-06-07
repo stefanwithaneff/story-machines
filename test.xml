@@ -1,4 +1,5 @@
 <Sequence>
+  <SetContext key="spongebob_mood" val="happy" />
   <Passage>
     <Text>Once upon a time, there was an ugly barnacle named {{ $ctx.barnacleName }}. He was so {{ "ugly" }}...</Text>
     <Choices>
@@ -9,7 +10,16 @@
       </Choice>
       <Choice>
         <ChoiceText>...that he decided to be beautiful of spirit instead, and everyone loved him.</ChoiceText>
-        <Text>"Thanks Patrick, I feel a little better", Spongebob said, the world feeling a bit lighter.</Text>
+        <Selector>
+          <Sequence>
+            <Condition>$ctx.spongebob_mood eq "happy"</Condition>
+            <Text>"Thanks Patrick, I feel a little better", Spongebob said, the world feeling a bit lighter.</Text>
+          </Sequence>
+          <Sequence>
+            <Condition>$ctx.spongebob_mood eq "sad"</Condition>
+            <Text>"Yeah, right. Like that would ever happen", Spongebob said, doubling down on his forlorn feelings.</Text>
+          </Sequence>
+        </Selector>
       </Choice>
       <Choice>
         <Condition>false</Condition>
