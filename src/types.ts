@@ -8,7 +8,7 @@ export interface Choice {
   metadata: Metadata;
 }
 
-export interface Effect<T = any> {
+export interface Effect<T extends Record<string, any> = Record<string, any>> {
   type: string;
   payload: T;
 }

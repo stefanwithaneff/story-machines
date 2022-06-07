@@ -1,8 +1,10 @@
 import fs from "fs";
 import path from "path";
 import readline from "readline";
+import { isDevErrorEffect } from "./machines/effects/dev-error";
+import { isDevWarnEffect } from "./machines/effects/dev-warn";
 import { StoryMachineRuntime } from "./runtime";
-import { Output, Choice, Context, Input, ChoiceInput } from "./types";
+import { Output, Context, Input, ChoiceInput } from "./types";
 
 const rl = readline.createInterface(process.stdin, process.stdout);
 const xmlFilename = process.argv[2];
@@ -13,6 +15,15 @@ if (!xmlFilename) {
 }
 
 function displayOutput(result: Output) {
+  result.effects.forEach((effect) => {
+    if (isDevWarnEffect(effect)) {
+      console.warn(effect.payload.message);
+    } else if (isDevErrorEffect(effect)) {
+      console.error(effect.payload.message);
+      process.exit(1);
+    }
+  });
+
   // Print passages
   result.text.forEach((passage) => {
     console.log(passage);

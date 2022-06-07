@@ -8,6 +8,7 @@ import {
   evalAndReplace,
   ExpressionParser,
 } from "../../utils/expression-parser";
+import { createDevErrorEffect } from "../effects/dev-error";
 
 interface AddChoiceContext extends Context {
   choiceText?: string;
@@ -35,11 +36,16 @@ export class AddChoice extends StoryMachine<AddChoiceAttributes> {
         metadata: choiceMetadata ?? {},
       };
     }
+    const builder = getOutputBuilder(context);
     try {
       const parsedText = evalAndReplace(context, choiceToAdd.text);
-      const builder = getOutputBuilder(context);
       builder.addChoice({ ...choiceToAdd, text: parsedText });
     } catch (e) {
+      builder.addEffect(
+        createDevErrorEffect({
+          message: `Failed to parse choice: ${e.message}`,
+        })
+      );
       return { status: "Terminated" };
     }
     return { status: "Completed" };
