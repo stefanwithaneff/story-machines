@@ -14,6 +14,7 @@ import { MemorySequence } from "../base-machines/memory-sequence";
 import { SetContext } from "../base-machines/set-context";
 import { Wait } from "../base-machines/wait";
 import { ChoiceText } from "./choice-text";
+import { Scoped } from "../base-machines/scoped";
 
 export const ChoiceCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
@@ -39,20 +40,18 @@ export const ChoiceCompiler: StoryMachineCompiler = {
     return new MemorySequence({
       children: [
         // Present Choice to user
-        new Sequence({
-          children: [
-            ...conditions,
-            new SetContext({
-              key: "choiceId",
-              val: id,
-            }),
-            ...choiceBuilders,
-            new AddChoice({}),
-            // TODO: Is there a better way to handle this kind of scoping and cleanup?
-            new DeleteContext({ key: "choiceId" }),
-            new DeleteContext({ key: "choiceText" }),
-            new DeleteContext({ key: "choiceMetadata" }),
-          ],
+        new Scoped({
+          child: new Sequence({
+            children: [
+              ...conditions,
+              new SetContext({
+                key: "choiceId",
+                val: id,
+              }),
+              ...choiceBuilders,
+              new AddChoice({}),
+            ],
+          }),
         }),
         // Wait until next tick to avoid cascading input
         new Wait({}),

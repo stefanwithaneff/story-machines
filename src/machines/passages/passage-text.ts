@@ -20,32 +20,21 @@ interface PassageTextAttributes extends StoryMachineAttributes {
 }
 
 export class PassageText extends StoryMachine<PassageTextAttributes> {
-  private processor: StoryMachine;
-  constructor(attrs: PassageTextAttributes) {
-    super(attrs);
-
-    this.processor = new Once({
-      child: createStoryMachine((context: Context): Result => {
-        try {
-          const evalText = replaceWithParsedExpressions(
-            context,
-            this.attrs.expressions,
-            this.attrs.textContent ?? ""
-          );
-
-          setOnScope(context, "passageText", evalText);
-        } catch (e) {
-          const builder = getOutputBuilder(context);
-          builder.addEffect(createDevErrorEffect({ message: e.message }));
-          return { status: "Terminated" };
-        }
-        return { status: "Completed" };
-      }),
-    });
-  }
-
   process(context: Context): Result {
-    return this.processor.process(context);
+    try {
+      const evalText = replaceWithParsedExpressions(
+        context,
+        this.attrs.expressions,
+        this.attrs.textContent ?? ""
+      );
+
+      setOnScope(context, "passageText", evalText);
+    } catch (e) {
+      const builder = getOutputBuilder(context);
+      builder.addEffect(createDevErrorEffect({ message: e.message }));
+      return { status: "Terminated" };
+    }
+    return { status: "Completed" };
   }
 }
 

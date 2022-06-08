@@ -25,18 +25,17 @@ export class AddPassage extends StoryMachine {
     const text = getFromScope(context, "passageText") ?? context.passageText;
     const metadata =
       getFromScope(context, "passageMetadata") ?? context.passageMetadata;
+    const builder = getOutputBuilder(context);
 
     if (!text && !metadata) {
-      const builder = getOutputBuilder(context);
       builder.addEffect(
         createDevWarnEffect({
-          message: "Expected text or metadata to be provided",
+          message: "Expected passage text or metadata to be provided",
         })
       );
       return { status: "Terminated" };
     }
 
-    const builder = getOutputBuilder(context);
     builder.addPassage({ text, metadata });
     return { status: "Completed" };
   }
