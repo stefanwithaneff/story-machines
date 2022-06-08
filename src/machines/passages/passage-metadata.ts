@@ -1,7 +1,7 @@
 import { Context, Result } from "../../types";
-import { StoryMachine } from "../base-classes/story-machine";
+import { PassageBuilder } from "./passage-builder";
 
-export class PassageMetadata extends StoryMachine {
+export class PassageMetadata extends PassageBuilder {
   process(context: Context): Result {
     return { status: "Terminated" };
   }

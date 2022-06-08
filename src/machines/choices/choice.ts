@@ -8,13 +8,12 @@ import {
 } from "../base-classes/story-machine";
 import { AddChoice } from "../base-machines/add-choice";
 import { Condition } from "../base-machines/condition";
-import { DeleteContext } from "../base-machines/delete-context";
 import { Sequence } from "../base-machines/sequence";
 import { MemorySequence } from "../base-machines/memory-sequence";
 import { SetContext } from "../base-machines/set-context";
 import { Wait } from "../base-machines/wait";
-import { ChoiceText } from "./choice-text";
 import { Scoped } from "../base-machines/scoped";
+import { ChoiceBuilder } from "./choice-builder";
 
 export const ChoiceCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
@@ -74,7 +73,5 @@ export const ChoiceCompiler: StoryMachineCompiler = {
 };
 
 function isChoiceBuilder(node: StoryMachine): boolean {
-  const choiceBuilderClasses: Function[] = [ChoiceText];
-
-  return choiceBuilderClasses.includes(node.constructor);
+  return node instanceof ChoiceBuilder;
 }

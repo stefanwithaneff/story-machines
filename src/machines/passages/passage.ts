@@ -13,10 +13,11 @@ import { PassageText } from "./passage-text";
 import { PassageMetadata } from "./passage-metadata";
 import { Context, Result } from "../../types";
 import { Once } from "../base-machines/once";
+import { PassageBuilder } from "./passage-builder";
 
 interface PassageAttributes extends StoryMachineAttributes {
-  builderNodes: StoryMachine[];
-  otherNodes: StoryMachine[];
+  builders: StoryMachine[];
+  nodes: StoryMachine[];
 }
 
 export class Passage extends StoryMachine<PassageAttributes> {
@@ -30,11 +31,11 @@ export class Passage extends StoryMachine<PassageAttributes> {
         new Scoped({
           child: new Once({
             child: new Sequence({
-              children: [...attrs.builderNodes, new AddPassage({})],
+              children: [...attrs.builders, new AddPassage({})],
             }),
           }),
         }),
-        ...attrs.otherNodes,
+        ...attrs.nodes,
       ],
     });
   }
@@ -48,10 +49,10 @@ export const PassageCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const children = runtime.compileChildElements(tree.elements);
 
-    const builderNodes = children.filter((node) => isPassageBuilder(node));
-    const otherNodes = children.filter((node) => !isPassageBuilder(node));
+    const builders = children.filter((node) => isPassageBuilder(node));
+    const nodes = children.filter((node) => !isPassageBuilder(node));
 
-    if (builderNodes.length < 1) {
+    if (builders.length < 1) {
       throw new ValidationError(
         `Expected at least one of either PassageText or PassageMetadata`
       );
@@ -59,11 +60,10 @@ export const PassageCompiler: StoryMachineCompiler = {
 
     const id = tree.attributes.id ?? nanoid();
 
-    // TODO: Come up with better name for attributes
-    return new Passage({ builderNodes, otherNodes });
+    return new Passage({ ...tree.attributes, builders, nodes });
   },
 };
 
 function isPassageBuilder(node: StoryMachine): boolean {
-  return [PassageText, PassageMetadata].includes(node.constructor as any);
+  return node instanceof PassageBuilder;
 }

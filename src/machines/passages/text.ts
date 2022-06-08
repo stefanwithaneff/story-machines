@@ -7,13 +7,13 @@ export const TextCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const expressions: Expression[] = parseAll(tree.attributes.textContent);
     return new Passage({
-      builderNodes: [
+      builders: [
         new PassageText({
           expressions,
           textContent: tree.attributes.textContent,
         }),
       ],
-      otherNodes: [],
+      nodes: [],
     });
   },
 };

@@ -1,5 +1,4 @@
 import { Context, Result } from "../../types";
-import { createStoryMachine } from "../../utils/create-story-machine";
 import {
   Expression,
   parseAll,
@@ -7,19 +6,18 @@ import {
 } from "../../utils/expression-parser";
 import { getOutputBuilder } from "../../utils/output-builder";
 import {
-  StoryMachine,
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
-import { Once } from "../base-machines/once";
 import { setOnScope } from "../base-machines/scoped";
 import { createDevErrorEffect } from "../effects/dev-error";
+import { PassageBuilder } from "./passage-builder";
 
 interface PassageTextAttributes extends StoryMachineAttributes {
   expressions: Expression[];
 }
 
-export class PassageText extends StoryMachine<PassageTextAttributes> {
+export class PassageText extends PassageBuilder<PassageTextAttributes> {
   process(context: Context): Result {
     try {
       const evalText = replaceWithParsedExpressions(
@@ -42,8 +40,8 @@ export const PassageTextCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const expressions: Expression[] = parseAll(tree.attributes.textContent);
     return new PassageText({
+      ...tree.attributes,
       expressions,
-      textContent: tree.attributes.textContent,
     });
   },
 };
