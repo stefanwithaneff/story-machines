@@ -18,6 +18,11 @@ import {
   PassageText,
   PassageTextCompiler,
 } from "./machines/passages/passage-text";
+import { PassageMetadataCompiler } from "./machines/passages/passage-metadata";
+import { MetadataValueCompiler } from "./machines/metadata/metadata-value";
+import { MetadataObjectCompiler } from "./machines/metadata/metadata-object";
+import { MetadataListCompiler } from "./machines/metadata/metadata-list";
+import { ChoiceMetadataCompiler } from "./machines/choices/choice-metadata";
 
 export class StoryMachineRuntime {
   private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
@@ -84,12 +89,17 @@ export class StoryMachineRuntime {
 
 const baseElements: Record<string, StoryMachineCompiler> = {
   Choice: ChoiceCompiler,
+  ChoiceMetadata: ChoiceMetadataCompiler,
   Choices: ImmediateSelectorCompiler,
   ChoiceText: ChoiceTextCompiler,
   Condition: ConditionCompiler,
   ImmediateSelector: ImmediateSelectorCompiler,
   ImmediateSequence: ImmediateSequenceCompiler,
+  MetadataList: MetadataListCompiler,
+  MetadataObject: MetadataObjectCompiler,
+  MetadataValue: MetadataValueCompiler,
   Passage: PassageCompiler,
+  PassageMetadata: PassageMetadataCompiler,
   PassageText: PassageTextCompiler,
   Selector: SelectorCompiler,
   Sequence: SequenceCompiler,

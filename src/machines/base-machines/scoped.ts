@@ -12,7 +12,7 @@ export interface ScopedContext extends Context {
   __SCOPES__?: Scope[];
 }
 
-export function getFromScope(context: ScopedContext, key: string) {
+export function getFromScope(context: ScopedContext, key: string | string[]) {
   if (!context.__SCOPES__) {
     return null;
   }
@@ -27,7 +27,11 @@ export function getFromScope(context: ScopedContext, key: string) {
   return null;
 }
 
-export function setOnScope(context: ScopedContext, key: string, val: any) {
+export function setOnScope(
+  context: ScopedContext,
+  key: string | string[],
+  val: any
+) {
   if (!context.__SCOPES__ || context.__SCOPES__.length < 1) {
     throw new Error("No scope defined");
   }

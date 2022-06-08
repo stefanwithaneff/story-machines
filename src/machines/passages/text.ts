@@ -1,7 +1,7 @@
-import { StoryMachineCompiler } from "./base-classes/story-machine";
-import { Expression, parseAll } from "../utils/expression-parser";
-import { PassageText } from "./passages/passage-text";
-import { Passage } from "./passages/passage";
+import { StoryMachineCompiler } from "../base-classes/story-machine";
+import { Expression, parseAll } from "../../utils/expression-parser";
+import { PassageText } from "./passage-text";
+import { Passage } from "./passage";
 
 export const TextCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {

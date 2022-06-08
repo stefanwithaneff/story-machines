@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import readline from "readline";
+import { isEmpty } from "lodash";
 import { isDevErrorEffect } from "./machines/effects/dev-error";
 import { isDevWarnEffect } from "./machines/effects/dev-warn";
 import { StoryMachineRuntime } from "./runtime";
@@ -15,23 +16,32 @@ if (!xmlFilename) {
 }
 
 function displayOutput(result: Output) {
+  // Print warnings and errors
   result.effects.forEach((effect) => {
     if (isDevWarnEffect(effect)) {
-      console.warn(effect.payload.message);
+      console.warn("[WARN] ", effect.payload.message);
     } else if (isDevErrorEffect(effect)) {
-      console.error(effect.payload.message);
+      console.error("[ERROR] ", effect.payload.message);
       process.exit(1);
     }
   });
 
   // Print passages
   result.passages.forEach((passage) => {
+    if (passage.metadata) {
+      console.log("META ", passage.metadata);
+      console.log("===");
+    }
     console.log(passage.text);
   });
 
+  // Print choices
   if (result.choices.length > 0) {
     result.choices.forEach((choice, index) => {
-      console.log(`${index}. ${choice.text}`);
+      if (!isEmpty(choice.metadata)) {
+        console.log("CHOICE META ", choice.metadata);
+      }
+      console.log(`${index + 1}. ${choice.text}`);
     });
   }
 }
