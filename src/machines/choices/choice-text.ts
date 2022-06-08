@@ -1,8 +1,8 @@
-import { Context, Result } from "../types";
+import { Context, Result } from "../../types";
 import {
   StoryMachine,
   StoryMachineCompiler,
-} from "./base-classes/story-machine";
+} from "../base-classes/story-machine";
 
 export class ChoiceText extends StoryMachine {
   process(context: Context): Result {

@@ -2,6 +2,11 @@ export type StoryMachineStatus = "Running" | "Completed" | "Terminated";
 
 export type Metadata = Record<string, any>;
 
+export interface Passage {
+  text: string;
+  metadata: Metadata;
+}
+
 export interface Choice {
   id: string;
   text: string;
@@ -23,10 +28,9 @@ export interface ChoiceInput {
 export type Input = ChoiceInput;
 
 export interface Output {
-  text: string[];
+  passages: Passage[];
   choices: Choice[];
   effects: Effect[];
-  metadata: Metadata;
 }
 
 export interface Context extends Record<string, any> {

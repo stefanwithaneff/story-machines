@@ -1,10 +1,10 @@
-import { Choice, Effect, Output, Metadata, Context } from "../types";
+import { Choice, Effect, Output, Metadata, Context, Passage } from "../types";
 
 export class OutputBuilder {
   constructor(private output: Output) {}
 
-  addText(text: string): OutputBuilder {
-    this.output.text.push(text);
+  addPassage(passage: Passage): OutputBuilder {
+    this.output.passages.push(passage);
     return this;
   }
 
@@ -15,11 +15,6 @@ export class OutputBuilder {
 
   addEffect(effect: Effect): OutputBuilder {
     this.output.effects.push(effect);
-    return this;
-  }
-
-  addMetadata(metadata: Metadata): OutputBuilder {
-    Object.assign(this.output.metadata, metadata);
     return this;
   }
 

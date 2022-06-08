@@ -4,15 +4,20 @@ import {
   StoryMachineCompiler,
 } from "./machines/base-classes/story-machine";
 import { ElementTree } from "./types";
-import { ChoiceCompiler } from "./machines/choice";
+import { ChoiceCompiler } from "./machines/choices/choice";
 import { SequenceCompiler } from "./machines/base-machines/sequence";
 import { TextCompiler } from "./machines/text";
-import { ChoiceTextCompiler } from "./machines/choice-text";
+import { ChoiceTextCompiler } from "./machines/choices/choice-text";
 import { ImmediateSequenceCompiler } from "./machines/base-machines/immediate-sequence";
 import { ImmediateSelectorCompiler } from "./machines/base-machines/immediate-selector";
 import { ConditionCompiler } from "./machines/base-machines/condition";
 import { SelectorCompiler } from "./machines/base-machines/selector";
 import { SetContextCompiler } from "./machines/base-machines/set-context";
+import { PassageCompiler } from "./machines/passages/passage";
+import {
+  PassageText,
+  PassageTextCompiler,
+} from "./machines/passages/passage-text";
 
 export class StoryMachineRuntime {
   private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
@@ -84,7 +89,8 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   Condition: ConditionCompiler,
   ImmediateSelector: ImmediateSelectorCompiler,
   ImmediateSequence: ImmediateSequenceCompiler,
-  Passage: ImmediateSequenceCompiler,
+  Passage: PassageCompiler,
+  PassageText: PassageTextCompiler,
   Selector: SelectorCompiler,
   Sequence: SequenceCompiler,
   SetContext: SetContextCompiler,

@@ -205,7 +205,8 @@ describe("Expression Parser", () => {
         expected: 2,
       },
       "supports complex conditions": {
-        input: '(($ctx.test > 5) && ($ctx.other != 13)) ? "hello" : "goodbye"',
+        input:
+          '(($ctx.test gt 5) and ($ctx.other neq 13)) ? "hello" : "goodbye"',
         context: { test: 7, other: 21 },
         expected: "hello",
       },

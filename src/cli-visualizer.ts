@@ -25,8 +25,8 @@ function displayOutput(result: Output) {
   });
 
   // Print passages
-  result.text.forEach((passage) => {
-    console.log(passage);
+  result.passages.forEach((passage) => {
+    console.log(passage.text);
   });
 
   if (result.choices.length > 0) {
@@ -83,10 +83,9 @@ function getEmptyContext(input?: Input): Context {
   return {
     input,
     output: {
-      text: [],
+      passages: [],
       choices: [],
       effects: [],
-      metadata: {},
     },
   };
 }

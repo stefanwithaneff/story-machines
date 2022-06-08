@@ -1,18 +1,18 @@
 import { nanoid } from "nanoid";
-import { Context } from "../types";
-import { createStoryMachine } from "../utils/create-story-machine";
-import { ValidationError } from "../utils/errors";
+import { Context } from "../../types";
+import { createStoryMachine } from "../../utils/create-story-machine";
+import { ValidationError } from "../../utils/errors";
 import {
   StoryMachine,
   StoryMachineCompiler,
-} from "./base-classes/story-machine";
-import { AddChoice } from "./base-machines/add-choice";
-import { Condition } from "./base-machines/condition";
-import { DeleteContext } from "./base-machines/delete-context";
-import { Sequence } from "./base-machines/sequence";
-import { MemorySequence } from "./base-machines/memory-sequence";
-import { SetContext } from "./base-machines/set-context";
-import { Wait } from "./base-machines/wait";
+} from "../base-classes/story-machine";
+import { AddChoice } from "../base-machines/add-choice";
+import { Condition } from "../base-machines/condition";
+import { DeleteContext } from "../base-machines/delete-context";
+import { Sequence } from "../base-machines/sequence";
+import { MemorySequence } from "../base-machines/memory-sequence";
+import { SetContext } from "../base-machines/set-context";
+import { Wait } from "../base-machines/wait";
 import { ChoiceText } from "./choice-text";
 
 export const ChoiceCompiler: StoryMachineCompiler = {

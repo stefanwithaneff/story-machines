@@ -200,8 +200,35 @@ export const ExpressionParser: Parser<Expression> = Parsimmon.lazy(() =>
   Parsimmon.alt(TernaryParser, MathParser, LogicParser, ExpressionAtomParser)
 );
 
+export const WrappedExpressionParser: Parser<Expression[]> =
+  ExpressionParser.wrap(Parsimmon.string("{{"), Parsimmon.string("}}")).many();
+
+const templateExpressionRegex = /{{(.*?)}}/g;
+
 export function evalAndReplace(context: Context, text: string) {
-  return text.replace(/{{([^}]*)}}/g, (_, match) =>
+  return text.replace(templateExpressionRegex, (_, match) =>
     ExpressionParser.tryParse(match).calc(context)
   );
+}
+
+export function parseAll(text: string): Expression[] {
+  return Array.from(
+    text.matchAll(templateExpressionRegex),
+    ([_, matchedText]) => ExpressionParser.tryParse(matchedText)
+  );
+}
+
+export function replaceWithParsedExpressions(
+  context: Context,
+  expressions: Expression[],
+  text: string
+): string {
+  let i = 0;
+  const evalText = text.replace(templateExpressionRegex, (_, match) => {
+    const evalResult = expressions[i].calc(context);
+    i++;
+    return evalResult;
+  });
+
+  return evalText;
 }

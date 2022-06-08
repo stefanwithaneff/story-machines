@@ -1,6 +1,7 @@
 import { DecoratorMachine } from "../base-classes/decorator-machine";
 import { Context, Result } from "../../types";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
+import { get, set } from "lodash";
 
 interface Scope {
   id: string;
@@ -17,12 +18,22 @@ export function getFromScope(context: ScopedContext, key: string) {
   }
 
   for (const { scope } of context.__SCOPES__) {
-    if (scope[key]) {
-      return scope[key];
+    const val = get(scope, key);
+    if (val !== undefined) {
+      return val;
     }
   }
 
   return null;
+}
+
+export function setOnScope(context: ScopedContext, key: string, val: any) {
+  if (!context.__SCOPES__ || context.__SCOPES__.length < 1) {
+    throw new Error("No scope defined");
+  }
+
+  const currentScope = context.__SCOPES__[0];
+  set(currentScope.scope, key, val);
 }
 
 export class Scoped extends DecoratorMachine {

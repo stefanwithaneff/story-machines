@@ -1,7 +1,7 @@
 <Sequence>
   <SetContext key="spongebob_mood" val="happy" />
   <Passage>
-    <Text>Once upon a time, there was an ugly barnacle named {{ $ctx.barnacleName }}. He was so {{ "ugly" }}...</Text>
+    <PassageText>Once upon a time, there was an ugly barnacle named {{ $ctx.barnacleName }}. He was so {{ "ugly" }}...</PassageText>
     <Choices>
       <Choice>
         <Condition>1 lt 3</Condition>
