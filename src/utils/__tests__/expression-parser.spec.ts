@@ -1,4 +1,5 @@
 import { ExpressionParser } from "../expression-parser";
+import { SCOPES } from "../scope";
 
 interface Test {
   input: string;
@@ -65,6 +66,11 @@ describe("Expression Parser", () => {
       "references the value corresponding to the access path provided": {
         input: "$ctx.test",
         context: { test: "abc123" },
+        expected: "abc123",
+      },
+      "references the value on a scope": {
+        input: "$scope.test.subtest",
+        context: { [SCOPES]: [{ scope: { test: { subtest: "abc123" } } }] },
         expected: "abc123",
       },
     };

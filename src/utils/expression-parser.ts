@@ -1,6 +1,7 @@
 import { get } from "lodash";
 import Parsimmon, { Parser } from "parsimmon";
 import { Context } from "../types";
+import { getFromScope } from "./scope";
 
 export interface Expression {
   calc(context: Context): any;
@@ -13,10 +14,14 @@ class Constant implements Expression {
   }
 }
 
-class ContextRef implements Expression {
-  constructor(private dotAccessor: string) {}
+class VariableRef implements Expression {
+  constructor(private target: "$ctx" | "$scope", private dotAccessor: string) {}
   calc(context: Context) {
-    return get(context, this.dotAccessor);
+    if (this.target === "$ctx") {
+      return get(context, this.dotAccessor);
+    } else if (this.target === "$scope") {
+      return getFromScope(context, this.dotAccessor);
+    }
   }
 }
 
@@ -129,12 +134,11 @@ const DotAccessorParser = Parsimmon.regexp(/(\.[a-zA-Z0-9_]+)*/i).map(
   (accessPath) => accessPath.slice(1) // Remove the leading '.' for easier usage
 );
 
-const ContextRefParser = Parsimmon.seqMap(
-  Parsimmon.string("$ctx"),
+const VariableRefParser = Parsimmon.seqMap(
+  Parsimmon.alt(Parsimmon.string("$ctx"), Parsimmon.string("$scope")),
   DotAccessorParser,
-  (_, dotAccessor) => new ContextRef(dotAccessor)
+  (target, dotAccessor) => new VariableRef(target, dotAccessor)
 );
-const VariableRefParser: Parser<Expression> = Parsimmon.alt(ContextRefParser);
 
 const FunctionCallParser: Parser<Expression> = Parsimmon.lazy(() =>
   Parsimmon.seq(
