@@ -1,7 +1,7 @@
 import { Context, Result } from "../../types";
+import { setOnScope } from "../../utils/scope";
 import { CompositeMachineAttributes } from "../base-classes/composite-machine";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
-import { setOnScope } from "../base-machines/scoped";
 import { PassageBuilder } from "./passage-builder";
 
 export class PassageMetadata extends PassageBuilder<CompositeMachineAttributes> {

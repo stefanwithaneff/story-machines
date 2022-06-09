@@ -1,11 +1,10 @@
 import { Context, Result } from "../../types";
+import { getFromScope, setOnScope } from "../../utils/scope";
 import { CompositeMachineAttributes } from "../base-classes/composite-machine";
 import {
   StoryMachine,
-  StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
-import { getFromScope, setOnScope } from "../base-machines/scoped";
 
 interface MetadataObjectAttributes extends CompositeMachineAttributes {
   key?: string;

@@ -4,11 +4,11 @@ import {
   parseAll,
   replaceWithParsedExpressions,
 } from "../../utils/expression-parser";
+import { setOnScope } from "../../utils/scope";
 import {
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
-import { setOnScope } from "../base-machines/scoped";
 import { ChoiceBuilder } from "./choice-builder";
 
 interface ChoiceTextAttributes extends StoryMachineAttributes {

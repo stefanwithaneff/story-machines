@@ -1,11 +1,10 @@
-import { set } from "lodash";
 import {
   StoryMachine,
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
-import { Result } from "../../types";
-import { ScopedContext, setOnScope } from "./scoped";
+import { Context, Result } from "../../types";
+import { setOnScope } from "../../utils/scope";
 
 export interface SetScopeAttributes extends StoryMachineAttributes {
   key: string;
@@ -13,7 +12,7 @@ export interface SetScopeAttributes extends StoryMachineAttributes {
 }
 
 export class SetScope extends StoryMachine<SetScopeAttributes> {
-  process(context: ScopedContext): Result {
+  process(context: Context): Result {
     try {
       setOnScope(context, this.attrs.key, this.attrs.val);
     } catch (e) {

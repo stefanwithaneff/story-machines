@@ -1,11 +1,11 @@
 import { getOutputBuilder } from "../../utils/output-builder";
+import { getFromScope } from "../../utils/scope";
 import { Context, Result, Passage } from "../../types";
 import {
   StoryMachine,
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
-import { getFromScope } from "./scoped";
 import { createDevWarnEffect } from "../effects/dev-warn";
 
 interface AddPassageInternalAttributes extends StoryMachineAttributes {

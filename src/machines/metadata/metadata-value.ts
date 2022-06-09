@@ -1,11 +1,11 @@
 import { Context, Result } from "../../types";
 import { Expression, ExpressionParser } from "../../utils/expression-parser";
+import { getFromScope, setOnScope } from "../../utils/scope";
 import {
   StoryMachine,
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
-import { getFromScope, setOnScope } from "../base-machines/scoped";
 
 interface MetadataValueAttributes extends StoryMachineAttributes {
   key?: string;

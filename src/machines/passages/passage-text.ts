@@ -5,11 +5,11 @@ import {
   replaceWithParsedExpressions,
 } from "../../utils/expression-parser";
 import { getOutputBuilder } from "../../utils/output-builder";
+import { setOnScope } from "../../utils/scope";
 import {
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
-import { setOnScope } from "../base-machines/scoped";
 import { createDevErrorEffect } from "../effects/dev-error";
 import { PassageBuilder } from "./passage-builder";
 

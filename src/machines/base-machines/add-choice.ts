@@ -1,4 +1,5 @@
 import { getOutputBuilder } from "../../utils/output-builder";
+import { getFromScope } from "../../utils/scope";
 import { Context, Result, Choice } from "../../types";
 import {
   StoryMachine,
@@ -6,7 +7,6 @@ import {
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
 import { createDevWarnEffect } from "../effects/dev-warn";
-import { getFromScope } from "./scoped";
 
 interface AddChoiceContext extends Context {
   choiceText?: string;
