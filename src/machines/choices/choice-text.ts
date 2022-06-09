@@ -5,7 +5,6 @@ import {
   replaceWithParsedExpressions,
 } from "../../utils/expression-parser";
 import {
-  StoryMachine,
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";

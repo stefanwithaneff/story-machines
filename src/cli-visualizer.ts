@@ -67,7 +67,7 @@ async function promptForChoice(
     return undefined;
   }
 
-  let choiceIndex = parseInt(response);
+  let choiceIndex = parseInt(response) - 1;
 
   while (
     isNaN(choiceIndex) ||

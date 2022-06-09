@@ -23,6 +23,7 @@ import { MetadataValueCompiler } from "./machines/metadata/metadata-value";
 import { MetadataObjectCompiler } from "./machines/metadata/metadata-object";
 import { MetadataListCompiler } from "./machines/metadata/metadata-list";
 import { ChoiceMetadataCompiler } from "./machines/choices/choice-metadata";
+import { MultiChoiceCompiler } from "./machines/choices/multi-choice";
 
 export class StoryMachineRuntime {
   private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
@@ -98,6 +99,7 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   MetadataList: MetadataListCompiler,
   MetadataObject: MetadataObjectCompiler,
   MetadataValue: MetadataValueCompiler,
+  MultiChoice: MultiChoiceCompiler,
   Passage: PassageCompiler,
   PassageMetadata: PassageMetadataCompiler,
   PassageText: PassageTextCompiler,
