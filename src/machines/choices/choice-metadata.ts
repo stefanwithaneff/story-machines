@@ -1,5 +1,5 @@
 import { Context, Result } from "../../types";
-import { setOnScope } from "../../utils/scope";
+import { initScope } from "../../utils/scope";
 import { CompositeMachineAttributes } from "../base-classes/composite-machine";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
 import { ChoiceBuilder } from "./choice-builder";
@@ -8,8 +8,8 @@ export class ChoiceMetadata extends ChoiceBuilder<CompositeMachineAttributes> {
   process(context: Context): Result {
     try {
       const key = "choiceMetadata";
-      setOnScope(context, key, {});
-      setOnScope(context, "metadataPrefix", [key]);
+      initScope(context, key, {});
+      initScope(context, "metadataPrefix", [key]);
     } catch (e) {
       return { status: "Terminated" };
     }

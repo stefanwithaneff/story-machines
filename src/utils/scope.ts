@@ -29,11 +29,27 @@ export function getFromScope(context: Context, key: string | string[]) {
   return null;
 }
 
-export function setOnScope(context: Context, key: string | string[], val: any) {
+export function initScope(context: Context, key: string | string[], val: any) {
   if (!isScopedContext(context)) {
     throw new Error("No scope defined");
   }
 
   const currentScope = context[SCOPES][0];
   set(currentScope.scope, key, val);
+}
+
+export function setOnScope(context: Context, key: string | string[], val: any) {
+  if (!isScopedContext(context)) {
+    throw new Error("No scope defined");
+  }
+
+  for (const { scope } of context[SCOPES]) {
+    const prevValue = get(scope, key);
+
+    if (prevValue !== undefined) {
+      set(scope, key, val);
+    }
+  }
+
+  throw new Error(`No such key has been defined in this scope: ${key}`);
 }

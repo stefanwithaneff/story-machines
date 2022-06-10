@@ -1,5 +1,5 @@
 import { Context, Result } from "../../types";
-import { getFromScope, setOnScope } from "../../utils/scope";
+import { getFromScope, initScope } from "../../utils/scope";
 import { CompositeMachineAttributes } from "../base-classes/composite-machine";
 import {
   StoryMachine,
@@ -23,7 +23,7 @@ export class MetadataObject extends StoryMachine<MetadataObjectAttributes> {
     }
 
     try {
-      setOnScope(context, metadataPrefix, {});
+      initScope(context, metadataPrefix, {});
     } catch (e) {
       return { status: "Terminated" };
     }

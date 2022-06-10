@@ -1,5 +1,5 @@
 import { Context, Result } from "../../types";
-import { setOnScope } from "../../utils/scope";
+import { initScope } from "../../utils/scope";
 import { CompositeMachineAttributes } from "../base-classes/composite-machine";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
 import { PassageBuilder } from "./passage-builder";
@@ -8,8 +8,8 @@ export class PassageMetadata extends PassageBuilder<CompositeMachineAttributes> 
   process(context: Context): Result {
     try {
       const key = "passageMetadata";
-      setOnScope(context, key, {});
-      setOnScope(context, "metadataPrefix", [key]);
+      initScope(context, key, {});
+      initScope(context, "metadataPrefix", [key]);
     } catch (e) {
       return { status: "Terminated" };
     }

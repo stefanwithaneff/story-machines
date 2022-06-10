@@ -1,6 +1,6 @@
 import { Context, Result } from "../../types";
 import { Expression, ExpressionParser } from "../../utils/expression-parser";
-import { getFromScope, setOnScope } from "../../utils/scope";
+import { getFromScope, initScope } from "../../utils/scope";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -26,7 +26,7 @@ export class MetadataValue extends StoryMachine<MetadataValueAttributes> {
       : metadataPrefix;
 
     try {
-      setOnScope(context, keyPath, val);
+      initScope(context, keyPath, val);
     } catch (e) {
       return { status: "Terminated" };
     }
