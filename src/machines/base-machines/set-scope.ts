@@ -5,16 +5,18 @@ import {
 } from "../base-classes/story-machine";
 import { Context, Result } from "../../types";
 import { setOnScope } from "../../utils/scope";
+import { Expression, ExpressionParser } from "../../utils/expression-parser";
 
 export interface SetScopeAttributes extends StoryMachineAttributes {
   key: string;
-  val: any;
+  expression: Expression;
 }
 
 export class SetScope extends StoryMachine<SetScopeAttributes> {
   process(context: Context): Result {
     try {
-      setOnScope(context, this.attrs.key, this.attrs.val);
+      const val = this.attrs.expression.calc(context);
+      setOnScope(context, this.attrs.key, val);
     } catch (e) {
       return { status: "Terminated" };
     }
@@ -25,7 +27,10 @@ export class SetScope extends StoryMachine<SetScopeAttributes> {
 
 export const SetScopeCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
-    const { key, val } = tree.attributes;
-    return new SetScope({ key, val });
+    const { key, textContent } = tree.attributes;
+
+    const expression = ExpressionParser.tryParse(textContent);
+
+    return new SetScope({ key, expression });
   },
 };
