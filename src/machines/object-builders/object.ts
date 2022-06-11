@@ -5,25 +5,27 @@ import {
   StoryMachine,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
+import { KEY_PREFIX } from "./constants";
 
-interface MetadataObjectAttributes extends CompositeMachineAttributes {
+interface ObjectAttributes extends CompositeMachineAttributes {
   key?: string;
 }
 
-export class MetadataObject extends StoryMachine<MetadataObjectAttributes> {
+// Named "ObjectMachine" instead of "Object" due to JS runtime conflict
+export class ObjectMachine extends StoryMachine<ObjectAttributes> {
   process(context: Context): Result {
-    const metadataPrefix: string[] = getFromScope(context, "metadataPrefix");
+    const keyPrefix: string[] = getFromScope(context, KEY_PREFIX);
 
-    if (!metadataPrefix) {
+    if (!keyPrefix) {
       return { status: "Terminated" };
     }
 
     if (this.attrs.key) {
-      metadataPrefix.push(this.attrs.key);
+      keyPrefix.push(this.attrs.key);
     }
 
     try {
-      initScope(context, metadataPrefix, {});
+      initScope(context, keyPrefix, {});
     } catch (e) {
       return { status: "Terminated" };
     }
@@ -36,13 +38,17 @@ export class MetadataObject extends StoryMachine<MetadataObjectAttributes> {
       }
     }
 
+    if (this.attrs.key) {
+      keyPrefix.pop();
+    }
+
     return { status: "Completed" };
   }
 }
 
-export const MetadataObjectCompiler: StoryMachineCompiler = {
+export const ObjectCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const children = runtime.compileChildElements(tree.elements);
-    return new MetadataObject({ key: tree.attributes.key, children });
+    return new ObjectMachine({ key: tree.attributes.key, children });
   },
 };

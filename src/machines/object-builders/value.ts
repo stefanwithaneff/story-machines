@@ -6,24 +6,25 @@ import {
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
+import { KEY_PREFIX } from "./constants";
 
-interface MetadataValueAttributes extends StoryMachineAttributes {
+interface ValueAttributes extends StoryMachineAttributes {
   key?: string;
   expression: Expression;
 }
 
-export class MetadataValue extends StoryMachine<MetadataValueAttributes> {
+export class Value extends StoryMachine<ValueAttributes> {
   process(context: Context): Result {
     const val = this.attrs.expression.calc(context);
-    const metadataPrefix: string[] = getFromScope(context, "metadataPrefix");
+    const keyPrefix: string[] = getFromScope(context, KEY_PREFIX);
 
-    if (!metadataPrefix) {
+    if (!keyPrefix) {
       return { status: "Terminated" };
     }
 
     const keyPath: string[] = this.attrs.key
-      ? [...metadataPrefix, this.attrs.key]
-      : metadataPrefix;
+      ? [...keyPrefix, this.attrs.key]
+      : keyPrefix;
 
     try {
       initScope(context, keyPath, val);
@@ -35,9 +36,9 @@ export class MetadataValue extends StoryMachine<MetadataValueAttributes> {
   }
 }
 
-export const MetadataValueCompiler: StoryMachineCompiler = {
+export const ValueCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const expression = ExpressionParser.tryParse(tree.attributes.textContent);
-    return new MetadataValue({ expression, key: tree.attributes.key });
+    return new Value({ expression, key: tree.attributes.key });
   },
 };

@@ -62,4 +62,4 @@ export type CompositeFactory<A extends any[] = []> = (
   ...args: [...A]
 ) => ProcessFn;
 
-export type EffectHandler = (effect: Effect) => Effect[];
+export type EffectHandler = (state: any, effect: Effect) => Effect[];

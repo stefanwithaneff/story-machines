@@ -11,6 +11,7 @@ import {
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
 import { createDevErrorEffect } from "../effects/dev-error";
+import { PASSAGE_TEXT } from "./constants";
 import { PassageBuilder } from "./passage-builder";
 
 interface PassageTextAttributes extends StoryMachineAttributes {
@@ -26,7 +27,7 @@ export class PassageText extends PassageBuilder<PassageTextAttributes> {
         this.attrs.textContent ?? ""
       );
 
-      initScope(context, "passageText", evalText);
+      initScope(context, PASSAGE_TEXT, evalText);
     } catch (e) {
       const builder = getOutputBuilder(context);
       builder.addEffect(createDevErrorEffect({ message: e.message }));

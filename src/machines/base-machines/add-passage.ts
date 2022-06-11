@@ -7,6 +7,7 @@ import {
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
 import { createDevWarnEffect } from "../effects/dev-warn";
+import { PASSAGE_METADATA, PASSAGE_TEXT } from "../passages/constants";
 
 interface AddPassageInternalAttributes extends StoryMachineAttributes {
   passage: Passage;
@@ -22,9 +23,9 @@ export class AddPassageInternal extends StoryMachine<AddPassageInternalAttribute
 
 export class AddPassage extends StoryMachine {
   process(context: Context): Result {
-    const text = getFromScope(context, "passageText") ?? context.passageText;
+    const text = getFromScope(context, PASSAGE_TEXT) ?? context[PASSAGE_TEXT];
     const metadata =
-      getFromScope(context, "passageMetadata") ?? context.passageMetadata;
+      getFromScope(context, PASSAGE_METADATA) ?? context[PASSAGE_METADATA];
     const builder = getOutputBuilder(context);
 
     if (!text && !metadata) {

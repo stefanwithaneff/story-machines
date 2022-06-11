@@ -19,11 +19,11 @@ import {
   PassageTextCompiler,
 } from "./machines/passages/passage-text";
 import { PassageMetadataCompiler } from "./machines/passages/passage-metadata";
-import { MetadataValueCompiler } from "./machines/metadata/metadata-value";
-import { MetadataObjectCompiler } from "./machines/metadata/metadata-object";
-import { MetadataListCompiler } from "./machines/metadata/metadata-list";
 import { ChoiceMetadataCompiler } from "./machines/choices/choice-metadata";
 import { MultiChoiceCompiler } from "./machines/choices/multi-choice";
+import { ValueCompiler } from "./machines/object-builders/value";
+import { ObjectCompiler } from "./machines/object-builders/object";
+import { ListCompiler } from "./machines/object-builders/list";
 
 export class StoryMachineRuntime {
   private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
@@ -96,10 +96,9 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   Condition: ConditionCompiler,
   ImmediateSelector: ImmediateSelectorCompiler,
   ImmediateSequence: ImmediateSequenceCompiler,
-  MetadataList: MetadataListCompiler,
-  MetadataObject: MetadataObjectCompiler,
-  MetadataValue: MetadataValueCompiler,
+  List: ListCompiler,
   MultiChoice: MultiChoiceCompiler,
+  Object: ObjectCompiler,
   Passage: PassageCompiler,
   PassageMetadata: PassageMetadataCompiler,
   PassageText: PassageTextCompiler,
@@ -107,4 +106,5 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   Sequence: SequenceCompiler,
   SetContext: SetContextCompiler,
   Text: TextCompiler,
+  Value: ValueCompiler,
 };

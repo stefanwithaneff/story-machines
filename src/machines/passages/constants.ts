@@ -1,0 +1,2 @@
+export const PASSAGE_TEXT = "PASSAGE_TEXT";
+export const PASSAGE_METADATA = "PASSAGE_METADATA";

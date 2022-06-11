@@ -1,7 +1,5 @@
-import { nanoid } from "nanoid";
 import { Context, Result } from "../../types";
 import { createStoryMachine } from "../../utils/create-story-machine";
-import { ValidationError } from "../../utils/errors";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -15,6 +13,7 @@ import { SetContext } from "../base-machines/set-context";
 import { Wait } from "../base-machines/wait";
 import { Scoped } from "../base-machines/scoped";
 import { ChoiceBuilder } from "./choice-builder";
+import { CHOICE_ID } from "./constants";
 
 interface ChoiceAttributes extends StoryMachineAttributes {
   builders: StoryMachine[];
@@ -37,7 +36,7 @@ export class Choice extends StoryMachine<ChoiceAttributes> {
             children: [
               ...conditions,
               new SetContext({
-                key: "choiceId",
+                key: CHOICE_ID,
                 val: this.id,
               }),
               ...builders,

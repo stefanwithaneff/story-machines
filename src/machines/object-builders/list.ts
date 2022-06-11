@@ -5,25 +5,28 @@ import {
   StoryMachine,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
+import { KEY_PREFIX } from "./constants";
 
-interface MetadataListAttributes extends CompositeMachineAttributes {
-  key: string;
+interface ListAttributes extends CompositeMachineAttributes {
+  key?: string;
 }
 
-export class MetadataList extends StoryMachine<MetadataListAttributes> {
+export class List extends StoryMachine<ListAttributes> {
   process(context: Context): Result {
-    const metadataPrefix: string[] = getFromScope(context, "metadataPrefix");
+    const keyPrefix: string[] = getFromScope(context, KEY_PREFIX);
 
-    if (!metadataPrefix) {
+    if (!keyPrefix) {
       return { status: "Terminated" };
     }
 
-    metadataPrefix.push(this.attrs.key);
+    if (this.attrs.key) {
+      keyPrefix.push(this.attrs.key);
+    }
 
     const list: any[] = [];
 
     try {
-      initScope(context, metadataPrefix, list);
+      initScope(context, keyPrefix, list);
     } catch (e) {
       return { status: "Terminated" };
     }
@@ -33,25 +36,29 @@ export class MetadataList extends StoryMachine<MetadataListAttributes> {
       list.push(null);
 
       // Update the key prefix with the current index
-      metadataPrefix.push(`${i}`);
+      keyPrefix.push(`${i}`);
 
       const result = this.attrs.children[i].process(context);
 
       // Remove current index from the key prefix
-      metadataPrefix.pop();
+      keyPrefix.pop();
 
       if (result.status === "Terminated") {
         return result;
       }
     }
 
+    if (this.attrs.key) {
+      keyPrefix.pop();
+    }
+
     return { status: "Completed" };
   }
 }
 
-export const MetadataListCompiler: StoryMachineCompiler = {
+export const ListCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const children = runtime.compileChildElements(tree.elements);
-    return new MetadataList({ key: tree.attributes.key, children });
+    return new List({ key: tree.attributes.key, children });
   },
 };

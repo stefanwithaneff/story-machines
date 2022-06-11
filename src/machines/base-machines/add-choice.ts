@@ -7,6 +7,7 @@ import {
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
 import { createDevWarnEffect } from "../effects/dev-warn";
+import { CHOICE_ID, CHOICE_METADATA, CHOICE_TEXT } from "../choices/constants";
 
 interface AddChoiceContext extends Context {
   choiceText?: string;
@@ -29,10 +30,10 @@ export class AddChoiceInternal extends StoryMachine<AddChoiceInternalAttributes>
 export class AddChoice extends StoryMachine {
   process(context: AddChoiceContext): Result {
     const choiceText =
-      getFromScope(context, "choiceText") ?? context.choiceText;
-    const choiceId = getFromScope(context, "choiceId") ?? context.choiceId;
+      getFromScope(context, CHOICE_TEXT) ?? context[CHOICE_TEXT];
+    const choiceId = getFromScope(context, CHOICE_ID) ?? context[CHOICE_ID];
     const choiceMetadata =
-      getFromScope(context, "choiceMetadata") ?? context.choiceMetadata;
+      getFromScope(context, CHOICE_METADATA) ?? context[CHOICE_METADATA];
     const builder = getOutputBuilder(context);
     if (!choiceText || !choiceId) {
       builder.addEffect(

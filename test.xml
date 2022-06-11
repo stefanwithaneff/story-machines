@@ -2,17 +2,17 @@
   <SetContext key="spongebob_mood" val="happy" />
   <Passage>
     <PassageMetadata>
-      <MetadataValue key="test">3</MetadataValue>
-      <MetadataObject key="obj">
-        <MetadataValue key="a">$ctx.spongebob_mood</MetadataValue>
-      </MetadataObject>
-      <MetadataList key="apples">
-        <MetadataValue>"granny smith"</MetadataValue>
-        <MetadataValue>15</MetadataValue>
-        <MetadataObject>
-          <MetadataValue key="hello">true</MetadataValue>
-        </MetadataObject>
-      </MetadataList>
+      <Value key="test">3</Value>
+      <Object key="obj">
+        <Value key="a">$ctx.spongebob_mood</Value>
+      </Object>
+      <List key="apples">
+        <Value>"granny smith"</Value>
+        <Value>15</Value>
+        <Object>
+          <Value key="hello">true</Value>
+        </Object>
+      </List>
     </PassageMetadata>
     <PassageText>Once upon a time, there was an ugly barnacle named {{ $ctx.barnacleName }}. He was so {{ "ugly" }}...</PassageText>
     <Choices>
@@ -28,7 +28,7 @@
       </MultiChoice>
       <Choice>
         <ChoiceMetadata>
-          <MetadataValue key="character">"Passpartout"</MetadataValue>
+          <Value key="character">"Passpartout"</Value>
         </ChoiceMetadata>
         <ChoiceText>...that he decided to be beautiful of spirit instead, and everyone loved him.</ChoiceText>
         <Selector>

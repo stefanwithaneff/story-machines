@@ -2,14 +2,15 @@ import { Context, Result } from "../../types";
 import { initScope } from "../../utils/scope";
 import { CompositeMachineAttributes } from "../base-classes/composite-machine";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
+import { KEY_PREFIX } from "../object-builders/constants";
 import { ChoiceBuilder } from "./choice-builder";
+import { CHOICE_METADATA } from "./constants";
 
 export class ChoiceMetadata extends ChoiceBuilder<CompositeMachineAttributes> {
   process(context: Context): Result {
     try {
-      const key = "choiceMetadata";
-      initScope(context, key, {});
-      initScope(context, "metadataPrefix", [key]);
+      initScope(context, CHOICE_METADATA, {});
+      initScope(context, KEY_PREFIX, [CHOICE_METADATA]);
     } catch (e) {
       return { status: "Terminated" };
     }

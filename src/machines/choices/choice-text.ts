@@ -10,6 +10,7 @@ import {
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
 import { ChoiceBuilder } from "./choice-builder";
+import { CHOICE_TEXT } from "./constants";
 
 interface ChoiceTextAttributes extends StoryMachineAttributes {
   expressions: Expression[];
@@ -23,7 +24,7 @@ export class ChoiceText extends ChoiceBuilder<ChoiceTextAttributes> {
       this.attrs.textContent ?? ""
     );
     try {
-      initScope(context, "choiceText", evalText);
+      initScope(context, CHOICE_TEXT, evalText);
     } catch (e) {
       return { status: "Terminated" };
     }

@@ -4,6 +4,7 @@ import { DecoratorMachine, DecoratorAttributes } from "./decorator-machine";
 export abstract class EffectHandlerMachine<
   A extends DecoratorAttributes = DecoratorAttributes
 > extends DecoratorMachine<A> {
+  protected state: any;
   protected abstract handlers: Record<string, EffectHandler>;
 
   process(context: Context): Result {
@@ -16,7 +17,7 @@ export abstract class EffectHandlerMachine<
       if (!handler) {
         return [effect];
       }
-      return handler(effect);
+      return handler(this.state, effect);
     });
 
     context.output.effects = newEffects;
