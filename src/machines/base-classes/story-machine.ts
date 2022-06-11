@@ -12,6 +12,7 @@ export abstract class StoryMachine<
 > {
   id: string;
   attrs: A;
+  machineTypes: symbol[] = [];
 
   constructor(attributes: A) {
     this.id = attributes.id ?? nanoid();
@@ -19,6 +20,10 @@ export abstract class StoryMachine<
   }
 
   abstract process(context: Context): Result;
+
+  isOfType(type: symbol): boolean {
+    return this.machineTypes.includes(type);
+  }
 }
 
 export interface StoryMachineCompiler {

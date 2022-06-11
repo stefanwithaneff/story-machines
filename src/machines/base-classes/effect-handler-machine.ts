@@ -1,11 +1,11 @@
-import { EffectHandler, Context, Result } from "../../types";
+import { EffectHandlerFn, Context, Result } from "../../types";
 import { DecoratorMachine, DecoratorAttributes } from "./decorator-machine";
 
 export abstract class EffectHandlerMachine<
   A extends DecoratorAttributes = DecoratorAttributes
 > extends DecoratorMachine<A> {
   protected state: any;
-  protected abstract handlers: Record<string, EffectHandler>;
+  protected abstract handlers: Record<string, EffectHandlerFn>;
 
   process(context: Context): Result {
     // Process child
@@ -17,7 +17,7 @@ export abstract class EffectHandlerMachine<
       if (!handler) {
         return [effect];
       }
-      return handler(this.state, effect);
+      return handler(context, effect);
     });
 
     context.output.effects = newEffects;

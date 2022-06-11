@@ -1,10 +1,18 @@
-<Sequence>
-  <SetContext key="spongebob_mood" val="happy" />
+<Stateful>
+  <InitState>
+    <Value key="spongebob_mood">"happy"</Value>
+  </InitState>
+  <EffectHandler type="change_mood" payloadKey="effectPayload">
+    <SetState key="spongebob_mood">$scope.effectPayload.mood</SetState>
+  </EffectHandler>
   <Passage>
+    <Effect type="change_mood">
+      <Value key="mood">"sad"</Value>
+    </Effect>
     <PassageMetadata>
       <Value key="test">3</Value>
       <Object key="obj">
-        <Value key="a">$ctx.spongebob_mood</Value>
+        <Value key="a">$state.spongebob_mood</Value>
       </Object>
       <List key="apples">
         <Value>"granny smith"</Value>
@@ -33,11 +41,11 @@
         <ChoiceText>...that he decided to be beautiful of spirit instead, and everyone loved him.</ChoiceText>
         <Selector>
           <Sequence>
-            <Condition>$ctx.spongebob_mood eq "happy"</Condition>
+            <Condition>$state.spongebob_mood eq "happy"</Condition>
             <Text>"Thanks Patrick, I feel a little better", Spongebob said, the world feeling a bit lighter.</Text>
           </Sequence>
           <Sequence>
-            <Condition>$ctx.spongebob_mood eq "sad"</Condition>
+            <Condition>$state.spongebob_mood eq "sad"</Condition>
             <Text>"Yeah, right. Like that would ever happen", Spongebob said, doubling down on his forlorn feelings.</Text>
           </Sequence>
         </Selector>
@@ -50,4 +58,4 @@
     </Choices>
   </Passage>
   <Text>Spongebob and Patrick continued to watch the movie in silence.</Text>
-</Sequence>
+</Stateful>

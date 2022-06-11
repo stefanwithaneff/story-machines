@@ -14,16 +14,19 @@ import { ConditionCompiler } from "./machines/base-machines/condition";
 import { SelectorCompiler } from "./machines/base-machines/selector";
 import { SetContextCompiler } from "./machines/base-machines/set-context";
 import { PassageCompiler } from "./machines/passages/passage";
-import {
-  PassageText,
-  PassageTextCompiler,
-} from "./machines/passages/passage-text";
+import { PassageTextCompiler } from "./machines/passages/passage-text";
 import { PassageMetadataCompiler } from "./machines/passages/passage-metadata";
 import { ChoiceMetadataCompiler } from "./machines/choices/choice-metadata";
 import { MultiChoiceCompiler } from "./machines/choices/multi-choice";
 import { ValueCompiler } from "./machines/object-builders/value";
 import { ObjectCompiler } from "./machines/object-builders/object";
 import { ListCompiler } from "./machines/object-builders/list";
+import { StatefulCompiler } from "./machines/state/stateful";
+import { InitStateCompiler } from "./machines/state/init-state";
+import { EffectHandlerCompiler } from "./machines/state/effect-handler";
+import { SetStateCompiler } from "./machines/state/set-state";
+import { ReturnedEffectCompiler } from "./machines/state/returned-effect";
+import { EffectCompiler } from "./machines/effects/effect";
 
 export class StoryMachineRuntime {
   private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
@@ -94,17 +97,23 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   Choices: ImmediateSelectorCompiler,
   ChoiceText: ChoiceTextCompiler,
   Condition: ConditionCompiler,
+  Effect: EffectCompiler,
+  EffectHandler: EffectHandlerCompiler,
   ImmediateSelector: ImmediateSelectorCompiler,
   ImmediateSequence: ImmediateSequenceCompiler,
+  InitState: InitStateCompiler,
   List: ListCompiler,
   MultiChoice: MultiChoiceCompiler,
   Object: ObjectCompiler,
   Passage: PassageCompiler,
   PassageMetadata: PassageMetadataCompiler,
   PassageText: PassageTextCompiler,
+  ReturnedEffect: ReturnedEffectCompiler,
   Selector: SelectorCompiler,
   Sequence: SequenceCompiler,
   SetContext: SetContextCompiler,
+  SetState: SetStateCompiler,
+  Stateful: StatefulCompiler,
   Text: TextCompiler,
   Value: ValueCompiler,
 };

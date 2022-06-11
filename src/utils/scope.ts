@@ -48,6 +48,7 @@ export function setOnScope(context: Context, key: string | string[], val: any) {
 
     if (prevValue !== undefined) {
       set(scope, key, val);
+      return;
     }
   }
 

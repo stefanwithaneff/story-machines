@@ -1,11 +1,11 @@
-import { Context, Result, EffectHandler, Effect } from "../../types";
+import { Context, Result, EffectHandlerFn, Effect } from "../../types";
 import { getFromScope, initScope } from "../../utils/scope";
 import { DecoratorMachine } from "../base-classes/decorator-machine";
-import { HANDLERS, INITIAL_STATE, STATE } from "./constants";
+import { HandlerEntry, HANDLERS, INITIAL_STATE, STATE } from "./constants";
 
 export class State extends DecoratorMachine {
   private isInitialized = false;
-  private handlers: Record<string, EffectHandler | undefined> = {};
+  private handlers: Record<string, EffectHandlerFn | undefined> = {};
   private state: Record<string, any> = {};
 
   private handleEffects(context: Context) {
@@ -16,7 +16,7 @@ export class State extends DecoratorMachine {
       const handler = this.handlers[effect.type];
 
       if (handler) {
-        const effects = handler(this.state, effect);
+        const effects = handler(context, effect);
         newEffects.push(...effects);
       } else {
         newEffects.push(effect);
@@ -30,27 +30,28 @@ export class State extends DecoratorMachine {
     if (!this.isInitialized) {
       const state =
         getFromScope(context, INITIAL_STATE) ?? context[INITIAL_STATE];
-      const handlers = getFromScope(context, HANDLERS) ?? context[HANDLERS];
+      const handlers: HandlerEntry[] =
+        getFromScope(context, HANDLERS) ?? context[HANDLERS];
 
-      if (!state || !handlers) {
+      if (!state) {
         return { status: "Terminated" };
       }
 
       this.state = state;
-      this.handlers = handlers;
       this.isInitialized = true;
+      for (const { type, handler } of handlers) {
+        this.handlers[type] = handler;
+      }
     }
 
     initScope(context, STATE, this.state);
 
     const result = this.child.process(context);
 
-    if (result.status === "Terminated") {
-      return result;
+    if (result.status !== "Terminated") {
+      this.handleEffects(context);
     }
 
-    this.handleEffects(context);
-
-    return { status: "Completed" };
+    return result;
   }
 }

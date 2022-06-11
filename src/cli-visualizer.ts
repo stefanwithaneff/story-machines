@@ -120,7 +120,11 @@ async function run() {
 
   displayOutput(context.output);
 
-  console.log("The end. Thanks for playing!");
+  if (result.status === "Completed") {
+    console.log("The end. Thanks for playing!");
+  } else {
+    console.error("An error occurred while playing the story");
+  }
   process.exit(0);
 }
 
