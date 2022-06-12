@@ -1,5 +1,6 @@
 <Stateful>
   <InitState>
+    <Value key="barnacleName">"Chad"</Value>
     <Value key="spongebob_mood">"happy"</Value>
   </InitState>
   <EffectHandler type="change_mood" payloadKey="effectPayload">
@@ -22,7 +23,7 @@
         </Object>
       </List>
     </PassageMetadata>
-    <PassageText>Once upon a time, there was an ugly barnacle named {{ $ctx.barnacleName }}. He was so {{ "ugly" }}...</PassageText>
+    <PassageText>Once upon a time, there was an ugly barnacle named {{ $state.barnacleName }}. He was so {{ "ugly" }}...</PassageText>
     <Choices>
       <MultiChoice>
         <Choice>

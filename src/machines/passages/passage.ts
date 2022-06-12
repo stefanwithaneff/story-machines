@@ -14,6 +14,7 @@ import { PassageMetadata } from "./passage-metadata";
 import { Context, Result } from "../../types";
 import { Once } from "../base-machines/once";
 import { PassageBuilder } from "./passage-builder";
+import { Wait } from "../base-machines/wait";
 
 interface PassageAttributes extends StoryMachineAttributes {
   builders: StoryMachine[];
@@ -36,6 +37,7 @@ export class Passage extends StoryMachine<PassageAttributes> {
           }),
         }),
         ...attrs.nodes,
+        new Wait({}),
       ],
     });
   }
@@ -51,14 +53,6 @@ export const PassageCompiler: StoryMachineCompiler = {
 
     const builders = children.filter((node) => isPassageBuilder(node));
     const nodes = children.filter((node) => !isPassageBuilder(node));
-
-    if (builders.length < 1) {
-      throw new ValidationError(
-        `Expected at least one of either PassageText or PassageMetadata`
-      );
-    }
-
-    const id = tree.attributes.id ?? nanoid();
 
     return new Passage({ ...tree.attributes, builders, nodes });
   },
