@@ -1,4 +1,5 @@
 import { Context, Result } from "../../types";
+import { isOfType } from "../../utils/tree-utils";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -43,8 +44,8 @@ export const StatefulCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const children = runtime.compileChildElements(tree.elements);
 
-    const builders = children.filter((child) => child.isOfType(STATE_BUILDER));
-    const nodes = children.filter((child) => !child.isOfType(STATE_BUILDER));
+    const builders = children.filter((child) => isOfType(child, STATE_BUILDER));
+    const nodes = children.filter((child) => !isOfType(child, STATE_BUILDER));
 
     return new Stateful({ builders, nodes });
   },

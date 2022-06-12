@@ -20,10 +20,9 @@ export abstract class StoryMachine<
   }
 
   abstract process(context: Context): Result;
-
-  isOfType(type: symbol): boolean {
-    return this.machineTypes.includes(type);
-  }
+  // abstract init(): void;
+  // abstract save(): any;
+  // abstract load(saveData: any): void;
 }
 
 export interface StoryMachineCompiler {
