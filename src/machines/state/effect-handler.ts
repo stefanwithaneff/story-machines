@@ -1,10 +1,19 @@
-import { Context, Effect, EffectHandlerFn, Result } from "../../types";
+import {
+  Context,
+  Effect,
+  EffectHandlerFn,
+  ElementTree,
+  Result,
+} from "../../types";
 import { getFromScope, initScope, setOnScope } from "../../utils/scope";
 import {
   CompositeMachine,
   CompositeMachineAttributes,
 } from "../base-classes/composite-machine";
-import { StoryMachineCompiler } from "../base-classes/story-machine";
+import {
+  StoryMachine,
+  StoryMachineCompiler,
+} from "../base-classes/story-machine";
 import { Sequence } from "../base-machines/sequence";
 import {
   CAN_ALTER_STATE,
@@ -17,7 +26,26 @@ import {
 
 interface EffectHandlerAttributes extends CompositeMachineAttributes {
   type: string;
+  tree: ElementTree;
   payloadKey?: string;
+}
+
+export function createEffectHandler(
+  attributes: EffectHandlerAttributes,
+  processor: StoryMachine
+) {
+  return (context: Context, effect: Effect) => {
+    initScope(
+      context,
+      attributes.payloadKey ?? RETURNED_EFFECT_PAYLOAD,
+      effect.payload
+    );
+    initScope(context, RETURNED_EFFECTS, []);
+    initScope(context, CAN_ALTER_STATE, true);
+    processor.process(context);
+    setOnScope(context, CAN_ALTER_STATE, false);
+    return getFromScope(context, RETURNED_EFFECTS);
+  };
 }
 
 export class EffectHandler extends CompositeMachine<EffectHandlerAttributes> {
@@ -30,16 +58,7 @@ export class EffectHandler extends CompositeMachine<EffectHandlerAttributes> {
       children: this.children,
     });
 
-    const payloadKey = this.attrs.payloadKey ?? RETURNED_EFFECT_PAYLOAD;
-
-    this.handler = (context: Context, effect: Effect) => {
-      initScope(context, payloadKey, effect.payload);
-      initScope(context, RETURNED_EFFECTS, []);
-      initScope(context, CAN_ALTER_STATE, true);
-      processor.process(context);
-      setOnScope(context, CAN_ALTER_STATE, false);
-      return getFromScope(context, RETURNED_EFFECTS);
-    };
+    this.handler = createEffectHandler(this.attrs, processor);
   }
   process(context: Context): Result {
     const handlerList: HandlerEntry[] =
@@ -47,6 +66,7 @@ export class EffectHandler extends CompositeMachine<EffectHandlerAttributes> {
 
     const handlerEntry: HandlerEntry = {
       type: this.attrs.type,
+      tree: this.attrs.tree,
       handler: this.handler,
     };
 
@@ -71,6 +91,7 @@ export const EffectHandlerCompiler: StoryMachineCompiler = {
 
     return new EffectHandler({
       ...tree.attributes,
+      tree,
       type,
       payloadKey,
       children,

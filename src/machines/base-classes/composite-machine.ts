@@ -1,3 +1,5 @@
+import { StoryMachineRuntime } from "../../runtime";
+import { SaveData } from "../../types";
 import { StoryMachine, StoryMachineAttributes } from "./story-machine";
 
 export interface CompositeMachineAttributes extends StoryMachineAttributes {
@@ -12,5 +14,20 @@ export abstract class CompositeMachine<
     super(attributes);
 
     this.children = attributes.children;
+  }
+  init() {
+    for (const child of this.children) {
+      child.init();
+    }
+  }
+  save(saveData: SaveData) {
+    for (const child of this.children) {
+      child.save(saveData);
+    }
+  }
+  load(saveData: SaveData, runtime: StoryMachineRuntime) {
+    for (const child of this.children) {
+      child.load(saveData, runtime);
+    }
   }
 }

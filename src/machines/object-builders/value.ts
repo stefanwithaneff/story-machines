@@ -14,6 +14,9 @@ interface ValueAttributes extends StoryMachineAttributes {
 }
 
 export class Value extends StoryMachine<ValueAttributes> {
+  init() {}
+  save() {}
+  load() {}
   process(context: Context): Result {
     const val = this.attrs.expression.calc(context);
     const keyPrefix: string[] = getFromScope(context, KEY_PREFIX);

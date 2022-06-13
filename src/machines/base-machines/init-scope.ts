@@ -13,6 +13,9 @@ export interface InitScopeAttributes extends StoryMachineAttributes {
 }
 
 export class InitScope extends StoryMachine<InitScopeAttributes> {
+  init() {}
+  save() {}
+  load() {}
   process(context: Context): Result {
     try {
       const val = this.attrs.expression.calc(context);

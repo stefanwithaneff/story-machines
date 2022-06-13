@@ -1,4 +1,4 @@
-import { Context, Result } from "../../types";
+import { Context } from "../../types";
 import { createStoryMachine } from "../../utils/create-story-machine";
 import {
   StoryMachine,
@@ -12,8 +12,9 @@ import { MemorySequence } from "../base-machines/memory-sequence";
 import { SetContext } from "../base-machines/set-context";
 import { Wait } from "../base-machines/wait";
 import { Scoped } from "../base-machines/scoped";
-import { ChoiceBuilder } from "./choice-builder";
-import { CHOICE_ID } from "./constants";
+import { CHOICE_BUILDER, CHOICE_ID } from "./constants";
+import { isOfType } from "../../utils/tree-utils";
+import { ProcessorMachine } from "../base-classes/processor-machine";
 
 interface ChoiceAttributes extends StoryMachineAttributes {
   builders: StoryMachine[];
@@ -21,14 +22,11 @@ interface ChoiceAttributes extends StoryMachineAttributes {
   nodes: StoryMachine[];
 }
 
-export class Choice extends StoryMachine<ChoiceAttributes> {
-  private processor: StoryMachine;
-  constructor(attrs: ChoiceAttributes) {
-    super(attrs);
-
-    const { builders, conditions, nodes } = attrs;
-
-    this.processor = new MemorySequence({
+export class Choice extends ProcessorMachine<ChoiceAttributes> {
+  protected createProcessor() {
+    const { builders, conditions, nodes } = this.attrs;
+    return new MemorySequence({
+      id: this.generateId("memory_seq"),
       children: [
         // Present Choice to user
         new Scoped({
@@ -46,7 +44,7 @@ export class Choice extends StoryMachine<ChoiceAttributes> {
         }),
         // TODO: Decide whether to Wait vs. Deleting input in next machine to avoid the cascading input problem
         // Wait until next tick to avoid cascading input
-        new Wait({}),
+        new Wait({ id: this.generateId("wait") }),
         // Check if the incoming input is a matching choice
         createStoryMachine((context: Context) => {
           const { input } = context;
@@ -62,9 +60,6 @@ export class Choice extends StoryMachine<ChoiceAttributes> {
         ...nodes,
       ],
     });
-  }
-  process(context: Context): Result {
-    return this.processor.process(context);
   }
 }
 
@@ -86,5 +81,5 @@ export const ChoiceCompiler: StoryMachineCompiler = {
 };
 
 function isChoiceBuilder(node: StoryMachine): boolean {
-  return node instanceof ChoiceBuilder;
+  return isOfType(node, CHOICE_BUILDER);
 }

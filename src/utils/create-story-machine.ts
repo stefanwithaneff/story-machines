@@ -5,6 +5,9 @@ const staticMixin = {
   id: "FUNCTIONAL_MACHINE",
   machineTypes: [],
   attrs: {},
+  init() {},
+  save() {},
+  load(state: any) {},
 };
 
 export function createStoryMachine(fn: ProcessFn): StoryMachine {

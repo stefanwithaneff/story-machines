@@ -7,18 +7,22 @@ import {
 import { getOutputBuilder } from "../../utils/output-builder";
 import { initScope } from "../../utils/scope";
 import {
+  StoryMachine,
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
 import { createDevErrorEffect } from "../effects/dev-error";
-import { PASSAGE_TEXT } from "./constants";
-import { PassageBuilder } from "./passage-builder";
+import { PASSAGE_BUILDER, PASSAGE_TEXT } from "./constants";
 
 interface PassageTextAttributes extends StoryMachineAttributes {
   expressions: Expression[];
 }
 
-export class PassageText extends PassageBuilder<PassageTextAttributes> {
+export class PassageText extends StoryMachine<PassageTextAttributes> {
+  machineTypes: symbol[] = [PASSAGE_BUILDER];
+  init() {}
+  save() {}
+  load() {}
   process(context: Context): Result {
     try {
       const evalText = replaceWithParsedExpressions(

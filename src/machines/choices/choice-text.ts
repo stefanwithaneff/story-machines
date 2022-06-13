@@ -6,17 +6,21 @@ import {
 } from "../../utils/expression-parser";
 import { initScope } from "../../utils/scope";
 import {
+  StoryMachine,
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
-import { ChoiceBuilder } from "./choice-builder";
-import { CHOICE_TEXT } from "./constants";
+import { CHOICE_BUILDER, CHOICE_TEXT } from "./constants";
 
 interface ChoiceTextAttributes extends StoryMachineAttributes {
   expressions: Expression[];
 }
 
-export class ChoiceText extends ChoiceBuilder<ChoiceTextAttributes> {
+export class ChoiceText extends StoryMachine<ChoiceTextAttributes> {
+  machineTypes: symbol[] = [CHOICE_BUILDER];
+  init() {}
+  save() {}
+  load() {}
   process(context: Context): Result {
     const evalText = replaceWithParsedExpressions(
       context,

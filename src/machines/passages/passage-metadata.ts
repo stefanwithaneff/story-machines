@@ -1,12 +1,15 @@
 import { Context, Result } from "../../types";
 import { initScope } from "../../utils/scope";
-import { CompositeMachineAttributes } from "../base-classes/composite-machine";
+import { CompositeMachine } from "../base-classes/composite-machine";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
 import { KEY_PREFIX } from "../object-builders/constants";
-import { PASSAGE_METADATA } from "./constants";
-import { PassageBuilder } from "./passage-builder";
+import { PASSAGE_BUILDER, PASSAGE_METADATA } from "./constants";
 
-export class PassageMetadata extends PassageBuilder<CompositeMachineAttributes> {
+export class PassageMetadata extends CompositeMachine {
+  machineTypes: symbol[] = [PASSAGE_BUILDER];
+  init() {}
+  save() {}
+  load() {}
   process(context: Context): Result {
     try {
       initScope(context, PASSAGE_METADATA, {});
@@ -31,6 +34,6 @@ export const PassageMetadataCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const children = runtime.compileChildElements(tree.elements);
 
-    return new PassageMetadata({ children });
+    return new PassageMetadata({ ...tree.attributes, children });
   },
 };

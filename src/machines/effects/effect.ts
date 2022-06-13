@@ -1,14 +1,9 @@
-import { Context, Result } from "../../types";
+import { Context } from "../../types";
 import { createStoryMachine } from "../../utils/create-story-machine";
 import { initScope } from "../../utils/scope";
-import {
-  CompositeMachine,
-  CompositeMachineAttributes,
-} from "../base-classes/composite-machine";
-import {
-  StoryMachine,
-  StoryMachineCompiler,
-} from "../base-classes/story-machine";
+import { CompositeMachineAttributes } from "../base-classes/composite-machine";
+import { ProcessorMachine } from "../base-classes/processor-machine";
+import { StoryMachineCompiler } from "../base-classes/story-machine";
 import { AddEffect } from "../base-machines/add-effect";
 import { Once } from "../base-machines/once";
 import { Scoped } from "../base-machines/scoped";
@@ -20,13 +15,10 @@ interface EffectAttributes extends CompositeMachineAttributes {
   type: string;
 }
 
-export class Effect extends CompositeMachine<EffectAttributes> {
-  private processor: StoryMachine;
-
-  constructor(attrs: EffectAttributes) {
-    super(attrs);
-
-    this.processor = new Once({
+export class Effect extends ProcessorMachine<EffectAttributes> {
+  protected createProcessor() {
+    return new Once({
+      id: `once_${this.id}`,
       child: new Scoped({
         child: new Sequence({
           children: [
@@ -40,16 +32,12 @@ export class Effect extends CompositeMachine<EffectAttributes> {
               }
               return { status: "Completed" };
             }),
-            ...this.children,
+            ...this.attrs.children,
             new AddEffect({}),
           ],
         }),
       }),
     });
-  }
-
-  process(context: Context): Result {
-    return this.processor.process(context);
   }
 }
 

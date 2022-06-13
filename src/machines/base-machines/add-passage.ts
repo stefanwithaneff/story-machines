@@ -14,6 +14,9 @@ interface AddPassageInternalAttributes extends StoryMachineAttributes {
 }
 
 export class AddPassageInternal extends StoryMachine<AddPassageInternalAttributes> {
+  init() {}
+  save() {}
+  load() {}
   process(context: Context): Result {
     const builder = getOutputBuilder(context);
     builder.addPassage(this.attrs.passage);
@@ -22,6 +25,9 @@ export class AddPassageInternal extends StoryMachine<AddPassageInternalAttribute
 }
 
 export class AddPassage extends StoryMachine {
+  init() {}
+  save() {}
+  load() {}
   process(context: Context): Result {
     const text = getFromScope(context, PASSAGE_TEXT) ?? context[PASSAGE_TEXT];
     const metadata =
@@ -44,6 +50,6 @@ export class AddPassage extends StoryMachine {
 
 export const AddPassageCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
-    return new AddPassage({});
+    return new AddPassage({ ...tree.attributes });
   },
 };

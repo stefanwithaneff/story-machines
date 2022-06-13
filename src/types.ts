@@ -48,6 +48,8 @@ export interface ElementTree {
   elements: ElementTree[];
 }
 
+export type SaveData = Record<string, any>;
+
 export type ProcessFn = (context: Context) => Result;
 
 export type ProcessorFactory<A extends any[] = []> = (

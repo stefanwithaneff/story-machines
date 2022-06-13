@@ -16,6 +16,9 @@ interface SetStateAttributes extends StoryMachineAttributes {
 }
 
 export class SetState extends StoryMachine<SetStateAttributes> {
+  init() {}
+  save() {}
+  load() {}
   process(context: Context): Result {
     const { key, expression } = this.attrs;
     const builder = getOutputBuilder(context);

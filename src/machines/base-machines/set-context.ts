@@ -11,7 +11,11 @@ export interface SetContextAttributes extends StoryMachineAttributes {
   val: any;
 }
 
+// TODO: Update SetContext to use parsed textContent expressions
 export class SetContext extends StoryMachine<SetContextAttributes> {
+  init() {}
+  save() {}
+  load() {}
   process(context: Context): Result {
     set(context, this.attrs.key, this.attrs.val);
     return { status: "Completed" };

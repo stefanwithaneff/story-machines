@@ -13,6 +13,9 @@ interface ObjectAttributes extends CompositeMachineAttributes {
 
 // Named "ObjectMachine" instead of "Object" due to JS runtime conflict
 export class ObjectMachine extends StoryMachine<ObjectAttributes> {
+  init() {}
+  save() {}
+  load() {}
   process(context: Context): Result {
     const keyPrefix: string[] = getFromScope(context, KEY_PREFIX);
 

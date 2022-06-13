@@ -13,6 +13,9 @@ export interface SetScopeAttributes extends StoryMachineAttributes {
 }
 
 export class SetScope extends StoryMachine<SetScopeAttributes> {
+  init() {}
+  save() {}
+  load() {}
   process(context: Context): Result {
     try {
       const val = this.attrs.expression.calc(context);

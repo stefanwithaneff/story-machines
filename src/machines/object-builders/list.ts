@@ -12,6 +12,9 @@ interface ListAttributes extends CompositeMachineAttributes {
 }
 
 export class List extends StoryMachine<ListAttributes> {
+  init() {}
+  save() {}
+  load() {}
   process(context: Context): Result {
     const keyPrefix: string[] = getFromScope(context, KEY_PREFIX);
 

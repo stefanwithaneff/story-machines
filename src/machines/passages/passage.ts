@@ -1,5 +1,3 @@
-import { nanoid } from "nanoid";
-import { ValidationError } from "../../utils/errors";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -9,41 +7,34 @@ import { Sequence } from "../base-machines/sequence";
 import { ImmediateSequence } from "../base-machines/immediate-sequence";
 import { Scoped } from "../base-machines/scoped";
 import { AddPassage } from "../base-machines/add-passage";
-import { PassageText } from "./passage-text";
-import { PassageMetadata } from "./passage-metadata";
-import { Context, Result } from "../../types";
+import { Context, Result, SaveData } from "../../types";
 import { Once } from "../base-machines/once";
-import { PassageBuilder } from "./passage-builder";
 import { Wait } from "../base-machines/wait";
+import { isOfType } from "../../utils/tree-utils";
+import { PASSAGE_BUILDER } from "./constants";
+import { ProcessorMachine } from "../base-classes/processor-machine";
 
 interface PassageAttributes extends StoryMachineAttributes {
   builders: StoryMachine[];
   nodes: StoryMachine[];
 }
 
-export class Passage extends StoryMachine<PassageAttributes> {
-  private processor: StoryMachine;
-
-  constructor(attrs: PassageAttributes) {
-    super(attrs);
-
-    this.processor = new ImmediateSequence({
+export class Passage extends ProcessorMachine<PassageAttributes> {
+  protected createProcessor() {
+    return new ImmediateSequence({
       children: [
         new Scoped({
           child: new Once({
+            id: `once_${this.id}`,
             child: new Sequence({
-              children: [...attrs.builders, new AddPassage({})],
+              children: [...this.attrs.builders, new AddPassage({})],
             }),
           }),
         }),
-        ...attrs.nodes,
-        new Wait({}),
+        ...this.attrs.nodes,
+        new Wait({ id: `wait_${this.id}` }),
       ],
     });
-  }
-
-  process(context: Context): Result {
-    return this.processor.process(context);
   }
 }
 
@@ -59,5 +50,5 @@ export const PassageCompiler: StoryMachineCompiler = {
 };
 
 function isPassageBuilder(node: StoryMachine): boolean {
-  return node instanceof PassageBuilder;
+  return isOfType(node, PASSAGE_BUILDER);
 }

@@ -20,6 +20,9 @@ interface AddChoiceInternalAttributes extends StoryMachineAttributes {
 }
 
 export class AddChoiceInternal extends StoryMachine<AddChoiceInternalAttributes> {
+  init() {}
+  save() {}
+  load() {}
   process(context: Context): Result {
     const builder = getOutputBuilder(context);
     builder.addChoice(this.attrs.choice);
@@ -28,6 +31,9 @@ export class AddChoiceInternal extends StoryMachine<AddChoiceInternalAttributes>
 }
 
 export class AddChoice extends StoryMachine {
+  init() {}
+  save() {}
+  load() {}
   process(context: AddChoiceContext): Result {
     const choiceText =
       getFromScope(context, CHOICE_TEXT) ?? context[CHOICE_TEXT];
@@ -53,6 +59,6 @@ export class AddChoice extends StoryMachine {
 
 export const AddChoiceCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
-    return new AddChoice({});
+    return new AddChoice({ ...tree.attributes });
   },
 };

@@ -1,3 +1,5 @@
+import { StoryMachineRuntime } from "../../runtime";
+import { SaveData } from "../../types";
 import { StoryMachine, StoryMachineAttributes } from "./story-machine";
 
 export interface DecoratorAttributes extends StoryMachineAttributes {
@@ -13,5 +15,15 @@ export abstract class DecoratorMachine<
     super(attributes);
 
     this.child = attributes.child;
+  }
+
+  init() {
+    this.child.init();
+  }
+  save(saveData: SaveData) {
+    this.child.save(saveData);
+  }
+  load(saveData: SaveData, runtime: StoryMachineRuntime) {
+    this.child.load(saveData, runtime);
   }
 }

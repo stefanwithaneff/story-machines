@@ -1,4 +1,4 @@
-import { Context, Result } from "../../types";
+import { ProcessorMachine } from "../base-classes/processor-machine";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -13,20 +13,12 @@ interface MultiChoiceAttributes extends StoryMachineAttributes {
   nodes: StoryMachine[];
 }
 
-export class MultiChoice extends StoryMachine<MultiChoiceAttributes> {
-  private processor: StoryMachine;
-  constructor(attrs: MultiChoiceAttributes) {
-    super(attrs);
-
-    const { choices, nodes } = attrs;
-
-    this.processor = new Sequence({
+export class MultiChoice extends ProcessorMachine<MultiChoiceAttributes> {
+  protected createProcessor() {
+    const { choices, nodes } = this.attrs;
+    return new Sequence({
       children: [new ImmediateSelector({ children: choices }), ...nodes],
     });
-  }
-
-  process(context: Context): Result {
-    return this.processor.process(context);
   }
 }
 
