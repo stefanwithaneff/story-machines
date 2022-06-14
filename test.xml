@@ -2,6 +2,7 @@
   <InitState>
     <Value key="barnacleName">"Chad"</Value>
     <Value key="spongebob_mood">"happy"</Value>
+
   </InitState>
   <EffectHandler type="change_mood" payloadKey="effectPayload">
     <SetState key="spongebob_mood">$scope.effectPayload.mood</SetState>
@@ -25,7 +26,7 @@
     </PassageMetadata>
     <PassageText>Once upon a time, there was an ugly barnacle named {{ $state.barnacleName }}. He was so {{ "ugly" }}...</PassageText>
     <Choices>
-      <MultiChoice>
+      <MultiChoice id="abc123">
         <Choice>
           <Condition>1 lt 3</Condition>
           <ChoiceText>...everyone{{ (1 gt 3) ? " fucking " : " " }}died.</ChoiceText>

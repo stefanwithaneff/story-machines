@@ -35,6 +35,7 @@ export interface Output {
 
 export interface Context extends Record<string, any> {
   output: Output;
+  originalInput?: Input;
   input?: Input;
 }
 
@@ -65,3 +66,4 @@ export type CompositeFactory<A extends any[] = []> = (
 ) => ProcessFn;
 
 export type EffectHandlerFn = (context: Context, effect: Effect) => Effect[];
+export type HandlerMap = Record<string, EffectHandlerFn | undefined>;

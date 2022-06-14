@@ -7,6 +7,26 @@ import { Context, Result } from "../../types";
 import { setOnScope } from "../../utils/scope";
 import { Expression, ExpressionParser } from "../../utils/expression-parser";
 
+export interface SetScopeInternalAttributes extends StoryMachineAttributes {
+  key: string;
+  val: any;
+}
+
+export class SetScopeInternal extends StoryMachine<SetScopeInternalAttributes> {
+  init() {}
+  save() {}
+  load() {}
+  process(context: Context): Result {
+    try {
+      setOnScope(context, this.attrs.key, this.attrs.val);
+    } catch (e) {
+      return { status: "Terminated" };
+    }
+
+    return { status: "Completed" };
+  }
+}
+
 export interface SetScopeAttributes extends StoryMachineAttributes {
   key: string;
   expression: Expression;

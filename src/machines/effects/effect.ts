@@ -15,7 +15,8 @@ interface EffectAttributes extends CompositeMachineAttributes {
   type: string;
 }
 
-export class Effect extends ProcessorMachine<EffectAttributes> {
+// Naming it "EffectMachine" rather than "Effect" to avoid collision with the Effect type
+export class EffectMachine extends ProcessorMachine<EffectAttributes> {
   protected createProcessor() {
     return new Once({
       id: `once_${this.id}`,
@@ -44,7 +45,7 @@ export class Effect extends ProcessorMachine<EffectAttributes> {
 export const EffectCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const children = runtime.compileChildElements(tree.elements);
-    return new Effect({
+    return new EffectMachine({
       ...tree.attributes,
       type: tree.attributes.type,
       children,

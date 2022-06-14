@@ -1,37 +1,14 @@
 import { StoryMachineRuntime } from "../../runtime";
-import {
-  Context,
-  Result,
-  EffectHandlerFn,
-  Effect,
-  SaveData,
-} from "../../types";
+import { Context, Result, SaveData, HandlerMap } from "../../types";
+import { handleEffects } from "../../utils/effects";
 import { getFromScope, initScope } from "../../utils/scope";
 import { DecoratorMachine } from "../base-classes/decorator-machine";
 import { HandlerEntry, HANDLERS, INITIAL_STATE, STATE } from "./constants";
 
 export class State extends DecoratorMachine {
   private isInitialized = false;
-  private handlers: Record<string, EffectHandlerFn | undefined> = {};
+  private handlers: HandlerMap = {};
   private state: Record<string, any> = {};
-
-  private handleEffects(context: Context) {
-    const effects = context.output.effects;
-    const newEffects: Effect[] = [];
-
-    for (const effect of effects) {
-      const handler = this.handlers[effect.type];
-
-      if (handler) {
-        const effects = handler(context, effect);
-        newEffects.push(...effects);
-      } else {
-        newEffects.push(effect);
-      }
-    }
-
-    context.output.effects = newEffects;
-  }
 
   init() {
     this.isInitialized = false;
@@ -45,7 +22,7 @@ export class State extends DecoratorMachine {
     };
   }
 
-  load(saveData: SaveData, runtime: StoryMachineRuntime) {
+  load(saveData: SaveData) {
     const { state } = saveData[this.id];
     this.isInitialized = false;
     this.state = state;
@@ -75,7 +52,7 @@ export class State extends DecoratorMachine {
     const result = this.child.process(context);
 
     if (result.status !== "Terminated") {
-      this.handleEffects(context);
+      handleEffects(context, this.handlers);
     }
 
     return result;

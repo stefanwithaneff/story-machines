@@ -91,6 +91,7 @@ async function promptForChoice(
 
 function getEmptyContext(input?: Input): Context {
   return {
+    originalInput: input,
     input,
     output: {
       passages: [],

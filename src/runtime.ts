@@ -27,6 +27,7 @@ import { EffectHandlerCompiler } from "./machines/state/effect-handler";
 import { SetStateCompiler } from "./machines/state/set-state";
 import { ReturnedEffectCompiler } from "./machines/state/returned-effect";
 import { EffectCompiler } from "./machines/effects/effect";
+import { ChoicesCompiler } from "./machines/choices/choices";
 
 export class StoryMachineRuntime {
   private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
@@ -94,7 +95,7 @@ export class StoryMachineRuntime {
 const baseElements: Record<string, StoryMachineCompiler> = {
   Choice: ChoiceCompiler,
   ChoiceMetadata: ChoiceMetadataCompiler,
-  Choices: ImmediateSelectorCompiler,
+  Choices: ChoicesCompiler,
   ChoiceText: ChoiceTextCompiler,
   Condition: ConditionCompiler,
   Effect: EffectCompiler,
