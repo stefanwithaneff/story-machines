@@ -1,3 +1,4 @@
+import { SaveData } from "../../types";
 import { isOfType } from "../../utils/tree-utils";
 import { ProcessorMachine } from "../base-classes/processor-machine";
 import {
@@ -16,6 +17,11 @@ interface StatefulAttributes extends StoryMachineAttributes {
 }
 
 export class Stateful extends ProcessorMachine<StatefulAttributes> {
+  save(saveData: SaveData) {
+    super.save(saveData);
+    delete saveData[this.generateId("memory_seq_outer")];
+  }
+
   protected createProcessor() {
     return new Scoped({
       child: new MemorySequence({

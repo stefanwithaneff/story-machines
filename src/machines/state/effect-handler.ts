@@ -26,7 +26,6 @@ import {
 
 interface EffectHandlerAttributes extends CompositeMachineAttributes {
   type: string;
-  tree: ElementTree;
   payloadKey?: string;
 }
 
@@ -66,7 +65,6 @@ export class EffectHandler extends CompositeMachine<EffectHandlerAttributes> {
 
     const handlerEntry: HandlerEntry = {
       type: this.attrs.type,
-      tree: this.attrs.tree,
       handler: this.handler,
     };
 
@@ -91,7 +89,6 @@ export const EffectHandlerCompiler: StoryMachineCompiler = {
 
     return new EffectHandler({
       ...tree.attributes,
-      tree,
       type,
       payloadKey,
       children,

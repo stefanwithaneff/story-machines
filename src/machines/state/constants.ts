@@ -11,5 +11,4 @@ export const STATE_BUILDER = Symbol("STATE_BUILDER");
 export interface HandlerEntry {
   type: string;
   handler: EffectHandlerFn;
-  tree: ElementTree;
 }
