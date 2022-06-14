@@ -1,5 +1,8 @@
 import { Context, Effect, HandlerMap, Result } from "../../types";
-import { createStoryMachine } from "../../utils/create-story-machine";
+import {
+  createConditionalMachine,
+  createStoryMachine,
+} from "../../utils/create-story-machine";
 import { handleEffects } from "../../utils/effects";
 import { getFromScope } from "../../utils/scope";
 import { ProcessorMachine } from "../base-classes/processor-machine";
@@ -43,13 +46,9 @@ export class MultiChoice extends ProcessorMachine<MultiChoiceAttributes> {
           children: [
             new Sequence({
               children: [
-                createStoryMachine((context) => {
-                  const chosenId = getFromScope(context, CHOSEN_ID);
-                  if (chosenId && chosenId === this.id) {
-                    return { status: "Completed" };
-                  }
-                  return { status: "Terminated" };
-                }),
+                createConditionalMachine(
+                  (context) => getFromScope(context, CHOSEN_ID) === this.id
+                ),
                 new SetScopeInternal({ key: CHOSEN_ID, val: null }),
               ],
             }),

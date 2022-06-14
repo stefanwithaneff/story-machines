@@ -1,5 +1,8 @@
-import { Context } from "../../types";
-import { createStoryMachine } from "../../utils/create-story-machine";
+import { Context, Result, SaveData } from "../../types";
+import {
+  createConditionalMachine,
+  createStoryMachine,
+} from "../../utils/create-story-machine";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -8,18 +11,16 @@ import {
 import { AddChoice } from "../base-machines/add-choice";
 import { Condition } from "../base-machines/condition";
 import { Sequence } from "../base-machines/sequence";
-import { MemorySequence } from "../base-machines/memory-sequence";
 import { SetContext } from "../base-machines/set-context";
-import { Wait } from "../base-machines/wait";
 import { Scoped } from "../base-machines/scoped";
 import { CHOICE_BUILDER, CHOICE_ID, CHOSEN_ID } from "./constants";
 import { isOfType } from "../../utils/tree-utils";
-import { ProcessorMachine } from "../base-classes/processor-machine";
 import { getOutputBuilder } from "../../utils/output-builder";
 import { createMakeChoiceEffect } from "./make-choice";
 import { Selector } from "../base-machines/selector";
 import { getFromScope } from "../../utils/scope";
-import { SetScopeInternal } from "../base-machines/set-scope";
+import { StoryMachineRuntime } from "../../runtime";
+import { ImmediateSequence } from "../base-machines/immediate-sequence";
 
 interface ChoiceAttributes extends StoryMachineAttributes {
   builders: StoryMachine[];
@@ -27,10 +28,16 @@ interface ChoiceAttributes extends StoryMachineAttributes {
   nodes: StoryMachine[];
 }
 
-// TODO: Remove stateful elements from Choice and elevate it to Choices using a Selector + Condition combo
-// TODO: Figure out how to clean it up to look better
-export class Choice extends ProcessorMachine<ChoiceAttributes> {
+export class Choice extends StoryMachine<ChoiceAttributes> {
   private presented: boolean = false;
+  private nodesProcessor: StoryMachine;
+  private builderProcessor: StoryMachine;
+
+  constructor(attrs: ChoiceAttributes) {
+    super(attrs);
+    this.nodesProcessor = this.createNodesProcessor();
+    this.builderProcessor = this.createBuilderProcessor();
+  }
 
   private createBuildChoiceProcessor() {
     return new Scoped({
@@ -51,71 +58,69 @@ export class Choice extends ProcessorMachine<ChoiceAttributes> {
       }),
     });
   }
-  protected createProcessor() {
-    const { builders, conditions, nodes } = this.attrs;
+  private createNodesProcessor() {
+    return new Sequence({ children: this.attrs.nodes });
+  }
+  private createBuilderProcessor() {
     return new Sequence({
       children: [
         new Selector({
           children: [
-            // If chosenId is set by a parent element and it matches this choice, run the children
-            new Sequence({
-              children: [
-                createStoryMachine((context) => {
-                  const chosenId = getFromScope(context, CHOSEN_ID);
-                  if (chosenId && chosenId === this.id) {
-                    return { status: "Completed" };
-                  }
-                  return { status: "Terminated" };
-                }),
-                new SetScopeInternal({ key: CHOSEN_ID, val: null }),
-              ],
-            }),
-            // If chosenId is NULL and the choice has not been presented, present the choices and wait til next tick
-            new Sequence({
-              children: [
-                createStoryMachine((context) => {
-                  const chosenId = getFromScope(context, CHOSEN_ID);
-                  if (chosenId) {
-                    return { status: "Terminated" };
-                  }
-                  if (!this.presented) {
-                    return { status: "Completed" };
-                  }
-
-                  // If the choice has not been selected yet, keep checking for matching input
-                  const { input } = context;
-                  if (!input || input.type !== "Choice") {
-                    return { status: "Running" };
-                  }
-                  if (input.payload.id !== this.id) {
-                    return { status: "Terminated" };
-                  }
-                  const builder = getOutputBuilder(context);
-                  builder.addEffect(
-                    createMakeChoiceEffect({ choiceId: this.id })
-                  );
-                  context.input = undefined;
-                  return { status: "Completed" };
-                }),
-                new Selector({
-                  children: [
-                    createStoryMachine((context) => {
-                      // If the choice has not been presented yet, move on to the choice building step
-                      if (this.presented) {
-                        return { status: "Completed" };
-                      }
-                      return { status: "Terminated" };
-                    }),
-                    this.createBuildChoiceProcessor(),
-                  ],
-                }),
-              ],
+            createConditionalMachine(() => this.presented),
+            this.createBuildChoiceProcessor(),
+          ],
+        }),
+        createStoryMachine((context) => {
+          // If the choice has not been selected yet, keep checking for matchine input
+          const { input } = context;
+          if (!input || input.type !== "Choice") {
+            return { status: "Running" };
+          }
+          if (input.payload.id !== this.id) {
+            return { status: "Terminated" };
+          }
+          context.input = undefined;
+          return { status: "Completed" };
+        }),
+        new ImmediateSequence({
+          children: [
+            ...this.attrs.nodes,
+            createStoryMachine((context) => {
+              const builder = getOutputBuilder(context);
+              builder.addEffect(createMakeChoiceEffect({ choiceId: this.id }));
+              return { status: "Completed" };
             }),
           ],
         }),
-        ...nodes,
       ],
     });
+  }
+
+  init() {
+    this.presented = false;
+    this.nodesProcessor.init();
+    this.builderProcessor.init();
+  }
+
+  save(saveData: SaveData) {
+    this.nodesProcessor.save(saveData);
+  }
+
+  load(saveData: SaveData, runtime: StoryMachineRuntime) {
+    this.nodesProcessor.load(saveData, runtime);
+  }
+
+  process(context: Context): Result {
+    const chosenId: string | null = getFromScope(context, CHOSEN_ID);
+    if (chosenId === this.id) {
+      return this.nodesProcessor.process(context);
+    }
+
+    if (chosenId !== null) {
+      return { status: "Terminated" };
+    }
+
+    return this.builderProcessor.process(context);
   }
 }
 
