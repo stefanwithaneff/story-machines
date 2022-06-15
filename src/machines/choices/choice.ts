@@ -19,8 +19,9 @@ import { getOutputBuilder } from "../../utils/output-builder";
 import { createMakeChoiceEffect } from "./make-choice";
 import { Selector } from "../base-machines/selector";
 import { getFromScope } from "../../utils/scope";
-import { StoryMachineRuntime } from "../../runtime";
 import { ImmediateSequence } from "../base-machines/immediate-sequence";
+import { ProcessorMachine } from "../base-classes/processor-machine";
+import { SetScopeInternal } from "../base-machines/set-scope";
 
 interface ChoiceAttributes extends StoryMachineAttributes {
   builders: StoryMachine[];
@@ -28,16 +29,8 @@ interface ChoiceAttributes extends StoryMachineAttributes {
   nodes: StoryMachine[];
 }
 
-export class Choice extends StoryMachine<ChoiceAttributes> {
+export class Choice extends ProcessorMachine<ChoiceAttributes> {
   private presented: boolean = false;
-  private nodesProcessor: StoryMachine;
-  private builderProcessor: StoryMachine;
-
-  constructor(attrs: ChoiceAttributes) {
-    super(attrs);
-    this.nodesProcessor = this.createNodesProcessor();
-    this.builderProcessor = this.createBuilderProcessor();
-  }
 
   private createBuildChoiceProcessor() {
     return new Scoped({
@@ -58,12 +51,27 @@ export class Choice extends StoryMachine<ChoiceAttributes> {
       }),
     });
   }
-  private createNodesProcessor() {
-    return new Sequence({ children: this.attrs.nodes });
-  }
-  private createBuilderProcessor() {
+  private createAlreadyChosenProcessor() {
+    // If the chosen ID provided by a parent matches this Choice,
+    // delete the chosen ID from context and process the child nodes
     return new Sequence({
       children: [
+        createConditionalMachine(
+          (context) => getFromScope(context, CHOSEN_ID) === this.id
+        ),
+        new SetScopeInternal({ key: CHOSEN_ID, val: null }),
+        ...this.attrs.nodes,
+      ],
+    });
+  }
+  private createNotYetChosenProcessor() {
+    // If the chosen ID does not match and is null,
+    // build the choice if we haven't presented it already and wait for it to be selected
+    return new Sequence({
+      children: [
+        createConditionalMachine(
+          (context) => getFromScope(context, CHOSEN_ID) === null
+        ),
         new Selector({
           children: [
             createConditionalMachine(() => this.presented),
@@ -71,7 +79,6 @@ export class Choice extends StoryMachine<ChoiceAttributes> {
           ],
         }),
         createStoryMachine((context) => {
-          // If the choice has not been selected yet, keep checking for matchine input
           const { input } = context;
           if (!input || input.type !== "Choice") {
             return { status: "Running" };
@@ -96,31 +103,13 @@ export class Choice extends StoryMachine<ChoiceAttributes> {
     });
   }
 
-  init() {
-    this.presented = false;
-    this.nodesProcessor.init();
-    this.builderProcessor.init();
-  }
-
-  save(saveData: SaveData) {
-    this.nodesProcessor.save(saveData);
-  }
-
-  load(saveData: SaveData, runtime: StoryMachineRuntime) {
-    this.nodesProcessor.load(saveData, runtime);
-  }
-
-  process(context: Context): Result {
-    const chosenId: string | null = getFromScope(context, CHOSEN_ID);
-    if (chosenId === this.id) {
-      return this.nodesProcessor.process(context);
-    }
-
-    if (chosenId !== null) {
-      return { status: "Terminated" };
-    }
-
-    return this.builderProcessor.process(context);
+  protected createProcessor() {
+    return new Selector({
+      children: [
+        this.createAlreadyChosenProcessor(),
+        this.createNotYetChosenProcessor(),
+      ],
+    });
   }
 }
 
