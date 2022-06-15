@@ -3,7 +3,7 @@ import { Context, SaveData } from "../../types";
 import { StoryMachine, StoryMachineAttributes } from "./story-machine";
 
 export abstract class ProcessorMachine<
-  A extends StoryMachineAttributes
+  A extends StoryMachineAttributes = StoryMachineAttributes
 > extends StoryMachine<A> {
   protected processor: StoryMachine;
   constructor(attrs: A) {

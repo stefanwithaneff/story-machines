@@ -1,180 +1,201 @@
-// TODO: Get Ink machine working again
-// import { Story } from "inkjs/engine/Story";
-// import { EffectParser } from "./effect-parser";
-// import {
-//   StoryMachine,
-//   Choice,
-//   Effect,
-//   StoryMachineStatus,
-//   Input,
-//   Output,
-// } from "../base-machines/story-machine";
-// import { ElementTree } from "../base-machines/story-machine";
+import { Story } from "inkjs/engine/Story";
+import * as Ink from "inkjs";
+import {
+  Choice,
+  Context,
+  Effect,
+  Output,
+  Passage,
+  Result,
+  SaveData,
+} from "../../types";
+import {
+  StoryMachine,
+  StoryMachineAttributes,
+  StoryMachineCompiler,
+} from "../base-classes/story-machine";
+import { EffectParser } from "./effect-parser";
+import { ProcessorMachine } from "../base-classes/processor-machine";
+import { Sequence } from "../base-machines/sequence";
+import { Scoped } from "../base-machines/scoped";
+import { Selector } from "../base-machines/selector";
+import {
+  createConditionalMachine,
+  createStoryMachine,
+} from "../../utils/create-story-machine";
+import { getFromScope } from "../../utils/scope";
+import {
+  InkExternalFunction,
+  INK_EXTERNAL_FUNCS,
+  INK_INITIALIZER,
+  INK_POSTPROCESSER,
+  INK_PREPROCESSER,
+  INK_STORY,
+} from "./constants";
+import { InitScopeInternal } from "../base-machines/init-scope";
+import { getOutputBuilder } from "../../utils/output-builder";
+import { isOfType } from "../../utils/tree-utils";
 
-// type InkChoice = Story["currentChoices"][0];
+function parseEffectFromInkTag(tag: string): Effect | null {
+  const result = EffectParser.parse(tag);
 
-// function transformInkChoice(choice: InkChoice, id: Choice["id"]): Choice {
-//   return {
-//     id,
-//     text: choice.text,
-//     metadata: {},
-//   };
-// }
+  if (result.status === false) {
+    return null;
+  }
 
-// function parseEffectFromInkTag(tag: string): Effect | null {
-//   const result = EffectParser.parse(tag);
+  return result.value;
+}
 
-//   if (result.status === false) {
-//     return null;
-//   }
+function getEffectsFromInkTags(tags: Story["currentTags"]): Effect[] {
+  const effects: Effect[] = [];
 
-//   return result.value;
-// }
+  if (tags === null) {
+    return effects;
+  }
 
-// function getEffectsFromInkTags(tags: Story["currentTags"]): Effect[] {
-//   const effects: Effect[] = [];
+  for (const tag of tags) {
+    const effect = parseEffectFromInkTag(tag);
 
-//   if (tags === null) {
-//     return effects;
-//   }
+    if (effect !== null) {
+      effects.push(effect);
+    }
+  }
 
-//   for (const tag of tags) {
-//     const effect = parseEffectFromInkTag(tag);
+  return effects;
+}
 
-//     if (effect !== null) {
-//       effects.push(effect);
-//     }
-//   }
+interface InkMachineAttributes extends StoryMachineAttributes {
+  initializers: StoryMachine[];
+  preprocessors: StoryMachine[];
+  postprocessors: StoryMachine[];
+}
 
-//   return effects;
-// }
+export class InkMachine extends ProcessorMachine<InkMachineAttributes> {
+  private story: Story | undefined;
+  private initialized: boolean = false;
 
-// export class Ink extends StoryMachine {
-//   private story: Story;
+  init() {
+    super.init();
+    this.initialized = false;
+    this.story = undefined;
+  }
 
-//   constructor(tree: ElementTree) {
-//     super(tree);
+  private createStoryInitializerProcessor() {
+    return new Selector({
+      children: [
+        createConditionalMachine(() => this.initialized),
+        new Sequence({
+          children: [
+            ...this.attrs.initializers,
+            createStoryMachine((context) => {
+              const story: Story = getFromScope(context, INK_STORY);
 
-//     const { filename } = tree.attributes;
+              this.story = story;
 
-//     const inkJson = "{}"; // TODO: Figure out how to retrieve the file in question, probably with fs sync methods (which basically means Ink is only supported out of browser...)
+              const externalFuncs: InkExternalFunction[] =
+                getFromScope(context, INK_EXTERNAL_FUNCS) ?? [];
 
-//     this.story = new Story(inkJson);
-//   }
+              for (const { fn, name, isGeneral } of externalFuncs) {
+                if (isGeneral) {
+                  story.BindExternalFunctionGeneral(name, fn, false);
+                } else {
+                  story.BindExternalFunction(name, fn, false);
+                }
+              }
+              this.initialized = true;
+              return { status: "Completed" };
+            }),
+          ],
+        }),
+      ],
+    });
+  }
 
-//   getChildren() {
-//     return [];
-//   }
+  buildOutput(context: Context): void {
+    if (!this.story) {
+      return;
+    }
+    const { currentText, currentChoices, currentTags } = this.story;
+    const builder = getOutputBuilder(context);
 
-//   getChildState(externalState: any) {
-//     return externalState;
-//   }
+    if (currentText) {
+      builder.addPassage({ text: currentText, metadata: {} });
+    }
 
-//   private setExternalState(externalState: any) {
-//     for (const [key, value] of Object.entries(externalState)) {
-//       this.story.variablesState.$(key, value);
-//     }
-//   }
+    for (let i = 0; i < currentChoices.length; i++) {
+      builder.addChoice({
+        id: `${this.id}#${i}`,
+        text: currentChoices[i].text,
+        metadata: {},
+      });
+    }
 
-//   private continueStory(): Output {
-//     if (this.story.canContinue) {
-//       const text = [this.story.Continue() ?? ""];
-//       const choices = this.story.currentChoices.map(transformInkChoice);
+    const effects = getEffectsFromInkTags(currentTags);
+    for (const effect of effects) {
+      builder.addEffect(effect);
+    }
+  }
 
-//       const effects = getEffectsFromInkTags(this.story.currentTags);
+  private createRunStoryProcessor() {
+    return new Sequence({
+      children: [
+        new InitScopeInternal({ key: INK_STORY, getter: () => this.story }),
+        ...this.attrs.preprocessors,
+        createStoryMachine((context) => {
+          const { input } = context;
 
-//       return { status: "Active" as const, text, choices, effects };
-//     }
+          if (
+            input &&
+            input.type === "Choice" &&
+            input.payload.id.startsWith(this.id)
+          ) {
+            const [_, choiceId] = input.payload.id.split("#");
+            this.story?.ChooseChoiceIndex(Number(choiceId));
+          }
 
-//     return { status: "Done" as const, text: [], choices: [], effects: [] };
-//   }
+          if (this.story?.canContinue) {
+            this.story.Continue();
+            this.buildOutput(context);
+            return { status: "Running" };
+          }
 
-//   produceOutput(
-//     externalState: any,
-//     _: Output[],
-//     input?: Input | undefined
-//   ): Output {
-//     this.setExternalState(externalState);
-//     if (input) {
-//       this.story.ChooseChoiceIndex(input.id as any);
-//     }
-//     return this.continueStory();
-//   }
+          return { status: "Completed" };
+        }),
+        ...this.attrs.postprocessors,
+      ],
+    });
+  }
 
-//   // internalState = null; // This class is simply a container for the Inkjs engine and delegates state tracking to the engine itself
-//   // initialized = false;
-//   // private story: Story;
+  protected createProcessor(): StoryMachine<StoryMachineAttributes> {
+    return new Scoped({
+      child: new Sequence({
+        children: [
+          this.createStoryInitializerProcessor(),
+          this.createRunStoryProcessor(),
+        ],
+      }),
+    });
+  }
+}
 
-//   // constructor(inkJson: object) {
-//   //   this.story = new Story(inkJson);
-//   // }
+export const InkCompiler: StoryMachineCompiler = {
+  compile(runtime, tree) {
+    const children = runtime.compileChildElements(tree.elements);
+    const initializers = children.filter((child) =>
+      isOfType(child, INK_INITIALIZER)
+    );
+    const preprocessors = children.filter((child) =>
+      isOfType(child, INK_PREPROCESSER)
+    );
+    const postprocessors = children.filter((child) =>
+      isOfType(child, INK_POSTPROCESSER)
+    );
 
-//   // start(externalState: any) {
-//   //   this.initialized = true;
-//   //   this.setExternalState(externalState);
-
-//   //   const output = this.getCurrentOutput();
-
-//   //   // Ink initializes the story without actually starting it, so we need to move to the first passage
-//   //   if (output.passages.length === 0) {
-//   //     return this.next(externalState);
-//   //   }
-
-//   //   return output;
-//   // }
-
-//   // next(externalState: any, input?: Choice) {
-//   //   this.setExternalState(externalState);
-//   //   if (input) {
-//   //     this.story.ChooseChoiceIndex(input.key as any);
-//   //   }
-//   //   return this.continueStory();
-//   // }
-
-//   // setExternalState(externalState: any) {
-//   //   for (const [key, value] of Object.entries(externalState)) {
-//   //     this.story.variablesState.$(key, value);
-//   //   }
-//   // }
-
-//   // continueStory() {
-//   //   if (this.story.canContinue) {
-//   //     const passages = [this.story.Continue() ?? ""];
-//   //     const choices = this.story.currentChoices.map(transformInkChoice);
-
-//   //     const effects = getEffectsFromInkTags(this.story.currentTags);
-
-//   //     return { status: "Active" as const, passages, choices, effects };
-//   //   }
-
-//   //   return { status: "Done" as const, passages: [], choices: [], effects: [] };
-//   // }
-
-//   // getCurrentOutput() {
-//   //   const status: StoryMachineStatus = this.getCurrentStatus();
-//   //   return {
-//   //     status,
-//   //     passages: this.story.currentText ? [this.story.currentText] : [],
-//   //     choices: this.story.currentChoices.map(transformInkChoice),
-//   //     effects: getEffectsFromInkTags(this.story.currentTags),
-//   //   };
-//   // }
-
-//   // getCurrentStatus() {
-//   //   if (!this.initialized) {
-//   //     return "Uninitialized";
-//   //   }
-//   //   if (this.story.canContinue) {
-//   //     return "Active";
-//   //   }
-//   //   return "Done";
-//   // }
-
-//   // save(): string {
-//   //   return this.story.state.ToJson();
-//   // }
-
-//   // load(jsonState: string) {
-//   //   this.story.state.LoadJson(jsonState);
-//   // }
-// }
+    return new InkMachine({
+      ...tree.attributes,
+      initializers,
+      preprocessors,
+      postprocessors,
+    });
+  },
+};

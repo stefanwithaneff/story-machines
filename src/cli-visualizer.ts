@@ -28,7 +28,7 @@ function displayOutput(result: Output) {
 
   // Print passages
   result.passages.forEach((passage) => {
-    if (passage.metadata) {
+    if (passage.metadata && !isEmpty(passage.metadata)) {
       console.log("META ", passage.metadata);
       console.log("===");
     }
@@ -74,11 +74,12 @@ async function promptForChoice(
     choiceIndex < 0 ||
     choiceIndex >= result.choices.length
   ) {
-    choiceIndex = parseInt(
-      await promptUser(
-        "Please enter the number of the choice you wish to choose:\n"
-      )
-    );
+    choiceIndex =
+      parseInt(
+        await promptUser(
+          "Please enter the number of the choice you wish to choose:\n"
+        )
+      ) - 1;
   }
 
   return {

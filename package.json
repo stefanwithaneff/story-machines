@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "fast-xml-parser": "^4.0.7",
-    "inkjs": "^1.11.0",
+    "inkjs": "^2.1.0",
     "lodash": "^4.17.21",
     "nanoid": "^3.3.4",
     "parsimmon": "^1.16.0"

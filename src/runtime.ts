@@ -28,6 +28,9 @@ import { SetStateCompiler } from "./machines/state/set-state";
 import { ReturnedEffectCompiler } from "./machines/state/returned-effect";
 import { EffectCompiler } from "./machines/effects/effect";
 import { ChoicesCompiler } from "./machines/choices/choices";
+import { InkCompiler } from "./machines/ink/ink";
+import { InkStoryCompiler } from "./machines/ink/ink-story";
+import { InkSyncStateCompiler } from "./machines/ink/ink-sync-state";
 
 export class StoryMachineRuntime {
   private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
@@ -103,6 +106,9 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   ImmediateSelector: ImmediateSelectorCompiler,
   ImmediateSequence: ImmediateSequenceCompiler,
   InitState: InitStateCompiler,
+  Ink: InkCompiler,
+  InkStory: InkStoryCompiler,
+  InkSyncState: InkSyncStateCompiler,
   List: ListCompiler,
   MultiChoice: MultiChoiceCompiler,
   Object: ObjectCompiler,
