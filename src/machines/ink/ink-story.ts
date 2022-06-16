@@ -1,13 +1,13 @@
 import { Story } from "inkjs/engine/Story";
 import * as Ink from "inkjs";
-import { Context, Result, SaveData } from "../../types";
+import { SaveData } from "../../types";
 import { ProcessorMachine } from "../base-classes/processor-machine";
 import {
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
-import { InitScopeInternal } from "../base-machines/init-scope";
 import { INK_INITIALIZER, INK_STORY } from "./constants";
+import { SetContextInternal } from "../context/set-context";
 
 export class InkStory extends ProcessorMachine {
   private story: Story;
@@ -32,9 +32,9 @@ export class InkStory extends ProcessorMachine {
     this.story.state.LoadJson(json);
   }
   protected createProcessor() {
-    return new InitScopeInternal({
+    return new SetContextInternal({
       key: INK_STORY,
-      getter: () => this.story,
+      valFn: () => this.story,
     });
   }
 }

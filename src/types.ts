@@ -33,10 +33,15 @@ export interface Output {
   effects: Effect[];
 }
 
+export interface Scope {
+  id: string;
+  scope: Record<string, any>;
+}
+
 export interface Context extends Record<string, any> {
   output: Output;
-  originalInput?: Input;
   input?: Input;
+  __SCOPES__: Scope[];
 }
 
 export interface Result {

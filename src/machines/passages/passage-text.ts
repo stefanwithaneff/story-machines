@@ -5,7 +5,7 @@ import {
   replaceWithParsedExpressions,
 } from "../../utils/expression-parser";
 import { getOutputBuilder } from "../../utils/output-builder";
-import { initScope } from "../../utils/scope";
+import { setOnContext } from "../../utils/scope";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -31,7 +31,7 @@ export class PassageText extends StoryMachine<PassageTextAttributes> {
         this.attrs.textContent ?? ""
       );
 
-      initScope(context, PASSAGE_TEXT, evalText);
+      setOnContext(context, PASSAGE_TEXT, evalText);
     } catch (e) {
       const builder = getOutputBuilder(context);
       builder.addEffect(createDevErrorEffect({ message: e.message }));

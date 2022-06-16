@@ -1,5 +1,5 @@
 import { getOutputBuilder } from "../../utils/output-builder";
-import { getFromScope } from "../../utils/scope";
+import { getFromContext } from "../../utils/scope";
 import { Context, Result, Choice } from "../../types";
 import {
   StoryMachine,
@@ -36,10 +36,10 @@ export class AddChoice extends StoryMachine {
   load() {}
   process(context: AddChoiceContext): Result {
     const choiceText =
-      getFromScope(context, CHOICE_TEXT) ?? context[CHOICE_TEXT];
-    const choiceId = getFromScope(context, CHOICE_ID) ?? context[CHOICE_ID];
+      getFromContext(context, CHOICE_TEXT) ?? context[CHOICE_TEXT];
+    const choiceId = getFromContext(context, CHOICE_ID) ?? context[CHOICE_ID];
     const choiceMetadata =
-      getFromScope(context, CHOICE_METADATA) ?? context[CHOICE_METADATA];
+      getFromContext(context, CHOICE_METADATA) ?? context[CHOICE_METADATA];
     const builder = getOutputBuilder(context);
     if (!choiceText || !choiceId) {
       builder.addEffect(

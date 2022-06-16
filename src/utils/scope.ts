@@ -1,56 +1,50 @@
-import { get, set } from "lodash";
+import { get, set, toPath } from "lodash";
+import { SCOPES } from "../machines/context/constants";
 import { Context } from "../types";
 
-export interface Scope {
-  id: string;
-  scope: Record<string, any>;
-}
-
-export const SCOPES = "__SCOPES__";
-
-export type ScopedContext = Context & Record<typeof SCOPES, Scope[]>;
-
-export function isScopedContext(context: Context): context is ScopedContext {
-  return Array.isArray(context[SCOPES]) && context[SCOPES].length > 0;
-}
-
-export function getFromScope(context: Context, key: string | string[]) {
-  if (!isScopedContext(context)) {
-    return null;
-  }
-
+export function getFromContext(context: Context, key: string | string[]) {
+  const keyPath = Array.isArray(key) ? key : toPath(key);
   for (const { scope } of context[SCOPES]) {
-    const val = get(scope, key);
+    const val = get(scope, keyPath);
     if (val !== undefined) {
       return val;
     }
   }
 
-  return null;
+  const globalVal = get(context, keyPath);
+
+  return globalVal !== undefined ? globalVal : null;
 }
 
-export function initScope(context: Context, key: string | string[], val: any) {
-  if (!isScopedContext(context)) {
-    throw new Error("No scope defined");
-  }
+export function setOnContext(
+  context: Context,
+  key: string | string[],
+  val: any,
+  existsHintLength: number = 1
+) {
+  const keyPath = Array.isArray(key) ? key : toPath(key);
+  const existencePath = existsHintLength
+    ? keyPath.slice(0, existsHintLength)
+    : keyPath;
+  let matchingScope: Record<string, any>;
 
-  const currentScope = context[SCOPES][0];
-  set(currentScope.scope, key, val);
-}
-
-export function setOnScope(context: Context, key: string | string[], val: any) {
-  if (!isScopedContext(context)) {
-    throw new Error("No scope defined");
-  }
-
+  // Search existing scopes for a matching key
   for (const { scope } of context[SCOPES]) {
-    const prevValue = get(scope, key);
+    const prevValue = get(scope, existencePath);
 
     if (prevValue !== undefined) {
-      set(scope, key, val);
-      return;
+      matchingScope = scope;
     }
   }
 
-  throw new Error(`No such key has been defined in this scope: ${key}`);
+  // Check global context for a matching key
+  const globalVal = get(context, existencePath);
+  if (globalVal !== undefined || context[SCOPES].length === 0) {
+    matchingScope = context;
+  } else {
+    // Use the most local existing scope if no other scope matches
+    matchingScope = context[SCOPES][0].scope;
+  }
+
+  set(matchingScope, keyPath, val);
 }

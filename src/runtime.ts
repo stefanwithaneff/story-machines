@@ -12,7 +12,6 @@ import { ImmediateSequenceCompiler } from "./machines/base-machines/immediate-se
 import { ImmediateSelectorCompiler } from "./machines/base-machines/immediate-selector";
 import { ConditionCompiler } from "./machines/base-machines/condition";
 import { SelectorCompiler } from "./machines/base-machines/selector";
-import { SetContextCompiler } from "./machines/base-machines/set-context";
 import { PassageCompiler } from "./machines/passages/passage";
 import { PassageTextCompiler } from "./machines/passages/passage-text";
 import { PassageMetadataCompiler } from "./machines/passages/passage-metadata";
@@ -33,6 +32,8 @@ import { InkStoryCompiler } from "./machines/ink/ink-story";
 import { InkSyncStateCompiler } from "./machines/ink/ink-sync-state";
 import { WaitCompiler } from "./machines/base-machines/wait";
 import { DevLogCompiler } from "./machines/base-machines/dev-log";
+import { SetContextCompiler } from "./machines/context/set-context";
+import { SetGlobalContextCompiler } from "./machines/context/set-global-context";
 
 export class StoryMachineRuntime {
   private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
@@ -132,6 +133,7 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   Selector: SelectorCompiler,
   Sequence: SequenceCompiler,
   SetContext: SetContextCompiler,
+  SetGlobalContext: SetGlobalContextCompiler,
   SetState: SetStateCompiler,
   Stateful: StatefulCompiler,
   Text: TextCompiler,

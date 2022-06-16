@@ -1,5 +1,5 @@
 import { getOutputBuilder } from "../../utils/output-builder";
-import { getFromScope } from "../../utils/scope";
+import { getFromContext } from "../../utils/scope";
 import { Context, Result, Passage } from "../../types";
 import {
   StoryMachine,
@@ -29,9 +29,9 @@ export class AddPassage extends StoryMachine {
   save() {}
   load() {}
   process(context: Context): Result {
-    const text = getFromScope(context, PASSAGE_TEXT) ?? context[PASSAGE_TEXT];
+    const text = getFromContext(context, PASSAGE_TEXT) ?? context[PASSAGE_TEXT];
     const metadata =
-      getFromScope(context, PASSAGE_METADATA) ?? context[PASSAGE_METADATA];
+      getFromContext(context, PASSAGE_METADATA) ?? context[PASSAGE_METADATA];
     const builder = getOutputBuilder(context);
 
     if (!text && !metadata) {

@@ -1,5 +1,5 @@
 import { Context, Result } from "../../types";
-import { getFromScope, initScope } from "../../utils/scope";
+import { getFromContext, setOnContext } from "../../utils/scope";
 import { CompositeMachineAttributes } from "../base-classes/composite-machine";
 import {
   StoryMachine,
@@ -17,7 +17,7 @@ export class ObjectMachine extends StoryMachine<ObjectAttributes> {
   save() {}
   load() {}
   process(context: Context): Result {
-    const keyPrefix: string[] = getFromScope(context, KEY_PREFIX);
+    const keyPrefix: string[] = getFromContext(context, KEY_PREFIX);
 
     if (!keyPrefix) {
       return { status: "Terminated" };
@@ -28,7 +28,7 @@ export class ObjectMachine extends StoryMachine<ObjectAttributes> {
     }
 
     try {
-      initScope(context, keyPrefix, {});
+      setOnContext(context, keyPrefix, {});
     } catch (e) {
       return { status: "Terminated" };
     }

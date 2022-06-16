@@ -1,6 +1,6 @@
 import { Context, Result } from "../../types";
 import { Expression, ExpressionParser } from "../../utils/expression-parser";
-import { getFromScope, initScope } from "../../utils/scope";
+import { getFromContext, setOnContext } from "../../utils/scope";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -19,7 +19,7 @@ export class Value extends StoryMachine<ValueAttributes> {
   load() {}
   process(context: Context): Result {
     const val = this.attrs.expression.calc(context);
-    const keyPrefix: string[] = getFromScope(context, KEY_PREFIX);
+    const keyPrefix: string[] = getFromContext(context, KEY_PREFIX);
 
     if (!keyPrefix) {
       return { status: "Terminated" };
@@ -30,7 +30,7 @@ export class Value extends StoryMachine<ValueAttributes> {
       : keyPrefix;
 
     try {
-      initScope(context, keyPath, val);
+      setOnContext(context, keyPath, val);
     } catch (e) {
       return { status: "Terminated" };
     }

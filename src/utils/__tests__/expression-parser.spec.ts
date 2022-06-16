@@ -1,20 +1,25 @@
+import { Context } from "../../types";
+import { SCOPES } from "../../machines/context/constants";
+import { createEmptyContext } from "../create-empty-context";
 import { ExpressionParser } from "../expression-parser";
-import { SCOPES } from "../scope";
 
 interface Test {
   input: string;
-  context?: Record<string, any>;
+  context?: Partial<Context>;
   expected: any;
 }
 
 type TestSuite = Record<string, Test>;
 
+const emptyContext = createEmptyContext();
+
 function runTests(tests: TestSuite) {
   for (const [name, test] of Object.entries(tests)) {
-    const { input, expected, context = {} } = test;
+    const { input, expected, context } = test;
+    const ctx = { ...emptyContext, ...context };
     it(name, () => {
       const expression = ExpressionParser.tryParse(input);
-      expect(expression.calc(context as any)).toEqual(expected);
+      expect(expression.calc(ctx)).toEqual(expected);
     });
   }
 }
@@ -69,8 +74,10 @@ describe("Expression Parser", () => {
         expected: "abc123",
       },
       "references the value on a scope": {
-        input: "$scope.test.subtest",
-        context: { [SCOPES]: [{ scope: { test: { subtest: "abc123" } } }] },
+        input: "$ctx.test.subtest",
+        context: {
+          [SCOPES]: [{ id: "123", scope: { test: { subtest: "abc123" } } }],
+        },
         expected: "abc123",
       },
     };

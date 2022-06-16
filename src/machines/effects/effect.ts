@@ -1,6 +1,6 @@
 import { Context } from "../../types";
 import { createStoryMachine } from "../../utils/create-story-machine";
-import { initScope } from "../../utils/scope";
+import { setOnContext } from "../../utils/scope";
 import { CompositeMachineAttributes } from "../base-classes/composite-machine";
 import { ProcessorMachine } from "../base-classes/processor-machine";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
@@ -25,9 +25,9 @@ export class EffectMachine extends ProcessorMachine<EffectAttributes> {
           children: [
             createStoryMachine((context: Context) => {
               try {
-                initScope(context, EFFECT_TYPE, this.attrs.type);
-                initScope(context, EFFECT_PAYLOAD, {});
-                initScope(context, KEY_PREFIX, [EFFECT_PAYLOAD]);
+                setOnContext(context, EFFECT_TYPE, this.attrs.type);
+                setOnContext(context, EFFECT_PAYLOAD, {});
+                setOnContext(context, KEY_PREFIX, [EFFECT_PAYLOAD]);
               } catch (e) {
                 return { status: "Terminated" };
               }

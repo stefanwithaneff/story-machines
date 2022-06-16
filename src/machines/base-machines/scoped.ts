@@ -1,7 +1,7 @@
-import { Result } from "../../types";
-import { SCOPES, ScopedContext } from "../../utils/scope";
+import { Context, Result } from "../../types";
 import { DecoratorMachine } from "../base-classes/decorator-machine";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
+import { SCOPES } from "../context/constants";
 
 interface Scope {
   id: string;
@@ -9,11 +9,7 @@ interface Scope {
 }
 
 export class Scoped extends DecoratorMachine {
-  process(context: ScopedContext): Result {
-    if (!context[SCOPES]) {
-      context[SCOPES] = [];
-    }
-
+  process(context: Context): Result {
     const newScope: Scope = { id: this.id, scope: {} };
 
     context[SCOPES].unshift(newScope);

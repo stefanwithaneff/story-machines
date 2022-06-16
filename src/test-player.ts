@@ -26,8 +26,8 @@ export class TestPlayer {
         choices: [],
         effects: [],
       },
-      originalInput: input,
       input,
+      __SCOPES__: [],
     };
   }
 

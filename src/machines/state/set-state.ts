@@ -1,7 +1,7 @@
 import { Context, Result } from "../../types";
 import { Expression, ExpressionParser } from "../../utils/expression-parser";
 import { getOutputBuilder } from "../../utils/output-builder";
-import { getFromScope, setOnScope } from "../../utils/scope";
+import { getFromContext, setOnContext } from "../../utils/scope";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -24,7 +24,7 @@ export class SetState extends StoryMachine<SetStateAttributes> {
     const builder = getOutputBuilder(context);
 
     const canAlterState =
-      getFromScope(context, CAN_ALTER_STATE) ?? context[CAN_ALTER_STATE];
+      getFromContext(context, CAN_ALTER_STATE) ?? context[CAN_ALTER_STATE];
 
     if (!canAlterState) {
       builder.addEffect(
@@ -38,7 +38,7 @@ export class SetState extends StoryMachine<SetStateAttributes> {
     const val = expression.calc(context);
 
     try {
-      setOnScope(context, `${STATE}.${key}`, val);
+      setOnContext(context, `${STATE}.${key}`, val);
     } catch (e) {
       builder.addEffect(
         createDevErrorEffect({

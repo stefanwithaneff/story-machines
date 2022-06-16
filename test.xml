@@ -5,7 +5,7 @@
 
   </InitState>
   <EffectHandler type="change_mood" payloadKey="effectPayload">
-    <SetState key="spongebob_mood">$scope.effectPayload.mood</SetState>
+    <SetState key="spongebob_mood">$ctx.effectPayload.mood</SetState>
   </EffectHandler>
   <Passage>
     <Effect type="change_mood">

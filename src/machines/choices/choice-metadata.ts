@@ -1,5 +1,5 @@
 import { Context, Result } from "../../types";
-import { initScope } from "../../utils/scope";
+import { setOnContext } from "../../utils/scope";
 import { CompositeMachine } from "../base-classes/composite-machine";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
 import { KEY_PREFIX } from "../object-builders/constants";
@@ -9,8 +9,8 @@ export class ChoiceMetadata extends CompositeMachine {
   machineTypes: symbol[] = [CHOICE_BUILDER];
   process(context: Context): Result {
     try {
-      initScope(context, CHOICE_METADATA, {});
-      initScope(context, KEY_PREFIX, [CHOICE_METADATA]);
+      setOnContext(context, CHOICE_METADATA, {});
+      setOnContext(context, KEY_PREFIX, [CHOICE_METADATA]);
     } catch (e) {
       return { status: "Terminated" };
     }

@@ -1,8 +1,8 @@
-import { get } from "lodash";
+import { toPath } from "lodash";
 import Parsimmon, { Parser } from "parsimmon";
 import { STATE } from "../machines/state/constants";
 import { Context } from "../types";
-import { getFromScope } from "./scope";
+import { getFromContext } from "./scope";
 
 export interface Expression {
   calc(context: Context): any;
@@ -16,17 +16,13 @@ class Constant implements Expression {
 }
 
 class VariableRef implements Expression {
-  constructor(
-    private target: "$ctx" | "$scope" | "$state",
-    private dotAccessor: string
-  ) {}
+  constructor(private target: "$ctx" | "$state", private dotAccessor: string) {}
   calc(context: Context) {
+    const path = toPath(this.dotAccessor);
     if (this.target === "$ctx") {
-      return get(context, this.dotAccessor);
-    } else if (this.target === "$scope") {
-      return getFromScope(context, this.dotAccessor);
+      return getFromContext(context, path);
     } else if (this.target === "$state") {
-      return getFromScope(context, `${STATE}.${this.dotAccessor}`);
+      return getFromContext(context, [STATE, ...path]);
     }
   }
 }
@@ -141,11 +137,7 @@ const DotAccessorParser = Parsimmon.regexp(/(\.[a-zA-Z0-9_]+)*/i).map(
 );
 
 const VariableRefParser = Parsimmon.seqMap(
-  Parsimmon.alt(
-    Parsimmon.string("$ctx"),
-    Parsimmon.string("$scope"),
-    Parsimmon.string("$state")
-  ),
+  Parsimmon.alt(Parsimmon.string("$ctx"), Parsimmon.string("$state")),
   DotAccessorParser,
   (target, dotAccessor) => new VariableRef(target, dotAccessor)
 );

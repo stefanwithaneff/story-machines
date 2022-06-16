@@ -1,4 +1,3 @@
-import { Context, Result, SaveData } from "../../types";
 import {
   createConditionalMachine,
   createStoryMachine,
@@ -11,17 +10,16 @@ import {
 import { AddChoice } from "../base-machines/add-choice";
 import { Condition } from "../base-machines/condition";
 import { Sequence } from "../base-machines/sequence";
-import { SetContextInternal } from "../base-machines/set-context";
+import { SetContextInternal } from "../context/set-context";
 import { Scoped } from "../base-machines/scoped";
 import { CHOICE_BUILDER, CHOICE_ID, CHOSEN_ID } from "./constants";
 import { isOfType } from "../../utils/tree-utils";
 import { getOutputBuilder } from "../../utils/output-builder";
 import { createMakeChoiceEffect } from "./make-choice";
 import { Selector } from "../base-machines/selector";
-import { getFromScope } from "../../utils/scope";
+import { getFromContext } from "../../utils/scope";
 import { ImmediateSequence } from "../base-machines/immediate-sequence";
 import { ProcessorMachine } from "../base-classes/processor-machine";
-import { SetScopeInternal } from "../base-machines/set-scope";
 
 interface ChoiceAttributes extends StoryMachineAttributes {
   builders: StoryMachine[];
@@ -39,7 +37,7 @@ export class Choice extends ProcessorMachine<ChoiceAttributes> {
           ...this.attrs.conditions,
           new SetContextInternal({
             key: CHOICE_ID,
-            val: this.id,
+            valFn: () => this.id,
           }),
           ...this.attrs.builders,
           new AddChoice({}),
@@ -57,9 +55,9 @@ export class Choice extends ProcessorMachine<ChoiceAttributes> {
     return new Sequence({
       children: [
         createConditionalMachine(
-          (context) => getFromScope(context, CHOSEN_ID) === this.id
+          (context) => getFromContext(context, CHOSEN_ID) === this.id
         ),
-        new SetScopeInternal({ key: CHOSEN_ID, val: null }),
+        new SetContextInternal({ key: CHOSEN_ID, valFn: () => null }),
         ...this.attrs.nodes,
       ],
     });
@@ -70,7 +68,7 @@ export class Choice extends ProcessorMachine<ChoiceAttributes> {
     return new Sequence({
       children: [
         createConditionalMachine(
-          (context) => getFromScope(context, CHOSEN_ID) === null
+          (context) => getFromContext(context, CHOSEN_ID) === null
         ),
         new Selector({
           children: [

@@ -2,7 +2,7 @@ import { StoryMachineRuntime } from "../../runtime";
 import { Context, Effect, HandlerMap, Result, SaveData } from "../../types";
 import { createStoryMachine } from "../../utils/create-story-machine";
 import { handleEffects } from "../../utils/effects";
-import { getFromScope, initScope, setOnScope } from "../../utils/scope";
+import { getFromContext, setOnContext } from "../../utils/scope";
 import { CompositeMachineAttributes } from "../base-classes/composite-machine";
 import { ProcessorMachine } from "../base-classes/processor-machine";
 import {
@@ -11,7 +11,7 @@ import {
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
 import { ImmediateSelector } from "../base-machines/immediate-selector";
-import { InitScopeInternal } from "../base-machines/init-scope";
+import { SetContextInternal } from "../context/set-context";
 import { Scoped } from "../base-machines/scoped";
 import { Sequence } from "../base-machines/sequence";
 import { CHOSEN_ID } from "./constants";
@@ -32,9 +32,9 @@ export class Choices extends ProcessorMachine<CompositeMachineAttributes> {
     return new Scoped({
       child: new Sequence({
         children: [
-          new InitScopeInternal({
+          new SetContextInternal({
             key: CHOSEN_ID,
-            getter: () => this.chosenId,
+            valFn: () => this.chosenId,
           }),
           new ImmediateSelector({
             children: this.attrs.children,

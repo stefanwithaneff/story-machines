@@ -1,15 +1,16 @@
-import { set } from "lodash";
+import { toPath } from "lodash";
+import { Context, Result } from "../../types";
+import { Expression, ExpressionParser } from "../../utils/expression-parser";
+import { setOnContext } from "../../utils/scope";
 import {
   StoryMachine,
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
-import { Context, Result } from "../../types";
-import { Expression, ExpressionParser } from "../../utils/expression-parser";
 
-export interface SetContextInternalAttributes extends StoryMachineAttributes {
+interface SetContextInternalAttributes extends StoryMachineAttributes {
   key: string;
-  val: any;
+  valFn: (context: Context) => any;
 }
 
 export class SetContextInternal extends StoryMachine<SetContextInternalAttributes> {
@@ -17,12 +18,15 @@ export class SetContextInternal extends StoryMachine<SetContextInternalAttribute
   save() {}
   load() {}
   process(context: Context): Result {
-    set(context, this.attrs.key, this.attrs.val);
+    const { key, valFn } = this.attrs;
+    const keyPath = toPath(key);
+    const val = valFn(context);
+    setOnContext(context, keyPath, val);
     return { status: "Completed" };
   }
 }
 
-export interface SetContextAttributes extends StoryMachineAttributes {
+interface SetContextAttributes extends StoryMachineAttributes {
   key: string;
   expression: Expression;
 }
@@ -32,8 +36,10 @@ export class SetContext extends StoryMachine<SetContextAttributes> {
   save() {}
   load() {}
   process(context: Context): Result {
-    const val = this.attrs.expression.calc(context);
-    set(context, this.attrs.key, val);
+    const { key, expression } = this.attrs;
+    const keyPath = toPath(key);
+    const val = expression.calc(context);
+    setOnContext(context, keyPath, val);
     return { status: "Completed" };
   }
 }
@@ -42,6 +48,6 @@ export const SetContextCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const { key, textContent } = tree.attributes;
     const expression = ExpressionParser.tryParse(textContent);
-    return new SetContext({ key, expression });
+    return new SetContext({ ...tree.attributes, key, expression });
   },
 };

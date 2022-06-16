@@ -27,7 +27,7 @@ describe("Stateful", () => {
               </List>
             </Object>
           </InitState>
-          <SetContext key="actualState">$state.testValues</SetContext>
+          <SetGlobalContext key="actualState">$state.testValues</SetGlobalContext>
         </Stateful>
       `;
       const player = createTestPlayer(story);
@@ -51,15 +51,15 @@ describe("Stateful", () => {
             <Value key="test">"abc123"</Value>
           </InitState>
           <EffectHandler type="testEffect">
-            <SetState key="test">$scope.INCOMING_EFFECT_PAYLOAD.val</SetState>
+            <SetState key="test">$ctx.INCOMING_EFFECT_PAYLOAD.val</SetState>
           </EffectHandler>
-          <SetContext key="actualState">$state.test</SetContext>
+          <SetGlobalContext key="actualState">$state.test</SetGlobalContext>
           <Wait />
           <Effect type="testEffect">
             <Value key="val">"xyz456"</Value>
           </Effect>
           <Wait />
-          <SetContext key="actualState">$state.test</SetContext>
+          <SetGlobalContext key="actualState">$state.test</SetGlobalContext>
         </Stateful>
       `;
       const player = createTestPlayer(story);
@@ -76,6 +76,7 @@ describe("Stateful", () => {
 
       expect(player.currentContext?.actualState).toEqual("xyz456");
     });
+    it("creates multiple effect handlers if specified", () => {});
     it("allows the specifying of the payload key for the incoming Effect", () => {});
     it("creates an effect handler that can return new effects", () => {});
     it("prevents state from being altered outside an effect handler", () => {});

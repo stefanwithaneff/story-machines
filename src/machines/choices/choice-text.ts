@@ -4,7 +4,7 @@ import {
   parseAll,
   replaceWithParsedExpressions,
 } from "../../utils/expression-parser";
-import { initScope } from "../../utils/scope";
+import { setOnContext } from "../../utils/scope";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -28,7 +28,7 @@ export class ChoiceText extends StoryMachine<ChoiceTextAttributes> {
       this.attrs.textContent ?? ""
     );
     try {
-      initScope(context, CHOICE_TEXT, evalText);
+      setOnContext(context, CHOICE_TEXT, evalText);
     } catch (e) {
       return { status: "Terminated" };
     }

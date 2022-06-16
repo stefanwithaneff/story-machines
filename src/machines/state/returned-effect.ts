@@ -1,5 +1,5 @@
 import { Context, Effect, Result } from "../../types";
-import { getFromScope, initScope } from "../../utils/scope";
+import { getFromContext, setOnContext } from "../../utils/scope";
 import {
   CompositeMachine,
   CompositeMachineAttributes,
@@ -17,14 +17,14 @@ export class ReturnedEffect extends CompositeMachine<ReturnedEffectAttributes> {
     const { type } = this.attrs;
 
     let returnedEffects: Effect[] =
-      getFromScope(context, RETURNED_EFFECTS) ?? context[RETURNED_EFFECTS];
+      getFromContext(context, RETURNED_EFFECTS) ?? context[RETURNED_EFFECTS];
     try {
       if (!returnedEffects) {
         returnedEffects = [];
-        initScope(context, RETURNED_EFFECTS, returnedEffects);
+        setOnContext(context, RETURNED_EFFECTS, returnedEffects);
       }
       const keyPrefix = [RETURNED_EFFECTS, returnedEffects.length, "payload"];
-      initScope(context, KEY_PREFIX, keyPrefix);
+      setOnContext(context, KEY_PREFIX, keyPrefix);
     } catch (e) {
       return { status: "Terminated" };
     }

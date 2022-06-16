@@ -1,5 +1,5 @@
 import { Context, Result } from "../../types";
-import { initScope } from "../../utils/scope";
+import { setOnContext } from "../../utils/scope";
 import { CompositeMachine } from "../base-classes/composite-machine";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
 import { KEY_PREFIX } from "../object-builders/constants";
@@ -12,8 +12,8 @@ export class PassageMetadata extends CompositeMachine {
   load() {}
   process(context: Context): Result {
     try {
-      initScope(context, PASSAGE_METADATA, {});
-      initScope(context, KEY_PREFIX, [PASSAGE_METADATA]);
+      setOnContext(context, PASSAGE_METADATA, {});
+      setOnContext(context, KEY_PREFIX, [PASSAGE_METADATA]);
     } catch (e) {
       return { status: "Terminated" };
     }

@@ -1,7 +1,7 @@
 import { Story } from "inkjs/engine/Story";
 import { Context, Result } from "../../types";
 import { Expression, ExpressionParser } from "../../utils/expression-parser";
-import { getFromScope } from "../../utils/scope";
+import { getFromContext } from "../../utils/scope";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -20,7 +20,7 @@ export class InkSyncState extends StoryMachine<InkSyncStateAttributes> {
   save() {}
   load() {}
   process(context: Context): Result {
-    const story: Story | null = getFromScope(context, INK_STORY);
+    const story: Story | null = getFromContext(context, INK_STORY);
     const value = this.attrs.expression.calc(context);
 
     if (story) {

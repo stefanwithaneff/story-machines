@@ -1,6 +1,6 @@
 import { Context, Result } from "../../types";
 import { Expression, ExpressionParser } from "../../utils/expression-parser";
-import { getFromScope, initScope } from "../../utils/scope";
+import { getFromContext, setOnContext } from "../../utils/scope";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -25,11 +25,11 @@ export class InkExternalFunc extends StoryMachine<InkExternalFuncAttributes> {
       return { status: "Terminated" };
     }
 
-    const externalFuncList = getFromScope(context, INK_EXTERNAL_FUNCS);
+    const externalFuncList = getFromContext(context, INK_EXTERNAL_FUNCS);
 
     if (externalFuncList === null) {
       try {
-        initScope(context, INK_EXTERNAL_FUNCS, [func]);
+        setOnContext(context, INK_EXTERNAL_FUNCS, [func]);
       } catch (e) {
         return { status: "Terminated" };
       }

@@ -1,7 +1,7 @@
 import { StoryMachineRuntime } from "../../runtime";
 import { Context, Result, SaveData, HandlerMap } from "../../types";
 import { handleEffects } from "../../utils/effects";
-import { getFromScope, initScope } from "../../utils/scope";
+import { getFromContext, setOnContext } from "../../utils/scope";
 import { DecoratorMachine } from "../base-classes/decorator-machine";
 import { HandlerEntry, HANDLERS, INITIAL_STATE, STATE } from "./constants";
 
@@ -31,9 +31,9 @@ export class State extends DecoratorMachine {
   process(context: Context): Result {
     if (!this.isInitialized) {
       const state =
-        getFromScope(context, INITIAL_STATE) ?? context[INITIAL_STATE];
+        getFromContext(context, INITIAL_STATE) ?? context[INITIAL_STATE];
       const handlers: HandlerEntry[] =
-        getFromScope(context, HANDLERS) ?? context[HANDLERS] ?? [];
+        getFromContext(context, HANDLERS) ?? context[HANDLERS] ?? [];
 
       if (!state) {
         return { status: "Terminated" };
@@ -47,7 +47,7 @@ export class State extends DecoratorMachine {
       }
     }
 
-    initScope(context, STATE, this.state);
+    setOnContext(context, STATE, this.state);
 
     const result = this.child.process(context);
 

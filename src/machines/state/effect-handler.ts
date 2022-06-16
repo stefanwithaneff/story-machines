@@ -1,11 +1,5 @@
-import {
-  Context,
-  Effect,
-  EffectHandlerFn,
-  ElementTree,
-  Result,
-} from "../../types";
-import { getFromScope, initScope, setOnScope } from "../../utils/scope";
+import { Context, Effect, EffectHandlerFn, Result } from "../../types";
+import { getFromContext, setOnContext } from "../../utils/scope";
 import {
   CompositeMachine,
   CompositeMachineAttributes,
@@ -17,7 +11,6 @@ import {
 import { Sequence } from "../base-machines/sequence";
 import {
   CAN_ALTER_STATE,
-  RETURNED_EFFECT_PAYLOAD,
   HANDLERS,
   RETURNED_EFFECTS,
   STATE_BUILDER,
@@ -35,16 +28,16 @@ export function createEffectHandler(
   processor: StoryMachine
 ) {
   return (context: Context, effect: Effect) => {
-    initScope(
+    setOnContext(
       context,
       attributes.payloadKey ?? INCOMING_EFFECT_PAYLOAD,
       effect.payload
     );
-    initScope(context, RETURNED_EFFECTS, []);
-    initScope(context, CAN_ALTER_STATE, true);
+    setOnContext(context, RETURNED_EFFECTS, []);
+    setOnContext(context, CAN_ALTER_STATE, true);
     processor.process(context);
-    setOnScope(context, CAN_ALTER_STATE, false);
-    return getFromScope(context, RETURNED_EFFECTS);
+    setOnContext(context, CAN_ALTER_STATE, false);
+    return getFromContext(context, RETURNED_EFFECTS);
   };
 }
 
@@ -62,7 +55,7 @@ export class EffectHandler extends CompositeMachine<EffectHandlerAttributes> {
   }
   process(context: Context): Result {
     const handlerList: HandlerEntry[] =
-      getFromScope(context, HANDLERS) ?? context[HANDLERS];
+      getFromContext(context, HANDLERS) ?? context[HANDLERS];
 
     const handlerEntry: HandlerEntry = {
       type: this.attrs.type,
@@ -73,7 +66,7 @@ export class EffectHandler extends CompositeMachine<EffectHandlerAttributes> {
       handlerList.push(handlerEntry);
     } else {
       try {
-        initScope(context, HANDLERS, [handlerEntry]);
+        setOnContext(context, HANDLERS, [handlerEntry]);
       } catch (e) {
         return { status: "Terminated" };
       }

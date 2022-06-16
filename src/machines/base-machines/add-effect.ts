@@ -1,5 +1,5 @@
 import { getOutputBuilder } from "../../utils/output-builder";
-import { getFromScope } from "../../utils/scope";
+import { getFromContext } from "../../utils/scope";
 import { Context, Result, Effect } from "../../types";
 import {
   StoryMachine,
@@ -29,9 +29,9 @@ export class AddEffect extends StoryMachine {
   save() {}
   load() {}
   process(context: Context): Result {
-    const type = getFromScope(context, EFFECT_TYPE) ?? context[EFFECT_TYPE];
+    const type = getFromContext(context, EFFECT_TYPE) ?? context[EFFECT_TYPE];
     const payload =
-      getFromScope(context, EFFECT_PAYLOAD) ?? context[EFFECT_PAYLOAD];
+      getFromContext(context, EFFECT_PAYLOAD) ?? context[EFFECT_PAYLOAD];
     const builder = getOutputBuilder(context);
 
     if (!type || !payload) {

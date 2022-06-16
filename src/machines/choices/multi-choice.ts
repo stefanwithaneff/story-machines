@@ -4,7 +4,7 @@ import {
   createStoryMachine,
 } from "../../utils/create-story-machine";
 import { handleEffects } from "../../utils/effects";
-import { getFromScope } from "../../utils/scope";
+import { getFromContext } from "../../utils/scope";
 import { ProcessorMachine } from "../base-classes/processor-machine";
 import {
   StoryMachine,
@@ -14,7 +14,7 @@ import {
 import { ImmediateSelector } from "../base-machines/immediate-selector";
 import { Selector } from "../base-machines/selector";
 import { Sequence } from "../base-machines/sequence";
-import { SetScopeInternal } from "../base-machines/set-scope";
+import { SetContextInternal } from "../context/set-context";
 import { Choice } from "./choice";
 import { CHOSEN_ID } from "./constants";
 import {
@@ -47,9 +47,9 @@ export class MultiChoice extends ProcessorMachine<MultiChoiceAttributes> {
             new Sequence({
               children: [
                 createConditionalMachine(
-                  (context) => getFromScope(context, CHOSEN_ID) === this.id
+                  (context) => getFromContext(context, CHOSEN_ID) === this.id
                 ),
-                new SetScopeInternal({ key: CHOSEN_ID, val: null }),
+                new SetContextInternal({ key: CHOSEN_ID, valFn: () => null }),
               ],
             }),
             new ImmediateSelector({ children: choices }),

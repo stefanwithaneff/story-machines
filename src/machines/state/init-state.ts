@@ -1,6 +1,6 @@
 import { Context, Result } from "../../types";
 import { getOutputBuilder } from "../../utils/output-builder";
-import { initScope } from "../../utils/scope";
+import { setOnContext } from "../../utils/scope";
 import { CompositeMachine } from "../base-classes/composite-machine";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
 import { createDevErrorEffect } from "../effects/dev-error";
@@ -13,8 +13,8 @@ export class InitState extends CompositeMachine {
     const builder = getOutputBuilder(context);
     try {
       const state = {};
-      initScope(context, INITIAL_STATE, state);
-      initScope(context, KEY_PREFIX, [INITIAL_STATE]);
+      setOnContext(context, INITIAL_STATE, state);
+      setOnContext(context, KEY_PREFIX, [INITIAL_STATE]);
 
       for (const child of this.children) {
         const result = child.process(context);

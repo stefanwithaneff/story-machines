@@ -1,14 +1,5 @@
 import { Story } from "inkjs/engine/Story";
-import * as Ink from "inkjs";
-import {
-  Choice,
-  Context,
-  Effect,
-  Output,
-  Passage,
-  Result,
-  SaveData,
-} from "../../types";
+import { Context, Effect } from "../../types";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -23,7 +14,7 @@ import {
   createConditionalMachine,
   createStoryMachine,
 } from "../../utils/create-story-machine";
-import { getFromScope } from "../../utils/scope";
+import { getFromContext } from "../../utils/scope";
 import {
   InkExternalFunction,
   INK_EXTERNAL_FUNCS,
@@ -32,9 +23,9 @@ import {
   INK_PREPROCESSER,
   INK_STORY,
 } from "./constants";
-import { InitScopeInternal } from "../base-machines/init-scope";
 import { getOutputBuilder } from "../../utils/output-builder";
 import { isOfType } from "../../utils/tree-utils";
+import { SetContextInternal } from "../context/set-context";
 
 function parseEffectFromInkTag(tag: string): Effect | null {
   const result = EffectParser.parse(tag);
@@ -88,12 +79,12 @@ export class InkMachine extends ProcessorMachine<InkMachineAttributes> {
           children: [
             ...this.attrs.initializers,
             createStoryMachine((context) => {
-              const story: Story = getFromScope(context, INK_STORY);
+              const story: Story = getFromContext(context, INK_STORY);
 
               this.story = story;
 
               const externalFuncs: InkExternalFunction[] =
-                getFromScope(context, INK_EXTERNAL_FUNCS) ?? [];
+                getFromContext(context, INK_EXTERNAL_FUNCS) ?? [];
 
               for (const { fn, name, isGeneral } of externalFuncs) {
                 if (isGeneral) {
@@ -139,7 +130,7 @@ export class InkMachine extends ProcessorMachine<InkMachineAttributes> {
   private createRunStoryProcessor() {
     return new Sequence({
       children: [
-        new InitScopeInternal({ key: INK_STORY, getter: () => this.story }),
+        new SetContextInternal({ key: INK_STORY, valFn: () => this.story }),
         ...this.attrs.preprocessors,
         createStoryMachine((context) => {
           const { input } = context;
