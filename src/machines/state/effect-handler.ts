@@ -54,8 +54,7 @@ export class EffectHandler extends CompositeMachine<EffectHandlerAttributes> {
     this.handler = createEffectHandler(this.attrs, processor);
   }
   process(context: Context): Result {
-    const handlerList: HandlerEntry[] =
-      getFromContext(context, HANDLERS) ?? context[HANDLERS];
+    const handlerList: HandlerEntry[] = getFromContext(context, HANDLERS);
 
     const handlerEntry: HandlerEntry = {
       type: this.attrs.type,
@@ -65,11 +64,7 @@ export class EffectHandler extends CompositeMachine<EffectHandlerAttributes> {
     if (handlerList) {
       handlerList.push(handlerEntry);
     } else {
-      try {
-        setOnContext(context, HANDLERS, [handlerEntry]);
-      } catch (e) {
-        return { status: "Terminated" };
-      }
+      setOnContext(context, HANDLERS, [handlerEntry]);
     }
 
     return { status: "Completed" };

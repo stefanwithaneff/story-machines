@@ -35,11 +35,9 @@ export class AddChoice extends StoryMachine {
   save() {}
   load() {}
   process(context: AddChoiceContext): Result {
-    const choiceText =
-      getFromContext(context, CHOICE_TEXT) ?? context[CHOICE_TEXT];
-    const choiceId = getFromContext(context, CHOICE_ID) ?? context[CHOICE_ID];
-    const choiceMetadata =
-      getFromContext(context, CHOICE_METADATA) ?? context[CHOICE_METADATA];
+    const choiceText = getFromContext(context, CHOICE_TEXT);
+    const choiceId = getFromContext(context, CHOICE_ID);
+    const choiceMetadata = getFromContext(context, CHOICE_METADATA);
     const builder = getOutputBuilder(context);
     if (!choiceText || !choiceId) {
       builder.addEffect(

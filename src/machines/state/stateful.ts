@@ -16,6 +16,7 @@ interface StatefulAttributes extends StoryMachineAttributes {
   nodes: StoryMachine[];
 }
 
+// TODO: Figure out a way to combine State and Stateful
 export class Stateful extends ProcessorMachine<StatefulAttributes> {
   save(saveData: SaveData) {
     super.save(saveData);

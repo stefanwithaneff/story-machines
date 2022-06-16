@@ -28,11 +28,7 @@ export class List extends StoryMachine<ListAttributes> {
 
     const list: any[] = [];
 
-    try {
-      setOnContext(context, keyPrefix, list);
-    } catch (e) {
-      return { status: "Terminated" };
-    }
+    setOnContext(context, keyPrefix, list);
 
     for (let i = 0; i < this.attrs.children.length; i++) {
       // Add an empty item to the array to be replaced

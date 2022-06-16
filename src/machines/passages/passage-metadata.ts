@@ -11,12 +11,8 @@ export class PassageMetadata extends CompositeMachine {
   save() {}
   load() {}
   process(context: Context): Result {
-    try {
-      setOnContext(context, PASSAGE_METADATA, {});
-      setOnContext(context, KEY_PREFIX, [PASSAGE_METADATA]);
-    } catch (e) {
-      return { status: "Terminated" };
-    }
+    setOnContext(context, PASSAGE_METADATA, {});
+    setOnContext(context, KEY_PREFIX, [PASSAGE_METADATA]);
 
     for (const child of this.attrs.children) {
       const result = child.process(context);

@@ -28,11 +28,7 @@ export class InkExternalFunc extends StoryMachine<InkExternalFuncAttributes> {
     const externalFuncList = getFromContext(context, INK_EXTERNAL_FUNCS);
 
     if (externalFuncList === null) {
-      try {
-        setOnContext(context, INK_EXTERNAL_FUNCS, [func]);
-      } catch (e) {
-        return { status: "Terminated" };
-      }
+      setOnContext(context, INK_EXTERNAL_FUNCS, [func]);
     } else {
       externalFuncList.push(func);
     }

@@ -30,10 +30,8 @@ export class State extends DecoratorMachine {
 
   process(context: Context): Result {
     if (!this.isInitialized) {
-      const state =
-        getFromContext(context, INITIAL_STATE) ?? context[INITIAL_STATE];
-      const handlers: HandlerEntry[] =
-        getFromContext(context, HANDLERS) ?? context[HANDLERS] ?? [];
+      const state = getFromContext(context, INITIAL_STATE);
+      const handlers: HandlerEntry[] = getFromContext(context, HANDLERS) ?? [];
 
       if (!state) {
         return { status: "Terminated" };

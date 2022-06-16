@@ -27,11 +27,7 @@ export class ObjectMachine extends StoryMachine<ObjectAttributes> {
       keyPrefix.push(this.attrs.key);
     }
 
-    try {
-      setOnContext(context, keyPrefix, {});
-    } catch (e) {
-      return { status: "Terminated" };
-    }
+    setOnContext(context, keyPrefix, {});
 
     for (const child of this.attrs.children) {
       const result = child.process(context);

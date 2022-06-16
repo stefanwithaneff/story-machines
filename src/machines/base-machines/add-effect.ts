@@ -29,9 +29,8 @@ export class AddEffect extends StoryMachine {
   save() {}
   load() {}
   process(context: Context): Result {
-    const type = getFromContext(context, EFFECT_TYPE) ?? context[EFFECT_TYPE];
-    const payload =
-      getFromContext(context, EFFECT_PAYLOAD) ?? context[EFFECT_PAYLOAD];
+    const type = getFromContext(context, EFFECT_TYPE);
+    const payload = getFromContext(context, EFFECT_PAYLOAD);
     const builder = getOutputBuilder(context);
 
     if (!type || !payload) {

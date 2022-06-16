@@ -16,18 +16,14 @@ export class ReturnedEffect extends CompositeMachine<ReturnedEffectAttributes> {
   process(context: Context): Result {
     const { type } = this.attrs;
 
-    let returnedEffects: Effect[] =
-      getFromContext(context, RETURNED_EFFECTS) ?? context[RETURNED_EFFECTS];
-    try {
-      if (!returnedEffects) {
-        returnedEffects = [];
-        setOnContext(context, RETURNED_EFFECTS, returnedEffects);
-      }
-      const keyPrefix = [RETURNED_EFFECTS, returnedEffects.length, "payload"];
-      setOnContext(context, KEY_PREFIX, keyPrefix);
-    } catch (e) {
-      return { status: "Terminated" };
+    let returnedEffects: Effect[] = getFromContext(context, RETURNED_EFFECTS);
+
+    if (!returnedEffects) {
+      returnedEffects = [];
+      setOnContext(context, RETURNED_EFFECTS, returnedEffects);
     }
+    const keyPrefix = [RETURNED_EFFECTS, returnedEffects.length, "payload"];
+    setOnContext(context, KEY_PREFIX, keyPrefix);
 
     returnedEffects.push({ type, payload: {} });
 

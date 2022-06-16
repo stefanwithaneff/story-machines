@@ -29,11 +29,7 @@ export class Value extends StoryMachine<ValueAttributes> {
       ? [...keyPrefix, this.attrs.key]
       : keyPrefix;
 
-    try {
-      setOnContext(context, keyPath, val);
-    } catch (e) {
-      return { status: "Terminated" };
-    }
+    setOnContext(context, keyPath, val);
 
     return { status: "Completed" };
   }

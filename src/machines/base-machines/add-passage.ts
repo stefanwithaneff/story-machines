@@ -29,9 +29,8 @@ export class AddPassage extends StoryMachine {
   save() {}
   load() {}
   process(context: Context): Result {
-    const text = getFromContext(context, PASSAGE_TEXT) ?? context[PASSAGE_TEXT];
-    const metadata =
-      getFromContext(context, PASSAGE_METADATA) ?? context[PASSAGE_METADATA];
+    const text = getFromContext(context, PASSAGE_TEXT);
+    const metadata = getFromContext(context, PASSAGE_METADATA);
     const builder = getOutputBuilder(context);
 
     if (!text && !metadata) {

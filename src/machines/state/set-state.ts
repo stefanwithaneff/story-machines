@@ -23,8 +23,7 @@ export class SetState extends StoryMachine<SetStateAttributes> {
     const { key, expression } = this.attrs;
     const builder = getOutputBuilder(context);
 
-    const canAlterState =
-      getFromContext(context, CAN_ALTER_STATE) ?? context[CAN_ALTER_STATE];
+    const canAlterState = getFromContext(context, CAN_ALTER_STATE);
 
     if (!canAlterState) {
       builder.addEffect(
@@ -36,17 +35,7 @@ export class SetState extends StoryMachine<SetStateAttributes> {
     }
 
     const val = expression.calc(context);
-
-    try {
-      setOnContext(context, `${STATE}.${key}`, val);
-    } catch (e) {
-      builder.addEffect(
-        createDevErrorEffect({
-          message: `Failed to set state. Key: ${key} Value: ${val}`,
-        })
-      );
-      return { status: "Terminated" };
-    }
+    setOnContext(context, `${STATE}.${key}`, val);
 
     return { status: "Completed" };
   }

@@ -4,14 +4,12 @@ import {
   parseAll,
   replaceWithParsedExpressions,
 } from "../../utils/expression-parser";
-import { getOutputBuilder } from "../../utils/output-builder";
 import { setOnContext } from "../../utils/scope";
 import {
   StoryMachine,
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
-import { createDevErrorEffect } from "../effects/dev-error";
 import { PASSAGE_BUILDER, PASSAGE_TEXT } from "./constants";
 
 interface PassageTextAttributes extends StoryMachineAttributes {
@@ -24,19 +22,13 @@ export class PassageText extends StoryMachine<PassageTextAttributes> {
   save() {}
   load() {}
   process(context: Context): Result {
-    try {
-      const evalText = replaceWithParsedExpressions(
-        context,
-        this.attrs.expressions,
-        this.attrs.textContent ?? ""
-      );
+    const evalText = replaceWithParsedExpressions(
+      context,
+      this.attrs.expressions,
+      this.attrs.textContent ?? ""
+    );
 
-      setOnContext(context, PASSAGE_TEXT, evalText);
-    } catch (e) {
-      const builder = getOutputBuilder(context);
-      builder.addEffect(createDevErrorEffect({ message: e.message }));
-      return { status: "Terminated" };
-    }
+    setOnContext(context, PASSAGE_TEXT, evalText);
     return { status: "Completed" };
   }
 }

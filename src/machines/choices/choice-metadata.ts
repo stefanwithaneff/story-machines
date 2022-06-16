@@ -8,12 +8,8 @@ import { CHOICE_BUILDER, CHOICE_METADATA } from "./constants";
 export class ChoiceMetadata extends CompositeMachine {
   machineTypes: symbol[] = [CHOICE_BUILDER];
   process(context: Context): Result {
-    try {
-      setOnContext(context, CHOICE_METADATA, {});
-      setOnContext(context, KEY_PREFIX, [CHOICE_METADATA]);
-    } catch (e) {
-      return { status: "Terminated" };
-    }
+    setOnContext(context, CHOICE_METADATA, {});
+    setOnContext(context, KEY_PREFIX, [CHOICE_METADATA]);
 
     for (const child of this.attrs.children) {
       const result = child.process(context);

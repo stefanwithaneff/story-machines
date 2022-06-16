@@ -24,13 +24,9 @@ export class EffectMachine extends ProcessorMachine<EffectAttributes> {
         child: new Sequence({
           children: [
             createStoryMachine((context: Context) => {
-              try {
-                setOnContext(context, EFFECT_TYPE, this.attrs.type);
-                setOnContext(context, EFFECT_PAYLOAD, {});
-                setOnContext(context, KEY_PREFIX, [EFFECT_PAYLOAD]);
-              } catch (e) {
-                return { status: "Terminated" };
-              }
+              setOnContext(context, EFFECT_TYPE, this.attrs.type);
+              setOnContext(context, EFFECT_PAYLOAD, {});
+              setOnContext(context, KEY_PREFIX, [EFFECT_PAYLOAD]);
               return { status: "Completed" };
             }),
             ...this.attrs.children,

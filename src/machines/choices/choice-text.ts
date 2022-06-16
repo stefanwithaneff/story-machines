@@ -27,11 +27,7 @@ export class ChoiceText extends StoryMachine<ChoiceTextAttributes> {
       this.attrs.expressions,
       this.attrs.textContent ?? ""
     );
-    try {
-      setOnContext(context, CHOICE_TEXT, evalText);
-    } catch (e) {
-      return { status: "Terminated" };
-    }
+    setOnContext(context, CHOICE_TEXT, evalText);
     return { status: "Completed" };
   }
 }
