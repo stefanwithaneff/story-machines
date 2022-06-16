@@ -5,14 +5,14 @@ import {
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
 import { Context, Result } from "../../types";
+import { Expression, ExpressionParser } from "../../utils/expression-parser";
 
-export interface SetContextAttributes extends StoryMachineAttributes {
+export interface SetContextInternalAttributes extends StoryMachineAttributes {
   key: string;
   val: any;
 }
 
-// TODO: Update SetContext to use parsed textContent expressions
-export class SetContext extends StoryMachine<SetContextAttributes> {
+export class SetContextInternal extends StoryMachine<SetContextInternalAttributes> {
   init() {}
   save() {}
   load() {}
@@ -22,9 +22,26 @@ export class SetContext extends StoryMachine<SetContextAttributes> {
   }
 }
 
+export interface SetContextAttributes extends StoryMachineAttributes {
+  key: string;
+  expression: Expression;
+}
+
+export class SetContext extends StoryMachine<SetContextAttributes> {
+  init() {}
+  save() {}
+  load() {}
+  process(context: Context): Result {
+    const val = this.attrs.expression.calc(context);
+    set(context, this.attrs.key, val);
+    return { status: "Completed" };
+  }
+}
+
 export const SetContextCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
-    const { key, val } = tree.attributes;
-    return new SetContext({ key, val });
+    const { key, textContent } = tree.attributes;
+    const expression = ExpressionParser.tryParse(textContent);
+    return new SetContext({ key, expression });
   },
 };

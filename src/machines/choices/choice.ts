@@ -11,7 +11,7 @@ import {
 import { AddChoice } from "../base-machines/add-choice";
 import { Condition } from "../base-machines/condition";
 import { Sequence } from "../base-machines/sequence";
-import { SetContext } from "../base-machines/set-context";
+import { SetContextInternal } from "../base-machines/set-context";
 import { Scoped } from "../base-machines/scoped";
 import { CHOICE_BUILDER, CHOICE_ID, CHOSEN_ID } from "./constants";
 import { isOfType } from "../../utils/tree-utils";
@@ -37,7 +37,7 @@ export class Choice extends ProcessorMachine<ChoiceAttributes> {
       child: new Sequence({
         children: [
           ...this.attrs.conditions,
-          new SetContext({
+          new SetContextInternal({
             key: CHOICE_ID,
             val: this.id,
           }),
