@@ -6,7 +6,7 @@ import { ProcessorMachine } from "../base-classes/processor-machine";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
 import { AddEffect } from "../base-machines/add-effect";
 import { Once } from "../base-machines/once";
-import { Scoped } from "../base-machines/scoped";
+import { Scoped } from "../context/scoped";
 import { Sequence } from "../base-machines/sequence";
 import { KEY_PREFIX } from "../object-builders/constants";
 import { EFFECT_PAYLOAD, EFFECT_TYPE } from "./constants";

@@ -12,7 +12,7 @@ import {
 } from "../base-classes/story-machine";
 import { ImmediateSelector } from "../base-machines/immediate-selector";
 import { SetContextInternal } from "../context/set-context";
-import { Scoped } from "../base-machines/scoped";
+import { Scoped } from "../context/scoped";
 import { Sequence } from "../base-machines/sequence";
 import { CHOSEN_ID } from "./constants";
 import { isMakeChoiceEffect, MAKE_CHOICE } from "./make-choice";

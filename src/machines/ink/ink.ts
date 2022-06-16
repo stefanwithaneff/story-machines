@@ -8,7 +8,7 @@ import {
 import { EffectParser } from "./effect-parser";
 import { ProcessorMachine } from "../base-classes/processor-machine";
 import { Sequence } from "../base-machines/sequence";
-import { Scoped } from "../base-machines/scoped";
+import { Scoped } from "../context/scoped";
 import { Selector } from "../base-machines/selector";
 import {
   createConditionalMachine,

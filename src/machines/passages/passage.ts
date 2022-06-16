@@ -5,7 +5,7 @@ import {
 } from "../base-classes/story-machine";
 import { Sequence } from "../base-machines/sequence";
 import { ImmediateSequence } from "../base-machines/immediate-sequence";
-import { Scoped } from "../base-machines/scoped";
+import { Scoped } from "../context/scoped";
 import { AddPassage } from "../base-machines/add-passage";
 import { Context, Result, SaveData } from "../../types";
 import { Once } from "../base-machines/once";

@@ -1,7 +1,7 @@
 import { Context, Result } from "../../types";
 import { DecoratorMachine } from "../base-classes/decorator-machine";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
-import { SCOPES } from "../context/constants";
+import { SCOPES } from "./constants";
 
 interface Scope {
   id: string;

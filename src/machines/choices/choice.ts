@@ -11,7 +11,7 @@ import { AddChoice } from "../base-machines/add-choice";
 import { Condition } from "../base-machines/condition";
 import { Sequence } from "../base-machines/sequence";
 import { SetContextInternal } from "../context/set-context";
-import { Scoped } from "../base-machines/scoped";
+import { Scoped } from "../context/scoped";
 import { CHOICE_BUILDER, CHOICE_ID, CHOSEN_ID } from "./constants";
 import { isOfType } from "../../utils/tree-utils";
 import { getOutputBuilder } from "../../utils/output-builder";

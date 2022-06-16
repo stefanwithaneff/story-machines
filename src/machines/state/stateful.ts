@@ -7,7 +7,7 @@ import {
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
 import { MemorySequence } from "../base-machines/memory-sequence";
-import { Scoped } from "../base-machines/scoped";
+import { Scoped } from "../context/scoped";
 import { STATE_BUILDER } from "./constants";
 import { State } from "./state";
 
