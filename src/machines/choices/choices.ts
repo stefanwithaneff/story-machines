@@ -10,7 +10,7 @@ import {
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
-import { ImmediateSelector } from "../base-machines/immediate-selector";
+import { ImmediateFallback } from "../base-machines/immediate-fallback";
 import { SetContextInternal } from "../context/set-context";
 import { Scoped } from "../context/scoped";
 import { Sequence } from "../base-machines/sequence";
@@ -36,7 +36,7 @@ export class Choices extends ProcessorMachine<CompositeMachineAttributes> {
             key: CHOSEN_ID,
             valFn: () => this.chosenId,
           }),
-          new ImmediateSelector({
+          new ImmediateFallback({
             children: this.attrs.children,
           }),
         ],

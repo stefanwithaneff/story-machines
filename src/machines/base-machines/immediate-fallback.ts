@@ -2,7 +2,7 @@ import { CompositeMachine } from "../base-classes/composite-machine";
 import { Context, Result } from "../../types";
 import { StoryMachineCompiler } from "../base-classes/story-machine";
 
-export class ImmediateSelector extends CompositeMachine {
+export class ImmediateFallback extends CompositeMachine {
   process(context: Context): Result {
     const results = this.children.map((child) => child.process(context));
 
@@ -17,9 +17,9 @@ export class ImmediateSelector extends CompositeMachine {
   }
 }
 
-export const ImmediateSelectorCompiler: StoryMachineCompiler = {
+export const ImmediateFallbackCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const children = runtime.compileChildElements(tree.elements);
-    return new ImmediateSelector({ ...tree.attributes, children });
+    return new ImmediateFallback({ ...tree.attributes, children });
   },
 };

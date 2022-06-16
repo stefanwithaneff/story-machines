@@ -2,7 +2,7 @@ import { CompositeMachine } from "../base-classes/composite-machine";
 import { Context, Result, SaveData, StoryMachineStatus } from "../../types";
 import { StoryMachineRuntime } from "../../runtime";
 
-export class MemorySelector extends CompositeMachine {
+export class MemoryFallback extends CompositeMachine {
   // TODO: Make save data less structurally dependent (Use ID of child somehow)
   private index = 0;
   private status: StoryMachineStatus = "Running";

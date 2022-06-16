@@ -41,7 +41,7 @@
           <Value key="character">"Passpartout"</Value>
         </ChoiceMetadata>
         <ChoiceText>...that he decided to be beautiful of spirit instead, and everyone loved him.</ChoiceText>
-        <Selector>
+        <Fallback>
           <Sequence>
             <Condition>$state.spongebob_mood eq "happy"</Condition>
             <Text>"Thanks Patrick, I feel a little better", Spongebob said, the world feeling a bit lighter.</Text>
@@ -50,7 +50,7 @@
             <Condition>$state.spongebob_mood eq "sad"</Condition>
             <Text>"Yeah, right. Like that would ever happen", Spongebob said, doubling down on his forlorn feelings.</Text>
           </Sequence>
-        </Selector>
+        </Fallback>
       </Choice>
       <Choice>
         <Condition>false</Condition>

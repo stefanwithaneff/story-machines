@@ -6,7 +6,7 @@ import {
 } from "../base-classes/story-machine";
 import { StoryMachineRuntime } from "../../runtime";
 
-export class Selector extends CompositeMachine {
+export class Fallback extends CompositeMachine {
   process(context: Context): Result {
     for (const child of this.children) {
       const result = child.process(context);
@@ -18,9 +18,9 @@ export class Selector extends CompositeMachine {
   }
 }
 
-export const SelectorCompiler: StoryMachineCompiler = {
+export const FallbackCompiler: StoryMachineCompiler = {
   compile(runtime: StoryMachineRuntime, tree: ElementTree): StoryMachine<any> {
     const children = runtime.compileChildElements(tree.elements);
-    return new Selector({ ...tree.attributes, children });
+    return new Fallback({ ...tree.attributes, children });
   },
 };

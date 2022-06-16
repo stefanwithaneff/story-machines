@@ -9,9 +9,9 @@ import { SequenceCompiler } from "./machines/base-machines/sequence";
 import { TextCompiler } from "./machines/passages/text";
 import { ChoiceTextCompiler } from "./machines/choices/choice-text";
 import { ImmediateSequenceCompiler } from "./machines/base-machines/immediate-sequence";
-import { ImmediateSelectorCompiler } from "./machines/base-machines/immediate-selector";
+import { ImmediateFallbackCompiler } from "./machines/base-machines/immediate-fallback";
 import { ConditionCompiler } from "./machines/base-machines/condition";
-import { SelectorCompiler } from "./machines/base-machines/selector";
+import { FallbackCompiler } from "./machines/base-machines/fallback";
 import { PassageCompiler } from "./machines/passages/passage";
 import { PassageTextCompiler } from "./machines/passages/passage-text";
 import { PassageMetadataCompiler } from "./machines/passages/passage-metadata";
@@ -117,7 +117,7 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   DevLog: DevLogCompiler,
   Effect: EffectCompiler,
   EffectHandler: EffectHandlerCompiler,
-  ImmediateSelector: ImmediateSelectorCompiler,
+  ImmediateFallback: ImmediateFallbackCompiler,
   ImmediateSequence: ImmediateSequenceCompiler,
   InitState: InitStateCompiler,
   Ink: InkCompiler,
@@ -130,7 +130,7 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   PassageMetadata: PassageMetadataCompiler,
   PassageText: PassageTextCompiler,
   ReturnedEffect: ReturnedEffectCompiler,
-  Selector: SelectorCompiler,
+  Fallback: FallbackCompiler,
   Sequence: SequenceCompiler,
   SetContext: SetContextCompiler,
   SetGlobalContext: SetGlobalContextCompiler,

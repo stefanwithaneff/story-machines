@@ -11,8 +11,8 @@ import {
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
-import { ImmediateSelector } from "../base-machines/immediate-selector";
-import { Selector } from "../base-machines/selector";
+import { ImmediateFallback } from "../base-machines/immediate-fallback";
+import { Fallback } from "../base-machines/fallback";
 import { Sequence } from "../base-machines/sequence";
 import { SetContextInternal } from "../context/set-context";
 import { Choice } from "./choice";
@@ -42,7 +42,7 @@ export class MultiChoice extends ProcessorMachine<MultiChoiceAttributes> {
     const { choices, nodes } = this.attrs;
     return new Sequence({
       children: [
-        new Selector({
+        new Fallback({
           children: [
             new Sequence({
               children: [
@@ -52,7 +52,7 @@ export class MultiChoice extends ProcessorMachine<MultiChoiceAttributes> {
                 new SetContextInternal({ key: CHOSEN_ID, valFn: () => null }),
               ],
             }),
-            new ImmediateSelector({ children: choices }),
+            new ImmediateFallback({ children: choices }),
           ],
         }),
         ...nodes,

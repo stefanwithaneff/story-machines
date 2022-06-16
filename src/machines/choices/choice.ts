@@ -16,7 +16,7 @@ import { CHOICE_BUILDER, CHOICE_ID, CHOSEN_ID } from "./constants";
 import { isOfType } from "../../utils/tree-utils";
 import { getOutputBuilder } from "../../utils/output-builder";
 import { createMakeChoiceEffect } from "./make-choice";
-import { Selector } from "../base-machines/selector";
+import { Fallback } from "../base-machines/fallback";
 import { getFromContext } from "../../utils/scope";
 import { ImmediateSequence } from "../base-machines/immediate-sequence";
 import { ProcessorMachine } from "../base-classes/processor-machine";
@@ -70,7 +70,7 @@ export class Choice extends ProcessorMachine<ChoiceAttributes> {
         createConditionalMachine(
           (context) => getFromContext(context, CHOSEN_ID) === null
         ),
-        new Selector({
+        new Fallback({
           children: [
             createConditionalMachine(() => this.presented),
             this.createBuildChoiceProcessor(),
@@ -102,7 +102,7 @@ export class Choice extends ProcessorMachine<ChoiceAttributes> {
   }
 
   protected createProcessor() {
-    return new Selector({
+    return new Fallback({
       children: [
         this.createAlreadyChosenProcessor(),
         this.createNotYetChosenProcessor(),

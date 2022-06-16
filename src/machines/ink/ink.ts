@@ -9,7 +9,7 @@ import { EffectParser } from "./effect-parser";
 import { ProcessorMachine } from "../base-classes/processor-machine";
 import { Sequence } from "../base-machines/sequence";
 import { Scoped } from "../context/scoped";
-import { Selector } from "../base-machines/selector";
+import { Fallback } from "../base-machines/fallback";
 import {
   createConditionalMachine,
   createStoryMachine,
@@ -72,7 +72,7 @@ export class InkMachine extends ProcessorMachine<InkMachineAttributes> {
   }
 
   private createStoryInitializerProcessor() {
-    return new Selector({
+    return new Fallback({
       children: [
         createConditionalMachine(() => this.initialized),
         new Sequence({
