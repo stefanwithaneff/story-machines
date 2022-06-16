@@ -26,5 +26,8 @@ export abstract class StoryMachine<
 }
 
 export interface StoryMachineCompiler {
-  compile(runtime: StoryMachineRuntime, tree: ElementTree): StoryMachine<any>;
+  compile(
+    runtime: StoryMachineRuntime,
+    tree: ElementTree
+  ): StoryMachine<any> | StoryMachine<any>[];
 }

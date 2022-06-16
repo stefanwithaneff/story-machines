@@ -1,5 +1,8 @@
 import { Context, Result, SaveData } from "../../types";
-import { StoryMachine } from "../base-classes/story-machine";
+import {
+  StoryMachine,
+  StoryMachineCompiler,
+} from "../base-classes/story-machine";
 
 export class Wait extends StoryMachine {
   private hasRun: boolean = false;
@@ -28,3 +31,9 @@ export class Wait extends StoryMachine {
     return { status: "Running" };
   }
 }
+
+export const WaitCompiler: StoryMachineCompiler = {
+  compile(runtime, tree) {
+    return new Wait({});
+  },
+};

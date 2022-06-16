@@ -22,6 +22,7 @@ import {
   RETURNED_EFFECTS,
   STATE_BUILDER,
   HandlerEntry,
+  INCOMING_EFFECT_PAYLOAD,
 } from "./constants";
 
 interface EffectHandlerAttributes extends CompositeMachineAttributes {
@@ -36,7 +37,7 @@ export function createEffectHandler(
   return (context: Context, effect: Effect) => {
     initScope(
       context,
-      attributes.payloadKey ?? RETURNED_EFFECT_PAYLOAD,
+      attributes.payloadKey ?? INCOMING_EFFECT_PAYLOAD,
       effect.payload
     );
     initScope(context, RETURNED_EFFECTS, []);

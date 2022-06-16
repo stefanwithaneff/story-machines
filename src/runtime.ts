@@ -31,6 +31,8 @@ import { ChoicesCompiler } from "./machines/choices/choices";
 import { InkCompiler } from "./machines/ink/ink";
 import { InkStoryCompiler } from "./machines/ink/ink-story";
 import { InkSyncStateCompiler } from "./machines/ink/ink-sync-state";
+import { WaitCompiler } from "./machines/base-machines/wait";
+import { DevLogCompiler } from "./machines/base-machines/dev-log";
 
 export class StoryMachineRuntime {
   private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
@@ -72,7 +74,11 @@ export class StoryMachineRuntime {
     for (const element of elements) {
       const compiler = this.getMachineCompilerForTypename(element.type);
       const machine = compiler.compile(this, element);
-      childMachines.push(machine);
+      if (Array.isArray(machine)) {
+        childMachines.push(...machine);
+      } else {
+        childMachines.push(machine);
+      }
     }
     return childMachines;
   }
@@ -91,7 +97,13 @@ export class StoryMachineRuntime {
     }
 
     const compiler = this.getMachineCompilerForTypename(tree.type);
-    return compiler.compile(this, tree);
+    const machine = compiler.compile(this, tree);
+
+    if (Array.isArray(machine)) {
+      throw new Error("Compilation resulted in multiple root elements");
+    }
+
+    return machine;
   }
 }
 
@@ -101,6 +113,7 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   Choices: ChoicesCompiler,
   ChoiceText: ChoiceTextCompiler,
   Condition: ConditionCompiler,
+  DevLog: DevLogCompiler,
   Effect: EffectCompiler,
   EffectHandler: EffectHandlerCompiler,
   ImmediateSelector: ImmediateSelectorCompiler,
@@ -123,4 +136,5 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   Stateful: StatefulCompiler,
   Text: TextCompiler,
   Value: ValueCompiler,
+  Wait: WaitCompiler,
 };

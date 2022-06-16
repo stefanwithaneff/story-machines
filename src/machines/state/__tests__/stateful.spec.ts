@@ -44,11 +44,46 @@ describe("Stateful", () => {
     });
   });
   describe("Effect Handling", () => {
-    it("creates an effect handler that can alter state", () => {});
+    it("creates an effect handler that can alter state", () => {
+      const story = `
+        <Stateful>
+          <InitState>
+            <Value key="test">"abc123"</Value>
+          </InitState>
+          <EffectHandler type="testEffect">
+            <SetState key="test">$scope.INCOMING_EFFECT_PAYLOAD.val</SetState>
+          </EffectHandler>
+          <SetContext key="actualState">$state.test</SetContext>
+          <Wait />
+          <Effect type="testEffect">
+            <Value key="val">"xyz456"</Value>
+          </Effect>
+          <Wait />
+          <SetContext key="actualState">$state.test</SetContext>
+        </Stateful>
+      `;
+      const player = createTestPlayer(story);
+      player.tick();
+
+      expect(player.currentStatus).toBe("Running");
+      expect(player.currentContext?.actualState).toEqual("abc123");
+
+      player.tick();
+
+      expect(player.currentStatus).toBe("Running");
+
+      player.tick();
+
+      expect(player.currentContext?.actualState).toEqual("xyz456");
+    });
+    it("allows the specifying of the payload key for the incoming Effect", () => {});
     it("creates an effect handler that can return new effects", () => {});
     it("prevents state from being altered outside an effect handler", () => {});
     it("can add new keys to objects or new elements to arrays", () => {});
   });
-  describe("Saving and loading", () => {});
+  describe("Saving and loading", () => {
+    it("loads a save with the correct state", () => {});
+    it("initializes values that were added after a save has been created", () => {});
+  });
   describe("Nesting", () => {});
 });
