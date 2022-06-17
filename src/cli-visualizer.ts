@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import readline from "readline";
-import { chunk, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 import { isDevErrorEffect } from "./machines/effects/dev-error";
 import { isDevWarnEffect } from "./machines/effects/dev-warn";
 import { StoryMachineRuntime } from "./runtime";
