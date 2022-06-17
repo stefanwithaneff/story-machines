@@ -1,0 +1,40 @@
+import { Choice, Effect, Output, Metadata, Context, Passage } from "../types";
+
+export class OutputBuilder {
+  constructor(private output: Output) {}
+
+  addPassage(passage: Passage): OutputBuilder {
+    this.output.passages.push(passage);
+    return this;
+  }
+
+  addChoice(choice: Choice): OutputBuilder {
+    this.output.choices.push(choice);
+    return this;
+  }
+
+  addEffect(effect: Effect): OutputBuilder {
+    this.output.effects.push(effect);
+    return this;
+  }
+
+  processEffects(fn: (effect: Effect) => Effect[]): OutputBuilder {
+    const newEffects: Effect[] = [];
+    for (const effect of this.output.effects) {
+      newEffects.push(...fn(effect));
+    }
+    this.output.effects = newEffects;
+    return this;
+  }
+
+  build() {
+    return this.output;
+  }
+}
+
+export function getOutputBuilder(context: Context): OutputBuilder {
+  if (!context.__builder) {
+    context.__builder = new OutputBuilder(context.output);
+  }
+  return context.__builder;
+}

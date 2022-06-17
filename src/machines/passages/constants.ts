@@ -1,0 +1,3 @@
+export const PASSAGE_TEXT = "PASSAGE_TEXT";
+export const PASSAGE_METADATA = "PASSAGE_METADATA";
+export const PASSAGE_BUILDER = Symbol("PASSAGE_BUILDER");

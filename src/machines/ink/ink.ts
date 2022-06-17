@@ -1,21 +1,31 @@
 import { Story } from "inkjs/engine/Story";
-import { EffectParser } from "./effect-parser";
+import { Context, Effect } from "../../types";
 import {
-  ChoiceBasedStoryMachine,
-  Choice,
-  Effect,
-  StoryMachineStatus,
-} from "../types";
-
-type InkChoice = Story["currentChoices"][0];
-
-function transformInkChoice(choice: InkChoice, key: Choice["key"]): Choice {
-  return {
-    key,
-    description: choice.text,
-    metadata: {},
-  };
-}
+  StoryMachine,
+  StoryMachineAttributes,
+  StoryMachineCompiler,
+} from "../base-classes/story-machine";
+import { EffectParser } from "./effect-parser";
+import { ProcessorMachine } from "../base-classes/processor-machine";
+import { Sequence } from "../base-machines/sequence";
+import { Scoped } from "../context/scoped";
+import { Fallback } from "../base-machines/fallback";
+import {
+  createConditionalMachine,
+  createStoryMachine,
+} from "../../utils/create-story-machine";
+import { getFromContext } from "../../utils/scope";
+import {
+  InkExternalFunction,
+  INK_EXTERNAL_FUNCS,
+  INK_INITIALIZER,
+  INK_POSTPROCESSER,
+  INK_PREPROCESSER,
+  INK_STORY,
+} from "./constants";
+import { getOutputBuilder } from "../../utils/output-builder";
+import { isOfType } from "../../utils/tree-utils";
+import { SetContextInternal } from "../context/set-context";
 
 function parseEffectFromInkTag(tag: string): Effect | null {
   const result = EffectParser.parse(tag);
@@ -45,81 +55,138 @@ function getEffectsFromInkTags(tags: Story["currentTags"]): Effect[] {
   return effects;
 }
 
-export class InkMachine implements ChoiceBasedStoryMachine {
-  internalState = null; // This class is simply a container for the Inkjs engine and delegates state tracking to the engine itself
-  initialized = false;
-  private story: Story;
+interface InkMachineAttributes extends StoryMachineAttributes {
+  initializers: StoryMachine[];
+  preprocessors: StoryMachine[];
+  postprocessors: StoryMachine[];
+}
 
-  constructor(inkJson: object) {
-    this.story = new Story(inkJson);
+export class InkMachine extends ProcessorMachine<InkMachineAttributes> {
+  private story: Story | undefined;
+  private initialized: boolean = false;
+
+  init() {
+    super.init();
+    this.initialized = false;
+    this.story = undefined;
   }
 
-  start(externalState: any) {
-    this.initialized = true;
-    this.setExternalState(externalState);
+  private createStoryInitializerProcessor() {
+    return new Fallback({
+      children: [
+        createConditionalMachine(() => this.initialized),
+        new Sequence({
+          children: [
+            ...this.attrs.initializers,
+            createStoryMachine((context) => {
+              const story: Story = getFromContext(context, INK_STORY);
 
-    const output = this.getCurrentOutput();
+              this.story = story;
 
-    // Ink initializes the story without actually starting it, so we need to move to the first passage
-    if (output.passages.length === 0) {
-      return this.next(externalState);
+              const externalFuncs: InkExternalFunction[] =
+                getFromContext(context, INK_EXTERNAL_FUNCS) ?? [];
+
+              for (const { fn, name, isGeneral } of externalFuncs) {
+                if (isGeneral) {
+                  story.BindExternalFunctionGeneral(name, fn, false);
+                } else {
+                  story.BindExternalFunction(name, fn, false);
+                }
+              }
+              this.initialized = true;
+              return { status: "Completed" };
+            }),
+          ],
+        }),
+      ],
+    });
+  }
+
+  buildOutput(context: Context): void {
+    if (!this.story) {
+      return;
+    }
+    const { currentText, currentChoices, currentTags } = this.story;
+    const builder = getOutputBuilder(context);
+
+    if (currentText) {
+      builder.addPassage({ text: currentText, metadata: {} });
     }
 
-    return output;
-  }
-
-  next(externalState: any, input?: Choice) {
-    this.setExternalState(externalState);
-    if (input) {
-      this.story.ChooseChoiceIndex(input.key as any);
+    for (let i = 0; i < currentChoices.length; i++) {
+      builder.addChoice({
+        id: `${this.id}#${i}`,
+        text: currentChoices[i].text,
+        metadata: {},
+      });
     }
-    return this.continueStory();
-  }
 
-  setExternalState(externalState: any) {
-    for (const [key, value] of Object.entries(externalState)) {
-      this.story.variablesState.$(key, value);
+    const effects = getEffectsFromInkTags(currentTags);
+    for (const effect of effects) {
+      builder.addEffect(effect);
     }
   }
 
-  continueStory() {
-    if (this.story.canContinue) {
-      const passages = [this.story.Continue() ?? ""];
-      const choices = this.story.currentChoices.map(transformInkChoice);
+  private createRunStoryProcessor() {
+    return new Sequence({
+      children: [
+        new SetContextInternal({ key: INK_STORY, valFn: () => this.story }),
+        ...this.attrs.preprocessors,
+        createStoryMachine((context) => {
+          const { input } = context;
 
-      const effects = getEffectsFromInkTags(this.story.currentTags);
+          if (
+            input &&
+            input.type === "Choice" &&
+            input.payload.id.startsWith(this.id)
+          ) {
+            const [_, choiceId] = input.payload.id.split("#");
+            this.story?.ChooseChoiceIndex(Number(choiceId));
+          }
 
-      return { status: "Active" as const, passages, choices, effects };
-    }
+          if (this.story?.canContinue) {
+            this.story.Continue();
+            this.buildOutput(context);
+            return { status: "Running" };
+          }
 
-    return { status: "Done" as const, passages: [], choices: [], effects: [] };
+          return { status: "Completed" };
+        }),
+        ...this.attrs.postprocessors,
+      ],
+    });
   }
 
-  getCurrentOutput() {
-    const status: StoryMachineStatus = this.getCurrentStatus();
-    return {
-      status,
-      passages: this.story.currentText ? [this.story.currentText] : [],
-      choices: this.story.currentChoices.map(transformInkChoice),
-      effects: getEffectsFromInkTags(this.story.currentTags),
-    };
-  }
-
-  getCurrentStatus() {
-    if (!this.initialized) {
-      return "Uninitialized";
-    }
-    if (this.story.canContinue) {
-      return "Active";
-    }
-    return "Done";
-  }
-
-  save(): string {
-    return this.story.state.ToJson();
-  }
-
-  load(jsonState: string) {
-    this.story.state.LoadJson(jsonState);
+  protected createProcessor(): StoryMachine<StoryMachineAttributes> {
+    return new Scoped({
+      child: new Sequence({
+        children: [
+          this.createStoryInitializerProcessor(),
+          this.createRunStoryProcessor(),
+        ],
+      }),
+    });
   }
 }
+
+export const InkCompiler: StoryMachineCompiler = {
+  compile(runtime, tree) {
+    const children = runtime.compileChildElements(tree.elements);
+    const initializers = children.filter((child) =>
+      isOfType(child, INK_INITIALIZER)
+    );
+    const preprocessors = children.filter((child) =>
+      isOfType(child, INK_PREPROCESSER)
+    );
+    const postprocessors = children.filter((child) =>
+      isOfType(child, INK_POSTPROCESSER)
+    );
+
+    return new InkMachine({
+      ...tree.attributes,
+      initializers,
+      preprocessors,
+      postprocessors,
+    });
+  },
+};
