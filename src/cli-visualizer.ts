@@ -32,7 +32,27 @@ function displayOutput(result: Output) {
       console.log("META ", passage.metadata);
       console.log("===");
     }
-    console.log(passage.text);
+    const chunks = [];
+    let chunk = "";
+    for (let i = 0; i < passage.text.length; i++) {
+      chunk += passage.text[i];
+      if (chunk.length === 80) {
+        if (chunk[79] === " ") {
+          chunks.push(chunk.slice(0, 79));
+          chunk = "";
+        } else {
+          const lastIndex = chunk.lastIndexOf(" ");
+          chunks.push(chunk.slice(0, lastIndex));
+          chunk = chunk.slice(lastIndex + 1);
+        }
+      }
+    }
+
+    chunks.push(chunk);
+
+    for (const chunk of chunks) {
+      console.log(chunk);
+    }
   });
 
   // Print choices
