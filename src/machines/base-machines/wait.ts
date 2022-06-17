@@ -18,9 +18,9 @@ export class Wait extends StoryMachine {
   }
 
   load(saveData: SaveData) {
-    const { hasRun } = saveData[this.id];
+    const data = saveData[this.id];
 
-    this.hasRun = hasRun;
+    this.hasRun = data?.hasRun ?? false;
   }
 
   process(_: Context): Result {
@@ -34,6 +34,6 @@ export class Wait extends StoryMachine {
 
 export const WaitCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
-    return new Wait({});
+    return new Wait({ ...tree.attributes });
   },
 };

@@ -25,8 +25,8 @@ export class MemorySequence extends CompositeMachine {
 
   load(saveData: SaveData, runtime: StoryMachineRuntime): void {
     const data = saveData[this.id];
-    this.index = data.index;
-    this.status = data.status;
+    this.index = data?.index ?? 0;
+    this.status = data?.status ?? "Running";
 
     if (this.status === "Running") {
       this.children[this.index].load(saveData, runtime);

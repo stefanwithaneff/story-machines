@@ -16,17 +16,15 @@ export function getFromContext(context: Context, key: string | string[]) {
   return globalVal !== undefined ? globalVal : null;
 }
 
-export function setOnContext(
+export function findMatchingScope(
   context: Context,
   key: string | string[],
-  val: any,
-  existsHintLength: number = 1
+  existsHintLength: number
 ) {
   const keyPath = Array.isArray(key) ? key : toPath(key);
-  const existencePath = existsHintLength
-    ? keyPath.slice(0, existsHintLength)
-    : keyPath;
-  let matchingScope: Record<string, any>;
+  const existencePath = keyPath.slice(0, existsHintLength);
+
+  let matchingScope: Record<string, any> | undefined;
 
   // Search existing scopes for a matching key
   for (const { scope } of context[SCOPES]) {
@@ -41,10 +39,32 @@ export function setOnContext(
   const globalVal = get(context, existencePath);
   if (globalVal !== undefined || context[SCOPES].length === 0) {
     matchingScope = context;
-  } else {
-    // Use the most local existing scope if no other scope matches
-    matchingScope = context[SCOPES][0].scope;
   }
 
-  set(matchingScope, keyPath, val);
+  return matchingScope;
+}
+
+export function setOnContext(
+  context: Context,
+  key: string | string[],
+  val: any
+) {
+  const scope = context[SCOPES].length > 0 ? context[SCOPES][0].scope : context;
+
+  set(scope, key, val);
+}
+
+export function updateContext(
+  context: Context,
+  key: string | string[],
+  val: any,
+  existsHintLength: number = 1
+) {
+  const matchingScope = findMatchingScope(context, key, existsHintLength);
+
+  if (!matchingScope) {
+    throw new Error(`Key ${key} does not exist on any scope or global context`);
+  }
+
+  set(matchingScope, key, val);
 }

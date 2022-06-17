@@ -1,4 +1,11 @@
-import { SaveData } from "../../types";
+import { StoryMachineRuntime } from "../../runtime";
+import { HandlerMap, SaveData } from "../../types";
+import {
+  createConditionalMachine,
+  createStoryMachine,
+} from "../../utils/create-story-machine";
+import { handleEffects } from "../../utils/effects";
+import { getFromContext } from "../../utils/scope";
 import { isOfType } from "../../utils/tree-utils";
 import { ProcessorMachine } from "../base-classes/processor-machine";
 import {
@@ -6,10 +13,19 @@ import {
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../base-classes/story-machine";
+import { Fallback } from "../base-machines/fallback";
+import { ImmediateSequence } from "../base-machines/immediate-sequence";
 import { MemorySequence } from "../base-machines/memory-sequence";
+import { Sequence } from "../base-machines/sequence";
 import { Scoped } from "../context/scoped";
-import { STATE_BUILDER } from "./constants";
-import { State } from "./state";
+import { SetContextInternal } from "../context/set-context";
+import {
+  HandlerEntry,
+  HANDLERS,
+  INITIAL_STATE,
+  STATE,
+  STATE_BUILDER,
+} from "./constants";
 
 interface StatefulAttributes extends StoryMachineAttributes {
   builders: StoryMachine[];
@@ -18,28 +34,90 @@ interface StatefulAttributes extends StoryMachineAttributes {
 
 // TODO: Figure out a way to combine State and Stateful
 export class Stateful extends ProcessorMachine<StatefulAttributes> {
-  save(saveData: SaveData) {
-    super.save(saveData);
-    delete saveData[this.generateId("memory_seq_outer")];
+  private initialized: boolean = false;
+  private state: Record<string, any> = {};
+  private handlers: HandlerMap = {};
+
+  init() {
+    this.initialized = false;
+    this.state = {};
+    this.handlers = {};
   }
 
-  protected createProcessor() {
+  save(saveData: SaveData) {
+    saveData[this.id] = {
+      state: this.state,
+    };
+    super.save(saveData);
+  }
+
+  load(saveData: SaveData, runtime: StoryMachineRuntime) {
+    const { state } = saveData[this.id];
+    this.state = state;
+    super.load(saveData, runtime);
+  }
+
+  private createInitializerProcessor(): StoryMachine {
+    // Initialize state if it hasn't been already
     return new Scoped({
-      child: new MemorySequence({
-        id: this.generateId("memory_seq_outer"),
+      child: new Fallback({
         children: [
-          ...this.attrs.builders,
-          new Scoped({
-            child: new State({
-              id: this.generateId("state"),
-              child: new MemorySequence({
-                id: this.generateId("memory_seq_inner"),
-                children: this.attrs.nodes,
+          createConditionalMachine(() => this.initialized),
+          new Sequence({
+            children: [
+              ...this.attrs.builders,
+              createStoryMachine((context) => {
+                const state = getFromContext(context, INITIAL_STATE);
+                const handlers: HandlerEntry[] =
+                  getFromContext(context, HANDLERS) ?? [];
+
+                if (!state) {
+                  return { status: "Terminated" };
+                }
+
+                this.state = { ...state, ...this.state };
+                for (const { type, handler } of handlers) {
+                  this.handlers[type] = handler;
+                }
+                this.initialized = true;
+                return { status: "Completed" };
               }),
-            }),
+            ],
           }),
         ],
       }),
+    });
+  }
+
+  private createNodesProcessor(): StoryMachine {
+    // Expose State via Context, run the children, and handle any effects
+    return new Scoped({
+      child: new ImmediateSequence({
+        children: [
+          new SetContextInternal({ key: STATE, valFn: () => this.state }),
+          new MemorySequence({
+            id: this.generateId("memory_seq"),
+            children: this.attrs.nodes,
+          }),
+          createStoryMachine((context) => {
+            try {
+              handleEffects(context, this.handlers);
+              return { status: "Completed" };
+            } catch (e) {
+              return { status: "Terminated" };
+            }
+          }),
+        ],
+      }),
+    });
+  }
+
+  protected createProcessor() {
+    return new Sequence({
+      children: [
+        this.createInitializerProcessor(),
+        this.createNodesProcessor(),
+      ],
     });
   }
 }
@@ -51,6 +129,6 @@ export const StatefulCompiler: StoryMachineCompiler = {
     const builders = children.filter((child) => isOfType(child, STATE_BUILDER));
     const nodes = children.filter((child) => !isOfType(child, STATE_BUILDER));
 
-    return new Stateful({ builders, nodes });
+    return new Stateful({ ...tree.attributes, builders, nodes });
   },
 };

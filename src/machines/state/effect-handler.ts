@@ -27,7 +27,7 @@ export function createEffectHandler(
   attributes: EffectHandlerAttributes,
   processor: StoryMachine
 ) {
-  return (context: Context, effect: Effect) => {
+  return (context: Context, effect: Effect): Effect[] => {
     setOnContext(
       context,
       attributes.payloadKey ?? INCOMING_EFFECT_PAYLOAD,
@@ -35,8 +35,11 @@ export function createEffectHandler(
     );
     setOnContext(context, RETURNED_EFFECTS, []);
     setOnContext(context, CAN_ALTER_STATE, true);
-    processor.process(context);
+    const result = processor.process(context);
     setOnContext(context, CAN_ALTER_STATE, false);
+    if (result.status === "Terminated") {
+      throw new Error("Effect handler failed to execute");
+    }
     return getFromContext(context, RETURNED_EFFECTS);
   };
 }

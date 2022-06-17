@@ -34,6 +34,8 @@ import { WaitCompiler } from "./machines/base-machines/wait";
 import { DevLogCompiler } from "./machines/base-machines/dev-log";
 import { SetContextCompiler } from "./machines/context/set-context";
 import { SetGlobalContextCompiler } from "./machines/context/set-global-context";
+import { TerminatedCompiler } from "./machines/base-machines/terminated";
+import { CompletedCompiler } from "./machines/base-machines/completed";
 
 export class StoryMachineRuntime {
   private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
@@ -113,6 +115,7 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   ChoiceMetadata: ChoiceMetadataCompiler,
   Choices: ChoicesCompiler,
   ChoiceText: ChoiceTextCompiler,
+  Completed: CompletedCompiler,
   Condition: ConditionCompiler,
   DevLog: DevLogCompiler,
   Effect: EffectCompiler,
@@ -136,6 +139,7 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   SetGlobalContext: SetGlobalContextCompiler,
   SetState: SetStateCompiler,
   Stateful: StatefulCompiler,
+  Terminated: TerminatedCompiler,
   Text: TextCompiler,
   Value: ValueCompiler,
   Wait: WaitCompiler,

@@ -1,7 +1,7 @@
 import { Context, Result } from "../../types";
 import { Expression, ExpressionParser } from "../../utils/expression-parser";
 import { getOutputBuilder } from "../../utils/output-builder";
-import { getFromContext, setOnContext } from "../../utils/scope";
+import { getFromContext, setOnContext, updateContext } from "../../utils/scope";
 import {
   StoryMachine,
   StoryMachineAttributes,
@@ -35,7 +35,17 @@ export class SetState extends StoryMachine<SetStateAttributes> {
     }
 
     const val = expression.calc(context);
-    setOnContext(context, `${STATE}.${key}`, val);
+
+    try {
+      updateContext(context, `${STATE}.${key}`, val, 2);
+    } catch (e) {
+      builder.addEffect(
+        createDevErrorEffect({
+          message: `The provided key does not exist in state: ${key}`,
+        })
+      );
+      return { status: "Terminated" };
+    }
 
     return { status: "Completed" };
   }

@@ -5,13 +5,14 @@ import {
   Context,
   Input,
   Output,
+  SaveData,
   StoryMachineStatus,
 } from "./types";
 
 type TestFn = (output: Output, status: StoryMachineStatus) => boolean;
 
 export class TestPlayer {
-  private story: StoryMachine;
+  story: StoryMachine;
   currentOutput: Output | undefined;
   currentStatus: StoryMachineStatus | undefined;
   currentContext: Context | undefined;
@@ -29,6 +30,24 @@ export class TestPlayer {
       input,
       __SCOPES__: [],
     };
+  }
+
+  init(): TestPlayer {
+    this.story.init();
+    this.currentOutput = undefined;
+    this.currentStatus = undefined;
+    this.currentContext = undefined;
+    return this;
+  }
+
+  save(saveData: SaveData): TestPlayer {
+    this.story.save(saveData);
+    return this;
+  }
+
+  load(saveData: SaveData): TestPlayer {
+    this.story.load(saveData, this.runtime);
+    return this;
   }
 
   tick(input?: Input): TestPlayer {
