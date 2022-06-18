@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/core" },
+    { "path": "packages/ink" },
+    { "path": "packages/passages" },
+    { "path": "packages/choices" },
+    { "path": "packages/cli-player" }
+  ]
+}

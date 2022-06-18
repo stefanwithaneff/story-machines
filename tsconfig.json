@@ -2,9 +2,9 @@
   "extends": "@tsconfig/recommended/tsconfig.json",
   "compilerOptions": {
     "lib": ["ES2021"],
-    "outDir": "dist",
     "useUnknownInCatchVariables": false,
-    "strict": true
-  },
-  "exclude": ["node_modules"]
+    "strict": true,
+    "composite": true,
+    "declaration": true
+  }
 }

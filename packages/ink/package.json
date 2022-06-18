@@ -1,0 +1,23 @@
+{
+  "name": "@story-machines/ink",
+  "version": "0.0.1",
+  "description": "A plugin that integrates stories written in Ink into the Story Machine framework",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stefanwithaneff/story-machines.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stefanwithaneff/story-machines/issues"
+  },
+  "homepage": "https://github.com/stefanwithaneff/story-machines#readme",
+  "dependencies": {
+    "inkjs": "^2.1.0",
+    "parsimmon": "^1.18.1"
+  }
+}

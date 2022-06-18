@@ -1,0 +1,18 @@
+{
+  "name": "@story-machines/cli-player",
+  "version": "0.0.1",
+  "description": "A presentation layer for Story Machines that can run on the command line",
+  "main": "dist/index.js",
+  "devDependencies": {},
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stefanwithaneff/story-machines.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stefanwithaneff/story-machines/issues"
+  },
+  "homepage": "https://github.com/stefanwithaneff/story-machines#readme"
+}
