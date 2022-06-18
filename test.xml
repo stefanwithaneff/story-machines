@@ -52,13 +52,17 @@
             nature of tree structures, they also lend themselves to modularity
             which makes them easy to share between projects/programs.
           </Text>
-          <Text>
-            If you would like to learn more about Behavior Trees, there are a number of great resources for this:
-
-            - https://www.gamedeveloper.com/programming/behavior-trees-for-ai-how-they-work
-
-            - https://robohub.org/introduction-to-behavior-trees/
-          </Text>
+          <ImmediateSequence>
+            <Text>
+              If you would like to learn more about Behavior Trees, there are a number of great resources for this:
+            </Text>
+            <Text>
+              - https://www.gamedeveloper.com/programming/behavior-trees-for-ai-how-they-work
+            </Text>
+            <Text>
+              - https://robohub.org/introduction-to-behavior-trees/
+            </Text>
+          </ImmediateSequence>
         </Sequence>
       </Choice>
       <Choice>

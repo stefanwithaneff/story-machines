@@ -28,10 +28,7 @@ export class PassageText extends StoryMachine<PassageTextAttributes> {
       this.attrs.textContent ?? ""
     );
 
-    const cleanedText = evalText
-      .replace(/\n\n/gm, "<br />")
-      .replace(/[ \t\n][ \t]+/gm, " ")
-      .replace(/<br \/>/g, "\n");
+    const cleanedText = evalText.replace(/\s+/gm, " ");
 
     setOnContext(context, PASSAGE_TEXT, cleanedText);
     return { status: "Completed" };
