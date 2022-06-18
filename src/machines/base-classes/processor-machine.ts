@@ -1,4 +1,3 @@
-import { StoryMachineRuntime } from "../../runtime";
 import { Context, SaveData } from "../../types";
 import { StoryMachine, StoryMachineAttributes } from "./story-machine";
 
@@ -23,8 +22,8 @@ export abstract class ProcessorMachine<
     this.processor.save(saveData);
   }
 
-  load(saveData: SaveData, runtime: StoryMachineRuntime) {
-    this.processor.load(saveData, runtime);
+  load(saveData: SaveData) {
+    this.processor.load(saveData);
   }
 
   process(context: Context) {

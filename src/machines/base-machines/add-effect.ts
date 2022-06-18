@@ -14,9 +14,6 @@ interface AddEffectInternalAttributes extends StoryMachineAttributes {
 }
 
 export class AddEffectInternal extends StoryMachine<AddEffectInternalAttributes> {
-  init() {}
-  save() {}
-  load() {}
   process(context: Context): Result {
     const builder = getOutputBuilder(context);
     builder.addEffect(this.attrs.effect);
@@ -25,9 +22,6 @@ export class AddEffectInternal extends StoryMachine<AddEffectInternalAttributes>
 }
 
 export class AddEffect extends StoryMachine {
-  init() {}
-  save() {}
-  load() {}
   process(context: Context): Result {
     const type = getFromContext(context, EFFECT_TYPE);
     const payload = getFromContext(context, EFFECT_PAYLOAD);

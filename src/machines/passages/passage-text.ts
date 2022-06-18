@@ -18,9 +18,6 @@ interface PassageTextAttributes extends StoryMachineAttributes {
 
 export class PassageText extends StoryMachine<PassageTextAttributes> {
   machineTypes: symbol[] = [PASSAGE_BUILDER];
-  init() {}
-  save() {}
-  load() {}
   process(context: Context): Result {
     const evalText = replaceWithParsedExpressions(
       context,
@@ -37,7 +34,9 @@ export class PassageText extends StoryMachine<PassageTextAttributes> {
 
 export const PassageTextCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
-    const expressions: Expression[] = parseAll(tree.attributes.textContent);
+    const expressions: Expression[] = parseAll(
+      tree.attributes.textContent ?? ""
+    );
     return new PassageText({
       ...tree.attributes,
       expressions,

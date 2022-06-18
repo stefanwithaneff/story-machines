@@ -13,9 +13,6 @@ interface ConditionAttributes extends StoryMachineAttributes {
 }
 
 export class Condition extends StoryMachine<ConditionAttributes> {
-  init() {}
-  save() {}
-  load() {}
   process(context: Context): Result {
     const result = this.attrs.expression.calc(context);
 

@@ -1,6 +1,5 @@
 import { CompositeMachine } from "../base-classes/composite-machine";
 import { Context, Result, SaveData, StoryMachineStatus } from "../../types";
-import { StoryMachineRuntime } from "../../runtime";
 
 export class MemoryFallback extends CompositeMachine {
   // TODO: Make save data less structurally dependent (Use ID of child somehow)
@@ -24,13 +23,13 @@ export class MemoryFallback extends CompositeMachine {
     }
   }
 
-  load(saveData: SaveData, runtime: StoryMachineRuntime): void {
+  load(saveData: SaveData): void {
     const data = saveData[this.id];
     this.index = data.index;
     this.status = data.status;
 
     if (this.status === "Running") {
-      this.children[this.index].load(saveData, runtime);
+      this.children[this.index].load(saveData);
     }
   }
 

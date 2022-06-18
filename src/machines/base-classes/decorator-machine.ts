@@ -1,4 +1,3 @@
-import { StoryMachineRuntime } from "../../runtime";
 import { SaveData } from "../../types";
 import { StoryMachine, StoryMachineAttributes } from "./story-machine";
 
@@ -23,7 +22,7 @@ export abstract class DecoratorMachine<
   save(saveData: SaveData) {
     this.child.save(saveData);
   }
-  load(saveData: SaveData, runtime: StoryMachineRuntime) {
-    this.child.load(saveData, runtime);
+  load(saveData: SaveData) {
+    this.child.load(saveData);
   }
 }

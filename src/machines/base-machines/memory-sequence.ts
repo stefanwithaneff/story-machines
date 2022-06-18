@@ -1,6 +1,5 @@
 import { CompositeMachine } from "../base-classes/composite-machine";
 import { Context, Result, SaveData, StoryMachineStatus } from "../../types";
-import { StoryMachineRuntime } from "../../runtime";
 
 export class MemorySequence extends CompositeMachine {
   private index = 0;
@@ -23,13 +22,13 @@ export class MemorySequence extends CompositeMachine {
     }
   }
 
-  load(saveData: SaveData, runtime: StoryMachineRuntime): void {
+  load(saveData: SaveData): void {
     const data = saveData[this.id];
     this.index = data?.index ?? 0;
     this.status = data?.status ?? "Running";
 
     if (this.status === "Running") {
-      this.children[this.index].load(saveData, runtime);
+      this.children[this.index].load(saveData);
     }
   }
 

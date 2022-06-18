@@ -16,9 +16,6 @@ interface InkSyncStateAttributes extends StoryMachineAttributes {
 
 export class InkSyncState extends StoryMachine<InkSyncStateAttributes> {
   machineTypes: symbol[] = [INK_PREPROCESSER];
-  init() {}
-  save() {}
-  load() {}
   process(context: Context): Result {
     const story: Story | null = getFromContext(context, INK_STORY);
     const value = this.attrs.expression.calc(context);

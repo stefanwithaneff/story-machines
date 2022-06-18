@@ -5,9 +5,6 @@ import {
 } from "../base-classes/story-machine";
 
 export class Completed extends StoryMachine {
-  init() {}
-  save() {}
-  load() {}
   process(context: Context): Result {
     return { status: "Completed" };
   }

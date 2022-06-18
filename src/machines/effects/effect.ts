@@ -19,7 +19,7 @@ interface EffectAttributes extends CompositeMachineAttributes {
 export class EffectMachine extends ProcessorMachine<EffectAttributes> {
   protected createProcessor() {
     return new Once({
-      id: `once_${this.id}`,
+      id: this.generateId("once"),
       child: new Scoped({
         child: new Sequence({
           children: [
