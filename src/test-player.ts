@@ -46,7 +46,7 @@ export class TestPlayer {
   }
 
   load(saveData: SaveData): TestPlayer {
-    this.story.load(saveData, this.runtime);
+    this.story.load(saveData);
     return this;
   }
 

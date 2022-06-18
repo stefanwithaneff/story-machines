@@ -16,9 +16,6 @@ interface InkExternalFuncAttributes extends StoryMachineAttributes {
 
 export class InkExternalFunc extends StoryMachine<InkExternalFuncAttributes> {
   machineTypes: symbol[] = [INK_INITIALIZER];
-  init() {}
-  save() {}
-  load() {}
   process(context: Context): Result {
     const func = this.attrs.expression.calc(context);
     if (typeof func !== "function") {

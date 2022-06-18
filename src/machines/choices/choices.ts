@@ -58,10 +58,10 @@ export class Choices extends ProcessorMachine<CompositeMachineAttributes> {
     this.processor.save(saveData);
   }
 
-  load(saveData: SaveData, runtime: StoryMachineRuntime) {
+  load(saveData: SaveData) {
     const { chosenId } = saveData[this.id];
     this.chosenId = chosenId;
-    this.processor.load(saveData, runtime);
+    this.processor.load(saveData);
   }
 
   process(context: Context): Result {

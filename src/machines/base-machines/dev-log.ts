@@ -15,9 +15,6 @@ interface DevLogAttributes extends StoryMachineAttributes {
 }
 
 export class DevLog extends StoryMachine<DevLogAttributes> {
-  init() {}
-  save() {}
-  load() {}
   process(context: Context): Result {
     const evalText = replaceWithParsedExpressions(
       context,

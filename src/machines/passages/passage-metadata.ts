@@ -7,9 +7,6 @@ import { PASSAGE_BUILDER, PASSAGE_METADATA } from "./constants";
 
 export class PassageMetadata extends CompositeMachine {
   machineTypes: symbol[] = [PASSAGE_BUILDER];
-  init() {}
-  save() {}
-  load() {}
   process(context: Context): Result {
     setOnContext(context, PASSAGE_METADATA, {});
     setOnContext(context, KEY_PREFIX, [PASSAGE_METADATA]);

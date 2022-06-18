@@ -25,14 +25,14 @@ export class Passage extends ProcessorMachine<PassageAttributes> {
       children: [
         new Scoped({
           child: new Once({
-            id: `once_${this.id}`,
+            id: this.generateId("once"),
             child: new Sequence({
               children: [...this.attrs.builders, new AddPassage({})],
             }),
           }),
         }),
         ...this.attrs.nodes,
-        new Wait({ id: `wait_${this.id}` }),
+        new Wait({ id: this.generateId("wait") }),
       ],
     });
   }

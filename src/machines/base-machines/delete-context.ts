@@ -10,9 +10,6 @@ interface DeleteContextAttributes extends StoryMachineAttributes {
 }
 
 export class DeleteContext extends StoryMachine<DeleteContextAttributes> {
-  init() {}
-  save() {}
-  load() {}
   process(context: Context): Result {
     unset(context, this.attrs.key);
     return { status: "Completed" };

@@ -20,9 +20,9 @@ export abstract class StoryMachine<
   }
 
   abstract process(context: Context): Result;
-  abstract init(): void;
-  abstract save(saveData: SaveData): void;
-  abstract load(saveData: SaveData, runtime: StoryMachineRuntime): void;
+  init(): void {}
+  save(saveData: SaveData): void {}
+  load(saveData: SaveData): void {}
 }
 
 export interface StoryMachineCompiler {

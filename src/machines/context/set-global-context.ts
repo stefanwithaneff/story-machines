@@ -31,9 +31,6 @@ interface SetGlobalContextAttributes extends StoryMachineAttributes {
 }
 
 export class SetGlobalContext extends StoryMachine<SetGlobalContextAttributes> {
-  init() {}
-  save() {}
-  load() {}
   process(context: Context): Result {
     const { key, expression } = this.attrs;
     const keyPath = toPath(key);

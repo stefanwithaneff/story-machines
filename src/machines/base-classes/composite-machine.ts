@@ -1,4 +1,3 @@
-import { StoryMachineRuntime } from "../../runtime";
 import { SaveData } from "../../types";
 import { StoryMachine, StoryMachineAttributes } from "./story-machine";
 
@@ -25,9 +24,9 @@ export abstract class CompositeMachine<
       child.save(saveData);
     }
   }
-  load(saveData: SaveData, runtime: StoryMachineRuntime) {
+  load(saveData: SaveData) {
     for (const child of this.children) {
-      child.load(saveData, runtime);
+      child.load(saveData);
     }
   }
 }

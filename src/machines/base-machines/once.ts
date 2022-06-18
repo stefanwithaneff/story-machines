@@ -1,6 +1,5 @@
 import { DecoratorMachine } from "../base-classes/decorator-machine";
 import { Context, Result, SaveData, StoryMachineStatus } from "../../types";
-import { StoryMachineRuntime } from "../../runtime";
 
 export class Once extends DecoratorMachine {
   private status: StoryMachineStatus = "Running";
@@ -15,12 +14,12 @@ export class Once extends DecoratorMachine {
     }
   }
 
-  load(saveData: SaveData, runtime: StoryMachineRuntime) {
+  load(saveData: SaveData) {
     const { status } = saveData[this.id];
     this.status = status;
 
     if (this.status === "Running") {
-      this.child.load(saveData, runtime);
+      this.child.load(saveData);
     }
   }
 

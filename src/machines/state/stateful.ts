@@ -1,4 +1,3 @@
-import { StoryMachineRuntime } from "../../runtime";
 import { HandlerMap, SaveData } from "../../types";
 import {
   createConditionalMachine,
@@ -51,10 +50,10 @@ export class Stateful extends ProcessorMachine<StatefulAttributes> {
     super.save(saveData);
   }
 
-  load(saveData: SaveData, runtime: StoryMachineRuntime) {
+  load(saveData: SaveData) {
     const { state } = saveData[this.id];
     this.state = state;
-    super.load(saveData, runtime);
+    super.load(saveData);
   }
 
   private createInitializerProcessor(): StoryMachine {

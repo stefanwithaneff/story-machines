@@ -18,9 +18,6 @@ interface ChoiceTextAttributes extends StoryMachineAttributes {
 
 export class ChoiceText extends StoryMachine<ChoiceTextAttributes> {
   machineTypes: symbol[] = [CHOICE_BUILDER];
-  init() {}
-  save() {}
-  load() {}
   process(context: Context): Result {
     const evalText = replaceWithParsedExpressions(
       context,
