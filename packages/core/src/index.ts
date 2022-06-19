@@ -1,5 +1,6 @@
 export * from "./base-classes";
 export * from "./machines";
+export * from "./utils/create-empty-context";
 export {
   createConditionalMachine,
   createStoryMachine,
