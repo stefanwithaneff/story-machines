@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "A plugin that enables text-based output in the Story Machine framework",
   "main": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
   "devDependencies": {},
   "scripts": {
     "test": "jest",

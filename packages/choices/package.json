@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "A plugin that enables choice-based input and output in the Story Machine framework",
   "main": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
   "devDependencies": {},
   "scripts": {
     "test": "jest",
