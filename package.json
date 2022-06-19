@@ -5,8 +5,7 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "build": "./node_modules/.bin/tsc --build tsconfig.build.json",
-    "cli": "npm run build && node ./packages/cli-player/dist/index.js"
+    "cli": "npm run build --workspaces && node ./packages/cli-player/dist/index.js"
   },
   "author": "",
   "license": "MIT",

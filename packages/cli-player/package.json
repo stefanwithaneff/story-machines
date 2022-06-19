@@ -3,8 +3,11 @@
   "version": "0.0.1",
   "description": "A presentation layer for Story Machines that can run on the command line",
   "main": "dist/index.js",
+  "private": true,
   "devDependencies": {},
-  "scripts": {},
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stefanwithaneff/story-machines.git"

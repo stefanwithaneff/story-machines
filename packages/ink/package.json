@@ -4,7 +4,9 @@
   "description": "A plugin that integrates stories written in Ink into the Story Machine framework",
   "main": "dist/index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc --build tsconfig.build.json",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
