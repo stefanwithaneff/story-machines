@@ -1,0 +1,21 @@
+{
+  "name": "@story-machines/core",
+  "version": "0.0.1",
+  "description": "The core abstractions and runtime for creating Story Machines",
+  "main": "dist/index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "jest",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stefanwithaneff/story-machines.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stefanwithaneff/story-machines/issues"
+  },
+  "homepage": "https://github.com/stefanwithaneff/story-machines#readme"
+}

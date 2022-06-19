@@ -1,0 +1,20 @@
+{
+  "name": "@story-machines/passages",
+  "version": "0.0.1",
+  "description": "A plugin that enables text-based output in the Story Machine framework",
+  "main": "dist/index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stefanwithaneff/story-machines.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stefanwithaneff/story-machines/issues"
+  },
+  "homepage": "https://github.com/stefanwithaneff/story-machines#readme"
+}
