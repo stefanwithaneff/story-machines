@@ -63,7 +63,7 @@ export class NestedList extends ProcessorMachine<NestedListAttributes> {
       children: [
         createStoryMachine((context) => {
           keyPrefix = getFromContext(context, KEY_PREFIX);
-          keyPrefix.push(this.attrs.key);
+          keyPrefix?.push(this.attrs.key);
           return { status: "Completed" };
         }),
         new List({ children: this.attrs.children }),

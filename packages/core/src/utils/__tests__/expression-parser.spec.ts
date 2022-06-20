@@ -88,6 +88,33 @@ describe("Expression Parser", () => {
     };
     runTests(tests);
   });
+  describe("Lists", () => {
+    const tests: TestSuite = {
+      "parses lists of constants": {
+        input: `[134, "hello", false, null]`,
+        expected: [134, "hello", false, null],
+      },
+      "parses variable references inside of a list": {
+        input: `[$ctx.foo, $ctx.bar]`,
+        context: { foo: "test", bar: 535 },
+        expected: ["test", 535],
+      },
+      "parses function calls inside of a list": {
+        input: `[14, $ctx.addAll(2, 3, 5), 17]`,
+        context: {
+          addAll(...args: number[]) {
+            let num = 0;
+            for (const arg of args) {
+              num += arg;
+            }
+            return num;
+          },
+        },
+        expected: [14, 10, 17],
+      },
+    };
+    runTests(tests);
+  });
   describe("Function calls", () => {
     const tests: TestSuite = {
       "calls the function referenced with the arguments provided": {

@@ -53,7 +53,7 @@ export class NestedObject extends ProcessorMachine<NestedObjectAttributes> {
       children: [
         createStoryMachine((context) => {
           keyPrefix = getFromContext(context, KEY_PREFIX);
-          keyPrefix.push(this.attrs.key);
+          keyPrefix?.push(this.attrs.key);
           return { status: "Completed" };
         }),
         new ObjectMachine({ children: this.attrs.children }),

@@ -51,6 +51,12 @@ export class TestPlayer {
     return this;
   }
 
+  loadStory(xml: string): TestPlayer {
+    this.story = this.runtime.compileXML(xml);
+    this.init();
+    return this;
+  }
+
   // chooseNthChoice(n: number): TestPlayer {
   //   const nthChoice = this.currentOutput?.choices[n];
 

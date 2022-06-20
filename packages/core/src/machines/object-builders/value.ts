@@ -48,7 +48,7 @@ export class NestedValue extends ProcessorMachine<NestedValueAttributes> {
       children: [
         createStoryMachine((context) => {
           keyPrefix = getFromContext(context, KEY_PREFIX);
-          keyPrefix.push(this.attrs.key);
+          keyPrefix?.push(this.attrs.key);
           return { status: "Completed" };
         }),
         new Value({ expression: this.attrs.expression }),
