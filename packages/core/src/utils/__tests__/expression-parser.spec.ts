@@ -1,7 +1,12 @@
 import { Context } from "../../types";
 import { SCOPES } from "../../machines/context";
 import { createEmptyContext } from "../create-empty-context";
-import { ExpressionParser } from "../expression-parser";
+import {
+  evalAndReplace,
+  ExpressionParser,
+  parseAll,
+  replaceWithParsedExpressions,
+} from "../expression-parser";
 
 interface Test {
   input: string;
@@ -201,7 +206,7 @@ describe("Expression Parser", () => {
         expected: true,
       },
       "operates with parentheticals": {
-        input: "true AND (true OR false)",
+        input: "true AND (false OR true)",
         expected: true,
       },
     };
@@ -225,5 +230,47 @@ describe("Expression Parser", () => {
       },
     };
     runTests(tests);
+  });
+  describe("Interpolation helpers", () => {
+    it("parses, evaluates, and replaces expressions inside double curly braces", () => {
+      const str =
+        'Hello, {{$ctx.name}}! You have {{$ctx.itemCount}} {{($ctx.itemCount eq 1) ? "item" : "items" }}';
+
+      const context = {
+        ...createEmptyContext(),
+        name: "Test",
+        itemCount: 3,
+      };
+
+      expect(evalAndReplace(context as any, str)).toEqual(
+        "Hello, Test! You have 3 items"
+      );
+    });
+    it("extracts the expressions from inside double curly braces in a string", () => {
+      const str =
+        'Hello, {{$ctx.name}}! You have {{$ctx.itemCount}} {{($ctx.itemCount eq 1) ? "item" : "items" }}';
+
+      const expressions = parseAll(str);
+
+      expect(expressions).toHaveLength(3);
+      expect(expressions[0].constructor.name).toEqual("VariableRef");
+      expect(expressions[1].constructor.name).toEqual("VariableRef");
+      expect(expressions[2].constructor.name).toEqual("Ternary");
+    });
+    it("injects the output of a list of expressions into a given interpolated string", () => {
+      const str =
+        'Hello, {{$ctx.name}}! You have {{$ctx.itemCount}} {{($ctx.itemCount eq 1) ? "item" : "items" }}';
+
+      const expressions = parseAll(str);
+      const context = {
+        ...createEmptyContext(),
+        name: "Test",
+        itemCount: 3,
+      };
+
+      expect(replaceWithParsedExpressions(context, expressions, str)).toEqual(
+        "Hello, Test! You have 3 items"
+      );
+    });
   });
 });

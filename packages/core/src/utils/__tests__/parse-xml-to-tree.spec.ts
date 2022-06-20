@@ -1,5 +1,6 @@
 import { parseXMLToTree } from "../parse-xml-to-tree";
 import { ElementTree } from "../../types";
+import { XMLParseError } from "../errors";
 
 describe("XML parsing", () => {
   const xmlSpecs: Record<string, [string, ElementTree]> = {
@@ -69,4 +70,24 @@ describe("XML parsing", () => {
       expect(result).toEqual(tree);
     });
   }
+
+  it("throws an error if multiple root nodes are provided", () => {
+    const xml = `
+      <Root>
+        <Child />
+      </Root>
+      <Root>
+        <OtherChild />
+      </Root>
+    `;
+
+    expect(() => parseXMLToTree(xml)).toThrowError(XMLParseError);
+  });
+  it("throws an error if no root node is found", () => {
+    const xml = `
+      <!-- Just a commment and nothing else -->
+    `;
+
+    expect(() => parseXMLToTree(xml)).toThrowError(XMLParseError);
+  });
 });
