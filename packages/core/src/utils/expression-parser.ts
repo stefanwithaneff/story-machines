@@ -235,7 +235,10 @@ export function evalAndReplace(context: Context, text: string) {
   );
 }
 
-export function parseAll(text: string): Expression[] {
+export function parseAll(text?: string): Expression[] {
+  if (!text) {
+    return [];
+  }
   return Array.from(
     text.matchAll(templateExpressionRegex),
     ([_, matchedText]) => ExpressionParser.tryParse(matchedText)

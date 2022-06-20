@@ -246,30 +246,8 @@ describe("Stateful", () => {
 
       expect(player.currentStatus).toEqual("Terminated");
     });
-    it("prevents state from being altered outside an effect handler", () => {
-      const story = `
-        <Stateful>
-          <InitState>
-            <NestedValue key="test">"abc123"</NestedValue>
-          </InitState>
-          <SetState key="test">"xyz456"</SetState>
-        </Stateful>
-      `;
-
-      const player = createTestPlayer(story);
-      player.tick();
-
-      expect(player.currentStatus).toEqual("Terminated");
-      expect(player.currentOutput?.effects).toContainEqual({
-        type: DEV_ERROR,
-        payload: {
-          message: expect.stringContaining(
-            "Attempted to alter state outside of an Effect handler."
-          ),
-        },
-      });
-    });
-    it("can add new keys to objects or new elements to arrays", () => {});
+    it("can add new keys to objects", () => {});
+    it("can add new elements to arrays", () => {});
   });
   describe("Saving and loading", () => {
     it("loads a save with the correct state", () => {

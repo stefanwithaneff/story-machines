@@ -1,8 +1,7 @@
-import { CompositeMachine } from "../base-classes";
+import { CompositeMachine, StoryMachineCompiler } from "../base-classes";
 import { Context, Result, SaveData, StoryMachineStatus } from "../types";
 
 export class MemoryFallback extends CompositeMachine {
-  // TODO: Make save data less structurally dependent (Use ID of child somehow)
   private index = 0;
   private status: StoryMachineStatus = "Running";
 
@@ -13,20 +12,24 @@ export class MemoryFallback extends CompositeMachine {
   }
 
   save(saveData: SaveData): void {
+    const currentChild = this.children[this.index];
     saveData[this.id] = {
-      index: this.index,
+      currentId: currentChild.id,
       status: this.status,
     };
 
     if (this.status === "Running") {
-      this.children[this.index].save(saveData);
+      currentChild.save(saveData);
     }
   }
 
   load(saveData: SaveData): void {
     const data = saveData[this.id];
-    this.index = data.index;
-    this.status = data.status;
+    const currentIndex = this.children.findIndex(
+      (child) => child.id === data?.currentId
+    );
+    this.index = currentIndex !== -1 ? currentIndex : 0;
+    this.status = data?.status ?? "Running";
 
     if (this.status === "Running") {
       this.children[this.index].load(saveData);
@@ -53,3 +56,10 @@ export class MemoryFallback extends CompositeMachine {
     return result;
   }
 }
+
+export const MemoryFallbackCompiler: StoryMachineCompiler = {
+  compile(runtime, tree) {
+    const children = runtime.compileChildElements(tree.elements);
+    return new MemoryFallback({ ...tree.attributes, children });
+  },
+};

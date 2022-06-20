@@ -1,4 +1,4 @@
-import { CompositeMachine } from "../base-classes";
+import { CompositeMachine, StoryMachineCompiler } from "../base-classes";
 import { Context, Result, SaveData, StoryMachineStatus } from "../types";
 
 export class MemorySequence extends CompositeMachine {
@@ -12,19 +12,23 @@ export class MemorySequence extends CompositeMachine {
   }
 
   save(saveData: SaveData): void {
+    const currentChild = this.children[this.index];
     saveData[this.id] = {
-      index: this.index,
+      currentId: currentChild.id,
       status: this.status,
     };
 
     if (this.status === "Running") {
-      this.children[this.index].save(saveData);
+      currentChild.save(saveData);
     }
   }
 
   load(saveData: SaveData): void {
     const data = saveData[this.id];
-    this.index = data?.index ?? 0;
+    const currentIndex = this.children.findIndex(
+      (child) => child.id === data?.currentId
+    );
+    this.index = currentIndex !== -1 ? currentIndex : 0;
     this.status = data?.status ?? "Running";
 
     if (this.status === "Running") {
@@ -52,3 +56,10 @@ export class MemorySequence extends CompositeMachine {
     return result;
   }
 }
+
+export const MemorySequenceCompiler: StoryMachineCompiler = {
+  compile(runtime, tree) {
+    const children = runtime.compileChildElements(tree.elements);
+    return new MemorySequence({ ...tree.attributes, children });
+  },
+};
