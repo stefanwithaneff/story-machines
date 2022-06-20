@@ -2,6 +2,7 @@ import { parseXMLToTree } from "./utils/parse-xml-to-tree";
 import { StoryMachine, StoryMachineCompiler } from "./base-classes";
 import { ElementTree } from "./types";
 import {
+  AddEffectCompiler,
   CompletedCompiler,
   ConditionCompiler,
   DevLogCompiler,
@@ -103,6 +104,7 @@ export class StoryMachineRuntime {
 }
 
 const baseElements: Record<string, StoryMachineCompiler> = {
+  AddEffect: AddEffectCompiler,
   Completed: CompletedCompiler,
   Condition: ConditionCompiler,
   DevLog: DevLogCompiler,

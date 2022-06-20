@@ -95,16 +95,6 @@ export class TestPlayer {
   //   return this;
   // }
 
-  test(fn: TestFn, desc?: string) {
-    if (!this.currentOutput || !this.currentStatus) {
-      throw new Error("Story has not run yet");
-    }
-
-    if (!fn(this.currentOutput, this.currentStatus)) {
-      throw new Error(`Expectation failed${desc ? `: ${desc}` : "."}`);
-    }
-  }
-
   // playRandomly(maxIterations: number) {
   //   for (let i = 0; i < maxIterations; i++) {
   //     this.chooseRandomChoice();
