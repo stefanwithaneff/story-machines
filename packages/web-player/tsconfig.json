@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["./src"],
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "references": [
+    { "path": "../core" },
+    { "path": "../choices" },
+    { "path": "../passages" },
+    { "path": "../ink" }
+  ]
+}
