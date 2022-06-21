@@ -17,8 +17,8 @@ describe("Passage", () => {
       <Passage>
         <PassageText>test</PassageText>
         <PassageMetadata>
-          <Value key="testNum">7</Value>
-          <Value key="testStr">"hello"</Value>
+          <NestedValue key="testNum">7</NestedValue>
+          <NestedValue key="testStr">"hello"</NestedValue>
         </PassageMetadata>
       </Passage>
     `;
@@ -39,7 +39,7 @@ describe("Passage", () => {
       <Passage>
         <PassageText>test</PassageText>
         <PassageMetadata>
-          <Value key="testNum">7</Value>
+          <NestedValue key="testNum">7</NestedValue>
           <Terminated />
         </PassageMetadata>
       </Passage>
@@ -68,8 +68,8 @@ describe("Passage", () => {
       <Passage id="passage">
         <PassageText>test</PassageText>
         <PassageMetadata>
-          <Value key="testNum">7</Value>
-          <Value key="testStr">"hello"</Value>
+          <NestedValue key="testNum">7</NestedValue>
+          <NestedValue key="testStr">"hello"</NestedValue>
         </PassageMetadata>
       </Passage>
     `;

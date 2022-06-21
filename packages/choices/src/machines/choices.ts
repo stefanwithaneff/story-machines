@@ -60,8 +60,8 @@ export class Choices extends ProcessorMachine<CompositeMachineAttributes> {
   }
 
   load(saveData: SaveData) {
-    const { chosenId } = saveData[this.id];
-    this.chosenId = chosenId;
+    const data = saveData[this.id];
+    this.chosenId = data?.chosenId;
     this.processor.load(saveData);
   }
 
@@ -76,6 +76,6 @@ export const ChoicesCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const children = runtime.compileChildElements(tree.elements);
 
-    return new Choices({ children });
+    return new Choices({ ...tree.attributes, children });
   },
 };
