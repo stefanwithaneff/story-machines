@@ -30,8 +30,8 @@ export class TestPlayer {
     return this;
   }
 
-  tick(input?: Input) {
-    const context = createEmptyContext(input);
+  tick(externalContext?: Record<string, any>) {
+    const context = createEmptyContext(externalContext);
 
     const result = this.story.process(context);
     this.currentStatus = result.status;

@@ -1,4 +1,4 @@
-import { Input, SaveData, TestPlayer } from "@story-machines/core";
+import { Context, Input, SaveData, TestPlayer } from "@story-machines/core";
 import { ChoiceInput, Choice } from "../types";
 
 export class ChoiceTestPlayer extends TestPlayer {
@@ -10,11 +10,12 @@ export class ChoiceTestPlayer extends TestPlayer {
     return this;
   }
 
-  tick(input?: Input) {
+  tick(externalContext?: Record<string, any>) {
+    const input = externalContext?.input;
     if (input && input.type === "Choice") {
       this.currentChoices = undefined;
     }
-    super.tick(input);
+    super.tick(externalContext);
     if (this.currentOutput?.choices) {
       this.currentChoices = this.currentOutput.choices;
     }
@@ -37,7 +38,7 @@ export class ChoiceTestPlayer extends TestPlayer {
       },
     };
 
-    this.tick(input);
+    this.tick({ input });
 
     return this;
   }
@@ -55,7 +56,7 @@ export class ChoiceTestPlayer extends TestPlayer {
           }
         : undefined;
 
-    this.tick(input);
+    this.tick({ input });
 
     return this;
   }

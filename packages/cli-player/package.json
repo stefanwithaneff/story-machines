@@ -6,6 +6,7 @@
   "private": true,
   "devDependencies": {},
   "scripts": {
+    "test": "",
     "build": "tsc --build tsconfig.build.json"
   },
   "repository": {

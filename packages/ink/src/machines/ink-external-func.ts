@@ -9,7 +9,11 @@ import {
   StoryMachineAttributes,
   StoryMachineCompiler,
 } from "@story-machines/core";
-import { INK_EXTERNAL_FUNCS, INK_INITIALIZER } from "./constants";
+import {
+  InkExternalFunction,
+  INK_EXTERNAL_FUNCS,
+  INK_INITIALIZER,
+} from "./constants";
 
 interface InkExternalFuncAttributes extends StoryMachineAttributes {
   name: string;
@@ -26,11 +30,16 @@ export class InkExternalFunc extends StoryMachine<InkExternalFuncAttributes> {
     }
 
     const externalFuncList = getFromContext(context, INK_EXTERNAL_FUNCS);
+    const externalFunc: InkExternalFunction = {
+      fn: func,
+      name: this.attrs.name,
+      isGeneral: this.attrs.isGeneral,
+    };
 
     if (externalFuncList === null) {
-      setOnContext(context, INK_EXTERNAL_FUNCS, [func]);
+      setOnContext(context, INK_EXTERNAL_FUNCS, [externalFunc]);
     } else {
-      externalFuncList.push(func);
+      externalFuncList.push(externalFunc);
     }
     return { status: "Completed" };
   }

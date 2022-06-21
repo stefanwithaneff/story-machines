@@ -102,7 +102,7 @@ describe("Choice machines", () => {
         id: "noChoice",
       },
     };
-    player.tick().tick(input);
+    player.tick().tick({ input });
     expect(player.currentStatus).toBe("Terminated");
   });
   it("groups multiple choices together under a single choice", () => {
@@ -169,6 +169,7 @@ describe("Choice machines", () => {
       },
     });
 
+    // TODO: See if it's possible to progress story without the tick. SUPER IMPORTANT!!!
     player.init().load(saveData).tick().chooseNthChoice(0);
     expect(player.currentStatus).toBe("Completed");
     expect(player.currentContext?.foo).toEqual("bar");

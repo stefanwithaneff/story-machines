@@ -76,7 +76,7 @@ describe("Decorator machines", () => {
       const player = new TestPlayer(runtime, story);
       player.tick();
       expect(player.currentStatus).toEqual("Running");
-      player.tick({ type: "Break", payload: {} });
+      player.tick({ input: { type: "Break", payload: {} } });
       expect(player.currentStatus).toEqual("Completed");
       player.tick();
       expect(player.currentStatus).toEqual("Completed");
