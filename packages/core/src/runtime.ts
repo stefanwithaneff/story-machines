@@ -2,6 +2,7 @@ import { parseXMLToTree } from "./utils/parse-xml-to-tree";
 import { StoryMachine, StoryMachineCompiler } from "./base-classes";
 import { ElementTree } from "./types";
 import {
+  AddEffectCompiler,
   CompletedCompiler,
   ConditionCompiler,
   DevLogCompiler,
@@ -12,10 +13,17 @@ import {
   ImmediateSequenceCompiler,
   InitStateCompiler,
   ListCompiler,
+  LoopTilTerminatedCompiler,
+  MemoryFallbackCompiler,
+  MemorySequenceCompiler,
+  NestedListCompiler,
+  NestedObjectCompiler,
+  NestedValueCompiler,
   NotCompiler,
   ObjectCompiler,
   OnceCompiler,
   ReturnedEffectCompiler,
+  ScopedCompiler,
   SequenceCompiler,
   SetContextCompiler,
   SetGlobalContextCompiler,
@@ -100,6 +108,7 @@ export class StoryMachineRuntime {
 }
 
 const baseElements: Record<string, StoryMachineCompiler> = {
+  AddEffect: AddEffectCompiler,
   Completed: CompletedCompiler,
   Condition: ConditionCompiler,
   DevLog: DevLogCompiler,
@@ -109,11 +118,18 @@ const baseElements: Record<string, StoryMachineCompiler> = {
   ImmediateSequence: ImmediateSequenceCompiler,
   InitState: InitStateCompiler,
   List: ListCompiler,
+  LoopTilTerminated: LoopTilTerminatedCompiler,
+  MemoryFallback: MemoryFallbackCompiler,
+  MemorySequence: MemorySequenceCompiler,
+  NestedList: NestedListCompiler,
+  NestedObject: NestedObjectCompiler,
+  NestedValue: NestedValueCompiler,
   Not: NotCompiler,
   Object: ObjectCompiler,
   Once: OnceCompiler,
   ReturnedEffect: ReturnedEffectCompiler,
   Fallback: FallbackCompiler,
+  Scoped: ScopedCompiler,
   Sequence: SequenceCompiler,
   SetContext: SetContextCompiler,
   SetGlobalContext: SetGlobalContextCompiler,

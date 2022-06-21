@@ -13,12 +13,13 @@ import { PASSAGE_METADATA, PASSAGE_TEXT } from "./constants";
 import { Passage } from "../types";
 
 interface AddPassageInternalAttributes extends StoryMachineAttributes {
-  passage: Passage;
+  passageFn: (context: Context) => Passage;
 }
 
 export class AddPassageInternal extends StoryMachine<AddPassageInternalAttributes> {
   process(context: Context): Result {
-    addPassageToOutput(context, this.attrs.passage);
+    const passage = this.attrs.passageFn(context);
+    addPassageToOutput(context, passage);
     return { status: "Completed" };
   }
 }

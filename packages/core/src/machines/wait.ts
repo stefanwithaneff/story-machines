@@ -5,6 +5,7 @@ export class Wait extends StoryMachine {
   private hasRun: boolean = false;
 
   init() {
+    // Initing wait
     this.hasRun = false;
   }
 
@@ -15,6 +16,7 @@ export class Wait extends StoryMachine {
   }
 
   load(saveData: SaveData) {
+    // Loading wait
     const data = saveData[this.id];
 
     this.hasRun = data?.hasRun ?? false;

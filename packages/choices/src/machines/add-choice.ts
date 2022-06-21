@@ -19,12 +19,13 @@ interface AddChoiceContext extends Context {
 }
 
 interface AddChoiceInternalAttributes extends StoryMachineAttributes {
-  choice: Choice;
+  choiceFn: (context: Context) => Choice;
 }
 
 export class AddChoiceInternal extends StoryMachine<AddChoiceInternalAttributes> {
   process(context: Context): Result {
-    addChoiceToOutput(context, this.attrs.choice);
+    const choice = this.attrs.choiceFn(context);
+    addChoiceToOutput(context, choice);
     return { status: "Completed" };
   }
 }

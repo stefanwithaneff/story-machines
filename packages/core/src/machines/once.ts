@@ -10,7 +10,7 @@ export class Once extends DecoratorMachine {
     };
 
     if (this.status === "Running") {
-      this.child.save(saveData);
+      super.save(saveData);
     }
   }
 
@@ -19,7 +19,7 @@ export class Once extends DecoratorMachine {
     this.status = status;
 
     if (this.status === "Running") {
-      this.child.load(saveData);
+      super.load(saveData);
     }
   }
 

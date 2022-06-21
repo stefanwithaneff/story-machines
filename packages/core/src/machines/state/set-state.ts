@@ -18,19 +18,6 @@ interface SetStateAttributes extends StoryMachineAttributes {
 export class SetState extends StoryMachine<SetStateAttributes> {
   process(context: Context): Result {
     const { key, expression } = this.attrs;
-
-    const canAlterState = getFromContext(context, CAN_ALTER_STATE);
-
-    if (!canAlterState) {
-      addEffectToOutput(
-        context,
-        createDevErrorEffect({
-          message: `Attempted to alter state outside of an Effect handler. Key: ${key}`,
-        })
-      );
-      return { status: "Terminated" };
-    }
-
     const val = expression.calc(context);
 
     try {

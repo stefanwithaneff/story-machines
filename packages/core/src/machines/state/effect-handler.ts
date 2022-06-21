@@ -32,9 +32,7 @@ function createEffectHandler(
       effect.payload
     );
     setOnContext(context, RETURNED_EFFECTS, []);
-    setOnContext(context, CAN_ALTER_STATE, true);
     const result = processor.process(context);
-    setOnContext(context, CAN_ALTER_STATE, false);
     if (result.status === "Terminated") {
       throw new Error("Effect handler failed to execute");
     }

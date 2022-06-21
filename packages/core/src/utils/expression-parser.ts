@@ -27,6 +27,18 @@ class VariableRef implements Expression {
   }
 }
 
+class List implements Expression {
+  constructor(private items: Expression[]) {}
+  calc(context: Context) {
+    const list: any[] = [];
+    for (const item of this.items) {
+      const val = item.calc(context);
+      list.push(val);
+    }
+    return list;
+  }
+}
+
 class FunctionCall implements Expression {
   constructor(private variableRef: Expression, private args: Expression[]) {}
   calc(context: Context) {
@@ -142,6 +154,14 @@ const VariableRefParser = Parsimmon.seqMap(
   (target, dotAccessor) => new VariableRef(target, dotAccessor)
 );
 
+const ListParser = Parsimmon.lazy(() =>
+  Parsimmon.seq(
+    Parsimmon.string("["),
+    ExpressionParser.sepBy(Parsimmon.string(",")),
+    Parsimmon.string("]")
+  ).map(([_, items]) => new List(items))
+);
+
 const FunctionCallParser: Parser<Expression> = Parsimmon.lazy(() =>
   Parsimmon.seq(
     VariableRefParser,
@@ -166,6 +186,7 @@ const ExpressionAtomParser: Parser<Expression> = Parsimmon.alt(
   NegationParser,
   ParentheticalParser,
   FunctionCallParser,
+  ListParser,
   VariableRefParser,
   ConstantParser
 ).trim(Parsimmon.optWhitespace);
@@ -214,7 +235,10 @@ export function evalAndReplace(context: Context, text: string) {
   );
 }
 
-export function parseAll(text: string): Expression[] {
+export function parseAll(text?: string): Expression[] {
+  if (!text) {
+    return [];
+  }
   return Array.from(
     text.matchAll(templateExpressionRegex),
     ([_, matchedText]) => ExpressionParser.tryParse(matchedText)

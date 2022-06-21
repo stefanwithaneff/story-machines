@@ -1,7 +1,12 @@
 import { Context } from "../../types";
 import { SCOPES } from "../../machines/context";
 import { createEmptyContext } from "../create-empty-context";
-import { ExpressionParser } from "../expression-parser";
+import {
+  evalAndReplace,
+  ExpressionParser,
+  parseAll,
+  replaceWithParsedExpressions,
+} from "../expression-parser";
 
 interface Test {
   input: string;
@@ -79,6 +84,33 @@ describe("Expression Parser", () => {
           [SCOPES]: [{ id: "123", scope: { test: { subtest: "abc123" } } }],
         },
         expected: "abc123",
+      },
+    };
+    runTests(tests);
+  });
+  describe("Lists", () => {
+    const tests: TestSuite = {
+      "parses lists of constants": {
+        input: `[134, "hello", false, null]`,
+        expected: [134, "hello", false, null],
+      },
+      "parses variable references inside of a list": {
+        input: `[$ctx.foo, $ctx.bar]`,
+        context: { foo: "test", bar: 535 },
+        expected: ["test", 535],
+      },
+      "parses function calls inside of a list": {
+        input: `[14, $ctx.addAll(2, 3, 5), 17]`,
+        context: {
+          addAll(...args: number[]) {
+            let num = 0;
+            for (const arg of args) {
+              num += arg;
+            }
+            return num;
+          },
+        },
+        expected: [14, 10, 17],
       },
     };
     runTests(tests);
@@ -201,7 +233,7 @@ describe("Expression Parser", () => {
         expected: true,
       },
       "operates with parentheticals": {
-        input: "true AND (true OR false)",
+        input: "true AND (false OR true)",
         expected: true,
       },
     };
@@ -225,5 +257,47 @@ describe("Expression Parser", () => {
       },
     };
     runTests(tests);
+  });
+  describe("Interpolation helpers", () => {
+    it("parses, evaluates, and replaces expressions inside double curly braces", () => {
+      const str =
+        'Hello, {{$ctx.name}}! You have {{$ctx.itemCount}} {{($ctx.itemCount eq 1) ? "item" : "items" }}';
+
+      const context = {
+        ...createEmptyContext(),
+        name: "Test",
+        itemCount: 3,
+      };
+
+      expect(evalAndReplace(context as any, str)).toEqual(
+        "Hello, Test! You have 3 items"
+      );
+    });
+    it("extracts the expressions from inside double curly braces in a string", () => {
+      const str =
+        'Hello, {{$ctx.name}}! You have {{$ctx.itemCount}} {{($ctx.itemCount eq 1) ? "item" : "items" }}';
+
+      const expressions = parseAll(str);
+
+      expect(expressions).toHaveLength(3);
+      expect(expressions[0].constructor.name).toEqual("VariableRef");
+      expect(expressions[1].constructor.name).toEqual("VariableRef");
+      expect(expressions[2].constructor.name).toEqual("Ternary");
+    });
+    it("injects the output of a list of expressions into a given interpolated string", () => {
+      const str =
+        'Hello, {{$ctx.name}}! You have {{$ctx.itemCount}} {{($ctx.itemCount eq 1) ? "item" : "items" }}';
+
+      const expressions = parseAll(str);
+      const context = {
+        ...createEmptyContext(),
+        name: "Test",
+        itemCount: 3,
+      };
+
+      expect(replaceWithParsedExpressions(context, expressions, str)).toEqual(
+        "Hello, Test! You have 3 items"
+      );
+    });
   });
 });

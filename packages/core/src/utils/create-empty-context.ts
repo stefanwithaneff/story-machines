@@ -1,12 +1,17 @@
+import { string } from "parsimmon";
 import { SCOPES } from "../machines/context";
 import { Context, Input } from "../types";
 
-export function createEmptyContext(input?: Input): Context {
+interface ExternalContext extends Record<string, any> {
+  input?: Input;
+}
+
+export function createEmptyContext(externalContext?: ExternalContext): Context {
   return {
+    ...externalContext,
     output: {
       effects: [],
     },
-    input,
     [SCOPES]: [],
   };
 }

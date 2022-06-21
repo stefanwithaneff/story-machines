@@ -29,6 +29,11 @@ export class ChoiceMachine extends ProcessorMachine<ChoiceAttributes> {
   machineTypes: symbol[] = [CHOICE];
   private presented: boolean = false;
 
+  init() {
+    this.presented = false;
+    super.init();
+  }
+
   private createBuildChoiceProcessor() {
     return new Scoped({
       child: new Sequence({

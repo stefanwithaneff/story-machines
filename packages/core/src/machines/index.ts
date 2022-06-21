@@ -6,6 +6,7 @@ export * from "./effects";
 export * from "./fallback";
 export * from "./immediate-fallback";
 export * from "./immediate-sequence";
+export * from "./loop-til-terminated";
 export * from "./memory-fallback";
 export * from "./memory-sequence";
 export * from "./not";

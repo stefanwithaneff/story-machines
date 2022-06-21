@@ -15,19 +15,19 @@ describe("Stateful", () => {
       const story = `
         <Stateful>
           <InitState>
-            <Object key="testValues">
-              <Value key="val">"abc123"</Value>
-              <Object key="obj">
-                <Value key="nestedVal">456</Value>
-                <Value key="otherVal">true</Value>
-              </Object>
-              <List key="list">
+            <NestedObject key="testValues">
+              <NestedValue key="val">"abc123"</NestedValue>
+              <NestedObject key="obj">
+                <NestedValue key="nestedVal">456</NestedValue>
+                <NestedValue key="otherVal">true</NestedValue>
+              </NestedObject>
+              <NestedList key="list">
                 <Value>"item 1"</Value>
                 <Object>
-                  <Value key="listObjVal">null</Value>
+                  <NestedValue key="listObjVal">null</NestedValue>
                 </Object>
-              </List>
-            </Object>
+              </NestedList>
+            </NestedObject>
           </InitState>
           <SetGlobalContext key="actualState">$state.testValues</SetGlobalContext>
         </Stateful>
@@ -48,7 +48,7 @@ describe("Stateful", () => {
       const story = `
         <Stateful>
           <InitState>
-            <Value key="test">true</Value>
+            <NestedValue key="test">true</NestedValue>
             <Terminated />
           </InitState>
           <SetGlobalContext key="actualState">$state.testValues</SetGlobalContext>
@@ -78,7 +78,7 @@ describe("Stateful", () => {
       const story = `
         <Stateful>
           <InitState>
-            <Value key="test">"abc123"</Value>
+            <NestedValue key="test">"abc123"</NestedValue>
           </InitState>
           <EffectHandler type="testEffect">
             <SetState key="test">$ctx.INCOMING_EFFECT_PAYLOAD.val</SetState>
@@ -86,7 +86,7 @@ describe("Stateful", () => {
           <SetGlobalContext key="actualState">$state.test</SetGlobalContext>
           <Wait />
           <Effect type="testEffect">
-            <Value key="val">"xyz456"</Value>
+            <NestedValue key="val">"xyz456"</NestedValue>
           </Effect>
           <Wait />
           <SetGlobalContext key="actualState">$state.test</SetGlobalContext>
@@ -110,10 +110,10 @@ describe("Stateful", () => {
       const story = `
         <Stateful>
           <InitState>
-            <Object key="values">
-              <Value key="test">"abc123"</Value>
-              <Value key="test2">true</Value>
-            </Object>
+            <NestedObject key="values">
+              <NestedValue key="test">"abc123"</NestedValue>
+              <NestedValue key="test2">true</NestedValue>
+            </NestedObject>
           </InitState>
           <EffectHandler type="testEffect">
             <SetState key="values.test">$ctx.INCOMING_EFFECT_PAYLOAD.val</SetState>
@@ -122,10 +122,10 @@ describe("Stateful", () => {
             <SetState key="values.test2">$ctx.INCOMING_EFFECT_PAYLOAD.val</SetState>
           </EffectHandler>
           <Effect type="testEffect">
-            <Value key="val">"xyz456"</Value>
+            <NestedValue key="val">"xyz456"</NestedValue>
           </Effect>
           <Effect type="testEffect2">
-            <Value key="val">7</Value>
+            <NestedValue key="val">7</NestedValue>
           </Effect>
           <Wait />
           <SetGlobalContext key="actualState">$state.values</SetGlobalContext>
@@ -143,17 +143,17 @@ describe("Stateful", () => {
       const story = `
         <Stateful>
           <InitState>
-            <Object key="values">
-              <Value key="defaultKey">"abc123"</Value>
-              <Value key="newKey">true</Value>
-            </Object>
+            <NestedObject key="values">
+              <NestedValue key="defaultKey">"abc123"</NestedValue>
+              <NestedValue key="newKey">true</NestedValue>
+            </NestedObject>
           </InitState>
           <EffectHandler type="testEffect" payloadKey="effectPayload">
             <SetState key="values.defaultKey">$ctx.INCOMING_EFFECT_PAYLOAD.val</SetState>
             <SetState key="values.newKey">$ctx.effectPayload.val</SetState>
           </EffectHandler>
           <Effect type="testEffect">
-            <Value key="val">"testPayload"</Value>
+            <NestedValue key="val">"testPayload"</NestedValue>
           </Effect>
           <Wait />
           <SetGlobalContext key="actualState">$state.values</SetGlobalContext>
@@ -171,20 +171,20 @@ describe("Stateful", () => {
       const story = `
         <Stateful>
           <InitState>
-            <Value key="test">"abc123"</Value>
+            <NestedValue key="test">"abc123"</NestedValue>
           </InitState>
           <EffectHandler type="testEffect">
             <ReturnedEffect type="testReturn">
-              <Value key="payloadDump">$ctx.INCOMING_EFFECT_PAYLOAD.val</Value>
+              <NestedValue key="payloadDump">$ctx.INCOMING_EFFECT_PAYLOAD.val</NestedValue>
             </ReturnedEffect>
             <ReturnedEffect type="secondReturn">
-              <List key="list">
+              <NestedList key="list">
                 <Value>$state.test</Value>
-              </List>
+              </NestedList>
             </ReturnedEffect>
           </EffectHandler>
           <Effect type="testEffect">
-            <Value key="val">"xyz456"</Value>
+            <NestedValue key="val">"xyz456"</NestedValue>
           </Effect>
         </Stateful>
       `;
@@ -200,13 +200,13 @@ describe("Stateful", () => {
       const story = `
         <Stateful>
           <InitState>
-            <Value key="test">"abc123"</Value>
+            <NestedValue key="test">"abc123"</NestedValue>
           </InitState>
           <EffectHandler type="testEffect">
             <SetState key="missing">null</SetState>
           </EffectHandler>
           <Effect type="testEffect">
-            <Value key="val">"xyz456"</Value>
+            <NestedValue key="val">"xyz456"</NestedValue>
           </Effect>
         </Stateful>
       `;
@@ -223,11 +223,11 @@ describe("Stateful", () => {
       const story = `
         <Stateful>
           <InitState>
-            <Value key="test">"abc123"</Value>
+            <NestedValue key="test">"abc123"</NestedValue>
           </InitState>
           <EffectHandler type="testEffect">
             <ReturnedEffect type="testReturn">
-              <Value key="payloadDump">$ctx.INCOMING_EFFECT_PAYLOAD.val</Value>
+              <NestedValue key="payloadDump">$ctx.INCOMING_EFFECT_PAYLOAD.val</NestedValue>
               <Terminated />
             </ReturnedEffect>
           </EffectHandler>
@@ -246,46 +246,24 @@ describe("Stateful", () => {
 
       expect(player.currentStatus).toEqual("Terminated");
     });
-    it("prevents state from being altered outside an effect handler", () => {
-      const story = `
-        <Stateful>
-          <InitState>
-            <Value key="test">"abc123"</Value>
-          </InitState>
-          <SetState key="test">"xyz456"</SetState>
-        </Stateful>
-      `;
-
-      const player = createTestPlayer(story);
-      player.tick();
-
-      expect(player.currentStatus).toEqual("Terminated");
-      expect(player.currentOutput?.effects).toContainEqual({
-        type: DEV_ERROR,
-        payload: {
-          message: expect.stringContaining(
-            "Attempted to alter state outside of an Effect handler."
-          ),
-        },
-      });
-    });
-    it("can add new keys to objects or new elements to arrays", () => {});
+    it("can add new keys to objects", () => {});
+    it("can add new elements to arrays", () => {});
   });
   describe("Saving and loading", () => {
     it("loads a save with the correct state", () => {
       const story = `
         <Stateful id="stateful">
           <InitState>
-            <Object key="values">
-              <Value key="testNum">5</Value>
-              <Value key="testStr">"hello"</Value>
-            </Object>
+            <NestedObject key="values">
+              <NestedValue key="testNum">5</NestedValue>
+              <NestedValue key="testStr">"hello"</NestedValue>
+            </NestedObject>
           </InitState>
           <EffectHandler type="changeNum" payloadKey="payload">
             <SetState key="values.testNum">$ctx.payload.val</SetState>
           </EffectHandler>
           <Effect type="changeNum">
-            <Value key="val">18</Value>
+            <NestedValue key="val">18</NestedValue>
           </Effect>
           <Wait id="stateful_wait" />
           <SetGlobalContext key="actualState">$state.values</SetGlobalContext>
@@ -315,13 +293,13 @@ describe("Stateful", () => {
       const story = `
         <Stateful id="stateful">
           <InitState>
-            <Value key="testNum">5</Value>
+            <NestedValue key="testNum">5</NestedValue>
           </InitState>
           <EffectHandler type="changeNum" payloadKey="payload">
             <SetState key="testNum">$ctx.payload.val</SetState>
           </EffectHandler>
           <Effect type="changeNum">
-            <Value key="val">18</Value>
+            <NestedValue key="val">18</NestedValue>
           </Effect>
           <Wait id="stateful_wait" />
           <SetGlobalContext key="actualState">$state.testNum</SetGlobalContext>
@@ -337,14 +315,14 @@ describe("Stateful", () => {
       const updatedStory = `
         <Stateful id="stateful">
           <InitState>
-            <Value key="testNum">5</Value>
-            <Value key="testAddedVal">"new state"</Value>
+            <NestedValue key="testNum">5</NestedValue>
+            <NestedValue key="testAddedVal">"new state"</NestedValue>
           </InitState>
           <EffectHandler type="changeNum" payloadKey="payload">
             <SetState key="testNum">$ctx.payload.val</SetState>
           </EffectHandler>
           <Effect type="changeNum">
-            <Value key="val">18</Value>
+            <NestedValue key="val">18</NestedValue>
           </Effect>
           <Wait id="stateful_wait" />
           <SetGlobalContext key="testNum">$state.testNum</SetGlobalContext>
@@ -365,11 +343,11 @@ describe("Stateful", () => {
       const story = `
         <Stateful>
           <InitState>
-            <Value key="val">5</Val>
+            <NestedValue key="val">5</NestedValue>
           </InitState>
           <Stateful>
             <InitState>
-              <Value key="otherVal">7</Value>
+              <NestedValue key="otherVal">7</NestedValue>
             </InitState>
             <SetGlobalContext key="val">$state.val</SetGlobalContext>
             <SetGlobalContext key="otherVal">$state.otherVal</SetGlobalContext>
@@ -389,11 +367,11 @@ describe("Stateful", () => {
       const story = `
         <Stateful>
           <InitState>
-            <Value key="val">5</Val>
+            <NestedValue key="val">5</NestedValue>
           </InitState>
           <Stateful>
             <InitState>
-              <Value key="val">7</Value>
+              <NestedValue key="val">7</NestedValue>
             </InitState>
             <SetGlobalContext key="val">$state.val</SetGlobalContext>
           </Stateful>
@@ -412,14 +390,14 @@ describe("Stateful", () => {
       const story = `
         <Stateful>
           <InitState>
-            <Value key="val">5</Val>
+            <NestedValue key="val">5</NestedValue>
           </InitState>
           <EffectHandler type="update">
             <SetState key="val">13</SetState>
           </EffectHandler>
           <Stateful>
             <InitState>
-              <Value key="otherVal">7</Value>
+              <NestedValue key="otherVal">7</NestedValue>
             </InitState>
             <EffectHandler type="change">
               <SetState key="otherVal">13</SetState>

@@ -31,6 +31,7 @@ import {
 function parseEffectFromInkTag(tag: string): Effect | null {
   const result = EffectParser.parse(tag);
 
+  // TODO: Better error handling here
   if (result.status === false) {
     return null;
   }

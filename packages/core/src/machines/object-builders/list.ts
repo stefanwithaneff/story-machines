@@ -1,17 +1,18 @@
 import { Context, Result } from "../../types";
 import { getFromContext, setOnContext } from "../../utils/scope";
 import {
+  CompositeMachine,
   CompositeMachineAttributes,
+  ProcessorMachine,
   StoryMachine,
+  StoryMachineAttributes,
   StoryMachineCompiler,
 } from "../../base-classes";
 import { KEY_PREFIX } from "./constants";
+import { Sequence } from "../sequence";
+import { createStoryMachine } from "../../utils/create-story-machine";
 
-interface ListAttributes extends CompositeMachineAttributes {
-  key?: string;
-}
-
-export class List extends StoryMachine<ListAttributes> {
+export class List extends CompositeMachine {
   process(context: Context): Result {
     const keyPrefix: string[] = getFromContext(context, KEY_PREFIX);
 
@@ -19,22 +20,18 @@ export class List extends StoryMachine<ListAttributes> {
       return { status: "Terminated" };
     }
 
-    if (this.attrs.key) {
-      keyPrefix.push(this.attrs.key);
-    }
-
     const list: any[] = [];
 
     setOnContext(context, keyPrefix, list);
 
-    for (let i = 0; i < this.attrs.children.length; i++) {
+    for (let i = 0; i < this.children.length; i++) {
       // Add an empty item to the array to be replaced
       list.push(null);
 
       // Update the key prefix with the current index
       keyPrefix.push(`${i}`);
 
-      const result = this.attrs.children[i].process(context);
+      const result = this.children[i].process(context);
 
       // Remove current index from the key prefix
       keyPrefix.pop();
@@ -44,10 +41,6 @@ export class List extends StoryMachine<ListAttributes> {
       }
     }
 
-    if (this.attrs.key) {
-      keyPrefix.pop();
-    }
-
     return { status: "Completed" };
   }
 }
@@ -55,6 +48,41 @@ export class List extends StoryMachine<ListAttributes> {
 export const ListCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const children = runtime.compileChildElements(tree.elements);
-    return new List({ key: tree.attributes.key, children });
+    return new List({ ...tree.attributes, children });
+  },
+};
+
+interface NestedListAttributes extends CompositeMachineAttributes {
+  key: string;
+}
+
+export class NestedList extends ProcessorMachine<NestedListAttributes> {
+  protected createProcessor(): StoryMachine<StoryMachineAttributes> {
+    let keyPrefix: string[];
+    return new Sequence({
+      children: [
+        createStoryMachine((context) => {
+          keyPrefix = getFromContext(context, KEY_PREFIX);
+          keyPrefix?.push(this.attrs.key);
+          return { status: "Completed" };
+        }),
+        new List({ children: this.attrs.children }),
+        createStoryMachine((context) => {
+          keyPrefix.pop();
+          return { status: "Completed" };
+        }),
+      ],
+    });
+  }
+}
+
+export const NestedListCompiler: StoryMachineCompiler = {
+  compile(runtime, tree) {
+    const children = runtime.compileChildElements(tree.elements);
+    return new NestedList({
+      ...tree.attributes,
+      key: tree.attributes.key,
+      children,
+    });
   },
 };

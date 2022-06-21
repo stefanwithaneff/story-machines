@@ -1,6 +1,7 @@
 import { StoryMachine } from "../base-classes";
 import { Context, ProcessFn } from "../types";
 
+/* istanbul ignore next */
 const staticMixin = {
   id: "FUNCTIONAL_MACHINE",
   machineTypes: [],

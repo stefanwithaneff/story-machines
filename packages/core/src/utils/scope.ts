@@ -37,7 +37,7 @@ export function findMatchingScope(
 
   // Check global context for a matching key
   const globalVal = get(context, existencePath);
-  if (globalVal !== undefined || context[SCOPES].length === 0) {
+  if (globalVal !== undefined) {
     matchingScope = context;
   }
 

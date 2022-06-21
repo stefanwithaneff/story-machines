@@ -9,6 +9,7 @@ import {
 
 export * from "./machines";
 export * from "./utils/add-choice-to-output";
+export * from "./utils/choice-test-player";
 export * from "./types";
 
 export const ChoiceElements: Record<string, StoryMachineCompiler> = {
