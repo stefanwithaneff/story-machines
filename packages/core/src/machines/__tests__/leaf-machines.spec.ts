@@ -20,6 +20,13 @@ describe("Leaf machines", () => {
       player.tick();
       expect(player.currentStatus).toEqual("Terminated");
     });
+    it("returns a running status", () => {
+      const story = `<Running />`;
+
+      const player = new TestPlayer(runtime, story);
+      player.tick();
+      expect(player.currentStatus).toEqual("Running");
+    });
   });
   describe("Condition", () => {
     it("completes if the provided expression is true", () => {
