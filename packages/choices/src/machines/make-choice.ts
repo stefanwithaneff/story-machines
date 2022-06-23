@@ -1,4 +1,4 @@
-import { Effect } from "@story-machines/core";
+import { Effect, StoryMachine } from "@story-machines/core";
 
 export const MAKE_CHOICE = "@Choice/make_choice";
 

@@ -15,15 +15,26 @@ import {
   Scoped,
   Sequence,
 } from "@story-machines/core";
-import { CHOSEN_ID } from "./constants";
+import { CHOSEN_ID, PRESENTED_CHOICE_IDS } from "./constants";
 import { isMakeChoiceEffect, MAKE_CHOICE } from "./make-choice";
+import { isPresentChoiceEffect, PRESENT_CHOICE } from "./present-choice";
 
 export class Choices extends ProcessorMachine<CompositeMachineAttributes> {
-  private chosenId: string | undefined;
+  private chosenId: string | null = null;
+  private presentedChoices: string[] | null = null;
   private handlers: HandlerMap = {
     [MAKE_CHOICE]: (_, effect: Effect) => {
       if (isMakeChoiceEffect(effect)) {
         this.chosenId = effect.payload.choiceId;
+      }
+      return [];
+    },
+    [PRESENT_CHOICE]: (_, effect: Effect) => {
+      if (isPresentChoiceEffect(effect)) {
+        if (this.presentedChoices === null) {
+          this.presentedChoices = [];
+        }
+        this.presentedChoices.push(effect.payload.choiceId);
       }
       return [];
     },
@@ -37,6 +48,10 @@ export class Choices extends ProcessorMachine<CompositeMachineAttributes> {
             key: CHOSEN_ID,
             valFn: () => this.chosenId,
           }),
+          new SetContextInternal({
+            key: PRESENTED_CHOICE_IDS,
+            valFn: () => this.presentedChoices,
+          }),
           new ImmediateFallback({
             children: this.attrs.children,
           }),
@@ -46,22 +61,23 @@ export class Choices extends ProcessorMachine<CompositeMachineAttributes> {
   }
 
   init() {
-    this.chosenId = undefined;
+    this.chosenId = null;
+    this.presentedChoices = null;
     this.processor.init();
   }
 
   save(saveData: SaveData) {
-    if (this.chosenId) {
-      saveData[this.id] = {
-        chosenId: this.chosenId,
-      };
-    }
+    saveData[this.id] = {
+      chosenId: this.chosenId,
+      presentedChoices: this.presentedChoices,
+    };
     this.processor.save(saveData);
   }
 
   load(saveData: SaveData) {
     const data = saveData[this.id];
-    this.chosenId = data?.chosenId;
+    this.chosenId = data?.chosenId ?? null;
+    this.presentedChoices = data?.presentedChoices ?? null;
     this.processor.load(saveData);
   }
 

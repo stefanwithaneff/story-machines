@@ -12,6 +12,7 @@ export * from "./memory-sequence";
 export * from "./not";
 export * from "./object-builders";
 export * from "./once";
+export * from "./running";
 export * from "./sequence";
 export * from "./state";
 export * from "./terminated";

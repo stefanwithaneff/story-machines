@@ -13,7 +13,6 @@ import {
   ImmediateFallback,
   Fallback,
   Sequence,
-  SetContextInternal,
   isOfType,
 } from "@story-machines/core";
 import { CHOICE, CHOSEN_ID } from "./constants";
@@ -44,14 +43,9 @@ export class MultiChoice extends ProcessorMachine<MultiChoiceAttributes> {
       children: [
         new Fallback({
           children: [
-            new Sequence({
-              children: [
-                createConditionalMachine(
-                  (context) => getFromContext(context, CHOSEN_ID) === this.id
-                ),
-                new SetContextInternal({ key: CHOSEN_ID, valFn: () => null }),
-              ],
-            }),
+            createConditionalMachine(
+              (context) => getFromContext(context, CHOSEN_ID) === this.id
+            ),
             new ImmediateFallback({ children: choices }),
           ],
         }),

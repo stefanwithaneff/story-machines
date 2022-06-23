@@ -1,12 +1,31 @@
 import { Context, Input, SaveData, TestPlayer } from "@story-machines/core";
 import { ChoiceInput, Choice } from "../types";
 
+const SAVE_DATA_KEY = "__CHOICE_TEST_PLAYER_SAVE_DATA__";
+
 export class ChoiceTestPlayer extends TestPlayer {
   currentChoices: Choice[] | undefined;
 
   init() {
     super.init();
     this.currentChoices = undefined;
+    return this;
+  }
+
+  save(saveData: SaveData) {
+    super.save(saveData);
+    saveData[SAVE_DATA_KEY] = {
+      currentChoices: this.currentChoices,
+    };
+
+    return this;
+  }
+
+  load(saveData: SaveData) {
+    super.load(saveData);
+    const data = saveData[SAVE_DATA_KEY];
+    this.currentChoices = data?.currentChoices;
+
     return this;
   }
 
