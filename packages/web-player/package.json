@@ -23,6 +23,9 @@
   },
   "homepage": "https://github.com/stefanwithaneff/story-machines#readme",
   "dependencies": {
+    "@emotion/css": "^11.9.0",
+    "immer": "^9.0.15",
+    "p-map": "^5.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -36,6 +39,8 @@
     "@storybook/manager-webpack4": "^6.5.9",
     "@storybook/react": "^6.5.9",
     "@storybook/testing-library": "^0.0.13",
-    "babel-loader": "^8.2.5"
+    "@testing-library/react": "^13.3.0",
+    "babel-loader": "^8.2.5",
+    "fetch-mock-jest": "^1.5.1"
   }
 }
