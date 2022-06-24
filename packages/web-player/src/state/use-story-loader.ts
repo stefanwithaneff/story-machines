@@ -134,6 +134,7 @@ export function useStoryLoader(params: StoryLoaderParams): StoryLoaderOutput {
     if (!isPreloading) {
       return;
     }
+    // TODO: Add configurable concurrency limits to fetchFile function
     Promise.all(filesToLoad.map((entry) => loadFile(entry))).then(() =>
       setIsPreloading(false)
     );
