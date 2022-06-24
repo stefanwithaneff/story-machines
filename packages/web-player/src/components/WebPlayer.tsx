@@ -25,23 +25,20 @@ export function WebPlayer({
     additionalMachines,
   });
 
-  console.log("Result", output, storyStatus, loaderStatus);
-
   return (
     <div
       className={css`
-        display: flex;
-        flex-direction: column;
         margin: 0 auto;
         max-width: 800px;
         min-width: 40rem;
         width: 50%;
-        height: 100%;
+        height: 100vh;
       `}
     >
       <div
         className={css`
-          flex-grow: 2;
+          display: flex;
+          height: 66%;
           width: 100%;
         `}
       >
@@ -51,7 +48,12 @@ export function WebPlayer({
           storyStatus={storyStatus}
         />
       </div>
-      <div>
+      <div
+        className={css`
+          height: 34%;
+          width: 100%;
+        `}
+      >
         <InputControls
           storyStatus={storyStatus}
           choices={output?.choices}

@@ -24,5 +24,13 @@ function getContents({ text, loaderStatus, storyStatus }: TextDisplayProps) {
 }
 
 export function TextDisplay(props: TextDisplayProps) {
-  return <main>{getContents(props)}</main>;
+  return (
+    <main
+      className={css`
+        margin: auto;
+      `}
+    >
+      {getContents(props)}
+    </main>
+  );
 }
