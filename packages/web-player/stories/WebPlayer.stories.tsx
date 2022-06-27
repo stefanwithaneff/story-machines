@@ -1,6 +1,6 @@
+import React from "react";
 import { ChoiceElements } from "@story-machines/choices";
 import { PassageElements } from "@story-machines/passages";
-import React from "react";
 import { WebPlayer } from "../src/components/WebPlayer";
 
 export default {

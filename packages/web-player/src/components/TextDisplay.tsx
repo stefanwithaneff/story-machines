@@ -1,16 +1,20 @@
-import React from "react";
 import { css } from "@emotion/css";
-import { RuntimeStatus } from "../state/use-story-loader";
 import { StoryMachineStatus } from "@story-machines/core";
+import { Passage } from "@story-machines/passages";
+import { RuntimeStatus } from "../state/use-story-loader";
 
 interface TextDisplayProps {
-  text: string;
+  passages: Passage[];
   loaderStatus: RuntimeStatus;
   storyStatus: StoryMachineStatus | undefined;
 }
 
-function getContents({ text, loaderStatus, storyStatus }: TextDisplayProps) {
-  if (loaderStatus === "Loading") {
+function getContents({
+  passages,
+  loaderStatus,
+  storyStatus,
+}: TextDisplayProps) {
+  if (loaderStatus === "Loading" || storyStatus === undefined) {
     return "Loading...";
   } else if (loaderStatus === "Error") {
     return "An error has occurred in the Story loader";
@@ -19,7 +23,7 @@ function getContents({ text, loaderStatus, storyStatus }: TextDisplayProps) {
   } else if (storyStatus === "Completed") {
     return "The end.";
   } else {
-    return text;
+    return passages.map((passage) => <p>{passage.text}</p>);
   }
 }
 

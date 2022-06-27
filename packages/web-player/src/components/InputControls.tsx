@@ -1,43 +1,36 @@
 import { Choice } from "@story-machines/choices";
-import { Context, Input, StoryMachineStatus } from "@story-machines/core";
-import React from "react";
+import { Input, StoryMachineStatus } from "@story-machines/core";
+import { RuntimeStatus } from "../state/use-story-loader";
+import { ChoiceControl } from "./ChoiceControl";
 
 interface InputControlsProps {
+  loaderStatus: RuntimeStatus;
   storyStatus?: StoryMachineStatus;
   choices?: Choice[];
-  tick?: (input?: Input) => {};
+  tick: (input?: Input) => void;
 }
 
 export function InputControls({
   choices,
   tick,
   storyStatus,
+  loaderStatus,
 }: InputControlsProps) {
-  if (storyStatus === "Completed" || storyStatus === "Terminated") {
+  if (
+    storyStatus === "Completed" ||
+    storyStatus === "Terminated" ||
+    loaderStatus === "Error" ||
+    loaderStatus === "Loading"
+  ) {
     return null;
   }
-  if (!choices) {
-    return (
-      <ul>
-        <li>
-          <button onClick={() => tick?.()}>Continue</button>
-        </li>
-      </ul>
+
+  const choiceList =
+    !choices || choices.length === 0 ? (
+      <ChoiceControl tick={tick} />
+    ) : (
+      choices.map((choice) => <ChoiceControl tick={tick} choice={choice} />)
     );
-  }
-  return (
-    <ul>
-      {choices?.map((choice) => (
-        <li key={choice.id}>
-          <button
-            onClick={() =>
-              tick?.({ type: "Choice", payload: { id: choice.id } })
-            }
-          >
-            {choice.text}
-          </button>
-        </li>
-      ))}
-    </ul>
-  );
+
+  return <div>{choiceList}</div>;
 }

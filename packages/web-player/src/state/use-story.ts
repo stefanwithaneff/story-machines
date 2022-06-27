@@ -11,7 +11,11 @@ import {
   StoryMachineStatus,
 } from "@story-machines/core";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useStoryLoader, StoryLoaderParams } from "./use-story-loader";
+import {
+  useStoryLoader,
+  StoryLoaderParams,
+  RuntimeStatus,
+} from "./use-story-loader";
 
 export interface StoryParams extends StoryLoaderParams {
   additionalMachines?: Record<string, StoryMachineCompiler>;
@@ -23,7 +27,14 @@ export interface StoryParams extends StoryLoaderParams {
   >;
 }
 
-export function useStory(params: StoryParams) {
+export interface StoryOutput {
+  storyStatus: StoryMachineStatus | undefined;
+  loaderStatus: RuntimeStatus;
+  output: Output | undefined;
+  tick: (input?: Input) => void;
+}
+
+export function useStory(params: StoryParams): StoryOutput {
   const { stories, status } = useStoryLoader(params);
   const runtime = useMemo(() => {
     const rt = new StoryMachineRuntime();
