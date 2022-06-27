@@ -13,11 +13,19 @@ import {
   getFromContext,
   ImmediateSequence,
   ProcessorMachine,
-  addEffectToOutput,
+  Running,
+  AddEffectInternal,
 } from "@story-machines/core";
 import { AddChoice } from "./add-choice";
-import { CHOICE, CHOICE_BUILDER, CHOICE_ID, CHOSEN_ID } from "./constants";
+import {
+  CHOICE,
+  CHOICE_BUILDER,
+  CHOICE_ID,
+  CHOSEN_ID,
+  PRESENTED_CHOICE_IDS,
+} from "./constants";
 import { createMakeChoiceEffect } from "./make-choice";
+import { createPresentChoiceEffect } from "./present-choice";
 
 interface ChoiceAttributes extends StoryMachineAttributes {
   builders: StoryMachine[];
@@ -27,12 +35,6 @@ interface ChoiceAttributes extends StoryMachineAttributes {
 
 export class ChoiceMachine extends ProcessorMachine<ChoiceAttributes> {
   machineTypes: symbol[] = [CHOICE];
-  private presented: boolean = false;
-
-  init() {
-    this.presented = false;
-    super.init();
-  }
 
   private createBuildChoiceProcessor() {
     return new Scoped({
@@ -45,30 +47,28 @@ export class ChoiceMachine extends ProcessorMachine<ChoiceAttributes> {
           }),
           ...this.attrs.builders,
           new AddChoice({}),
-          createStoryMachine((_) => {
-            this.presented = true;
-            return { status: "Running" };
+          new AddEffectInternal({
+            effectFn: () => createPresentChoiceEffect({ choiceId: this.id }),
           }),
+          new Running({}), // Emit a Running status at the end to wait til next tick for input checking
         ],
       }),
     });
   }
   private createAlreadyChosenProcessor() {
-    // If the chosen ID provided by a parent matches this Choice,
-    // delete the chosen ID from context and process the child nodes
+    // If the chosen ID provided by a parent matches this Choice, process the child nodes
     return new Sequence({
       children: [
         createConditionalMachine(
           (context) => getFromContext(context, CHOSEN_ID) === this.id
         ),
-        new SetContextInternal({ key: CHOSEN_ID, valFn: () => null }),
         ...this.attrs.nodes,
       ],
     });
   }
   private createNotYetChosenProcessor() {
     // If the chosen ID does not match and is null,
-    // build the choice if we haven't presented it already and wait for it to be selected
+    // build the choice if the choices haven't been presented already and wait until a choice input is provided
     return new Sequence({
       children: [
         createConditionalMachine(
@@ -76,7 +76,10 @@ export class ChoiceMachine extends ProcessorMachine<ChoiceAttributes> {
         ),
         new Fallback({
           children: [
-            createConditionalMachine(() => this.presented),
+            createConditionalMachine(
+              (context) =>
+                getFromContext(context, PRESENTED_CHOICE_IDS) !== null
+            ),
             this.createBuildChoiceProcessor(),
           ],
         }),
@@ -88,18 +91,13 @@ export class ChoiceMachine extends ProcessorMachine<ChoiceAttributes> {
           if (input.payload.id !== this.id) {
             return { status: "Terminated" };
           }
-          context.input = undefined;
           return { status: "Completed" };
         }),
         new ImmediateSequence({
           children: [
             ...this.attrs.nodes,
-            createStoryMachine((context) => {
-              addEffectToOutput(
-                context,
-                createMakeChoiceEffect({ choiceId: this.id })
-              );
-              return { status: "Completed" };
+            new AddEffectInternal({
+              effectFn: () => createMakeChoiceEffect({ choiceId: this.id }),
             }),
           ],
         }),

@@ -73,7 +73,10 @@ describe("Ink machines", () => {
     const player = new ChoiceTestPlayer(runtime, story);
     const saveData: SaveData = {};
     player.tick().chooseNthChoice(0).save(saveData);
-    expect(saveData).toEqual({ story: { json: expect.any(String) } });
+    expect(saveData).toEqual({
+      story: { json: expect.any(String) },
+      __CHOICE_TEST_PLAYER_SAVE_DATA__: expect.any(Object),
+    });
     player.init().load(saveData).tick();
     expect(player.currentOutput?.passages).toEqual([
       {

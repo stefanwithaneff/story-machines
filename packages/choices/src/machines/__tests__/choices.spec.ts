@@ -51,6 +51,9 @@ describe("Choice machines", () => {
     player.chooseNthChoice(1);
     expect(player.currentStatus).toBe("Completed");
   });
+  // TODO: Condition tests
+  it("filters choices with Conditions", () => {});
+  it("does not filter a choice that has already been chosen if the condition later becomes false", () => {});
   it("runs the children of the selected choice", () => {
     const story = `
       <Choices>
@@ -153,6 +156,7 @@ describe("Choice machines", () => {
             </Choice>
             <Choice id="choice2b">
               <ChoiceText>Choice 2b</ChoiceText>
+            </Choice>
           </Choices>
         </Choice>
       </Choices>
@@ -164,17 +168,22 @@ describe("Choice machines", () => {
     const saveData = {};
     player.save(saveData);
     expect(saveData).toEqual({
+      __CHOICE_TEST_PLAYER_SAVE_DATA__: expect.any(Object),
       choices: {
         chosenId: "choice2",
+        presentedChoices: ["choice1", "choice2"],
+      },
+      nestedChoices: {
+        chosenId: null,
+        presentedChoices: ["choice2a", "choice2b"],
       },
     });
 
-    // TODO: See if it's possible to progress story without the tick. SUPER IMPORTANT!!!
-    player.init().load(saveData).tick().chooseNthChoice(0);
+    player.init().load(saveData).chooseNthChoice(0);
     expect(player.currentStatus).toBe("Completed");
     expect(player.currentContext?.foo).toEqual("bar");
   });
-  it("only presents the chosen child if additional choices are added after saving", () => {
+  it("does not present additional choices that are added after saving", () => {
     const story = `
       <Choices id="choices">
         <Choice id="choice1">
@@ -189,6 +198,7 @@ describe("Choice machines", () => {
             </Choice>
             <Choice id="choice2b">
               <ChoiceText>Choice 2b</ChoiceText>
+            </Choice>
           </Choices>
         </Choice>
       </Choices>
@@ -211,6 +221,10 @@ describe("Choice machines", () => {
             </Choice>
             <Choice id="choice2b">
               <ChoiceText>Choice 2b</ChoiceText>
+            </Choice>
+            <Choice id="choice2c">
+              <ChoiceText>Choice 2c</ChoiceText>
+            </Choice>
           </Choices>
         </Choice>
         <Choice id="choice3">
@@ -219,11 +233,10 @@ describe("Choice machines", () => {
       </Choices>
     `;
 
-    player.loadStory(updatedStory).load(saveData).tick();
+    player.loadStory(updatedStory).load(saveData).chooseNthChoice(0);
 
-    expect(player.currentChoices).toEqual([
-      { id: "choice2a", text: "Choice 2a", metadata: {} },
-      { id: "choice2b", text: "Choice 2b", metadata: {} },
-    ]);
+    expect(player.currentStatus).toEqual("Completed");
+    expect(player.currentChoices).toBe(undefined);
+    expect(player.currentContext?.foo).toEqual("bar");
   });
 });

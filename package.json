@@ -31,6 +31,7 @@
     "packages/ink",
     "packages/passages",
     "packages/choices",
-    "packages/cli-player"
+    "packages/cli-player",
+    "packages/web-player"
   ]
 }

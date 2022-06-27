@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["./src"],
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "jsx": "react-jsx",
+    "lib": ["ES2021", "DOM"]
+  },
+  "references": [
+    { "path": "../core" },
+    { "path": "../choices" },
+    { "path": "../passages" },
+    { "path": "../ink" }
+  ]
+}

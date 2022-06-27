@@ -4,6 +4,11 @@ import { Context, Result, SaveData, StoryMachineStatus } from "../types";
 export class Once extends DecoratorMachine {
   private status: StoryMachineStatus = "Running";
 
+  init() {
+    this.status = "Running";
+    super.init();
+  }
+
   save(saveData: SaveData) {
     saveData[this.id] = {
       status: this.status,
@@ -15,8 +20,8 @@ export class Once extends DecoratorMachine {
   }
 
   load(saveData: SaveData) {
-    const { status } = saveData[this.id];
-    this.status = status;
+    const data = saveData[this.id];
+    this.status = data?.status ?? "Running";
 
     if (this.status === "Running") {
       super.load(saveData);
