@@ -13,10 +13,10 @@ describe("Context", () => {
         <Scoped>
           <Sequence>
             <SetContext key="foo">"bar"</SetContext>
-            <SetGlobalContext key="innerCtx">$ctx.foo</SetContextGlobal>
+            <SetGlobalContext key="innerCtx">$ctx["foo"]</SetContextGlobal>
           </Sequence>
         </Scoped>
-        <SetGlobalContext key="outerCtx">$ctx.foo</SetContextGlobal>
+        <SetGlobalContext key="outerCtx">$ctx["foo"]</SetContextGlobal>
       </Sequence>
     `;
 

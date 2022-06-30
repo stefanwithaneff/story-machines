@@ -13,8 +13,8 @@ describe("Decorator machines", () => {
           </InitState>
           <LoopTilTerminated>
             <Sequence>
-              <Condition>$state.count lt 3</Condition>
-              <SetState key="count">$state.count + 1</SetState>
+              <Condition>$state["count"] lt 3</Condition>
+              <SetState key="count">$state["count"] + 1</SetState>
             </Sequence>
           </LoopTilTerminated>
         </Stateful>
@@ -67,7 +67,7 @@ describe("Decorator machines", () => {
         <Once>
           <LoopTilTerminated>
             <Sequence>
-              <Condition>$ctx.input.type neq "Break"</Condition>
+              <Condition>$ctx["input"]["type"] neq "Break"</Condition>
             </Sequence>
           </LoopTilTerminated>
         </Once>

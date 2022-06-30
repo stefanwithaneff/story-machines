@@ -96,7 +96,7 @@ describe("Ink machines", () => {
           <NestedValue key="playerName">"Test Player"</NestedValue>
         </InitState>
         <Ink id="ink">
-          <InkSyncState key="name">$state.playerName</InkSyncState>
+          <InkSyncState key="name">$state["playerName"]</InkSyncState>
           <InkStory id="story">
             VAR name = "Sam"
             Hello, {name}! Goodbye!
@@ -120,8 +120,8 @@ describe("Ink machines", () => {
   it("binds externally defined functions to the Ink story", () => {
     const story = `
       <Ink id="ink">
-        <InkExternalFunc name="exp">$ctx.exp</InkExternalFunc>
-        <InkExternalFunc name="printList" isGeneral="true">$ctx.printList</InkExternalFunc>
+        <InkExternalFunc name="exp">$ctx["exp"]</InkExternalFunc>
+        <InkExternalFunc name="printList" isGeneral="true">$ctx["printList"]</InkExternalFunc>
         <InkStory id="story">
           EXTERNAL exp(base, exponent)
           EXTERNAL printList(list)

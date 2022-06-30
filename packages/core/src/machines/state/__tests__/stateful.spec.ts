@@ -29,7 +29,7 @@ describe("Stateful", () => {
               </NestedList>
             </NestedObject>
           </InitState>
-          <SetGlobalContext key="actualState">$state.testValues</SetGlobalContext>
+          <SetGlobalContext key="actualState">$state["testValues"]</SetGlobalContext>
         </Stateful>
       `;
       const player = createTestPlayer(story);
@@ -51,7 +51,7 @@ describe("Stateful", () => {
             <NestedValue key="test">true</NestedValue>
             <Terminated />
           </InitState>
-          <SetGlobalContext key="actualState">$state.testValues</SetGlobalContext>
+          <SetGlobalContext key="actualState">$state["testValues"]</SetGlobalContext>
         </Stateful>
       `;
 
@@ -81,15 +81,15 @@ describe("Stateful", () => {
             <NestedValue key="test">"abc123"</NestedValue>
           </InitState>
           <EffectHandler type="testEffect">
-            <SetState key="test">$ctx.INCOMING_EFFECT_PAYLOAD.val</SetState>
+            <SetState key="test">$ctx["INCOMING_EFFECT_PAYLOAD"]["val"]</SetState>
           </EffectHandler>
-          <SetGlobalContext key="actualState">$state.test</SetGlobalContext>
+          <SetGlobalContext key="actualState">$state["test"]</SetGlobalContext>
           <Wait />
           <Effect type="testEffect">
             <NestedValue key="val">"xyz456"</NestedValue>
           </Effect>
           <Wait />
-          <SetGlobalContext key="actualState">$state.test</SetGlobalContext>
+          <SetGlobalContext key="actualState">$state["test"]</SetGlobalContext>
         </Stateful>
       `;
       const player = createTestPlayer(story);
@@ -116,10 +116,10 @@ describe("Stateful", () => {
             </NestedObject>
           </InitState>
           <EffectHandler type="testEffect">
-            <SetState key="values.test">$ctx.INCOMING_EFFECT_PAYLOAD.val</SetState>
+            <SetState key="values.test">$ctx["INCOMING_EFFECT_PAYLOAD"]["val"]</SetState>
           </EffectHandler>
           <EffectHandler type="testEffect2">
-            <SetState key="values.test2">$ctx.INCOMING_EFFECT_PAYLOAD.val</SetState>
+            <SetState key="values.test2">$ctx["INCOMING_EFFECT_PAYLOAD"]["val"]</SetState>
           </EffectHandler>
           <Effect type="testEffect">
             <NestedValue key="val">"xyz456"</NestedValue>
@@ -128,7 +128,7 @@ describe("Stateful", () => {
             <NestedValue key="val">7</NestedValue>
           </Effect>
           <Wait />
-          <SetGlobalContext key="actualState">$state.values</SetGlobalContext>
+          <SetGlobalContext key="actualState">$state["values"]</SetGlobalContext>
         </Stateful>
       `;
       const player = createTestPlayer(story);
@@ -149,14 +149,14 @@ describe("Stateful", () => {
             </NestedObject>
           </InitState>
           <EffectHandler type="testEffect" payloadKey="effectPayload">
-            <SetState key="values.defaultKey">$ctx.INCOMING_EFFECT_PAYLOAD.val</SetState>
-            <SetState key="values.newKey">$ctx.effectPayload.val</SetState>
+            <SetState key="values.defaultKey">$ctx["INCOMING_EFFECT_PAYLOAD"]["val"]</SetState>
+            <SetState key="values.newKey">$ctx["effectPayload"]["val"]</SetState>
           </EffectHandler>
           <Effect type="testEffect">
             <NestedValue key="val">"testPayload"</NestedValue>
           </Effect>
           <Wait />
-          <SetGlobalContext key="actualState">$state.values</SetGlobalContext>
+          <SetGlobalContext key="actualState">$state["values"]</SetGlobalContext>
         </Stateful>
       `;
       const player = createTestPlayer(story);
@@ -175,11 +175,11 @@ describe("Stateful", () => {
           </InitState>
           <EffectHandler type="testEffect">
             <ReturnedEffect type="testReturn">
-              <NestedValue key="payloadDump">$ctx.INCOMING_EFFECT_PAYLOAD.val</NestedValue>
+              <NestedValue key="payloadDump">$ctx["INCOMING_EFFECT_PAYLOAD"]["val"]</NestedValue>
             </ReturnedEffect>
             <ReturnedEffect type="secondReturn">
               <NestedList key="list">
-                <Value>$state.test</Value>
+                <Value>$state["test"]</Value>
               </NestedList>
             </ReturnedEffect>
           </EffectHandler>
@@ -227,7 +227,7 @@ describe("Stateful", () => {
           </InitState>
           <EffectHandler type="testEffect">
             <ReturnedEffect type="testReturn">
-              <NestedValue key="payloadDump">$ctx.INCOMING_EFFECT_PAYLOAD.val</NestedValue>
+              <NestedValue key="payloadDump">$ctx["INCOMING_EFFECT_PAYLOAD"]["val"]</NestedValue>
               <Terminated />
             </ReturnedEffect>
           </EffectHandler>
@@ -260,13 +260,13 @@ describe("Stateful", () => {
             </NestedObject>
           </InitState>
           <EffectHandler type="changeNum" payloadKey="payload">
-            <SetState key="values.testNum">$ctx.payload.val</SetState>
+            <SetState key="values.testNum">$ctx["payload"]["val"]</SetState>
           </EffectHandler>
           <Effect type="changeNum">
             <NestedValue key="val">18</NestedValue>
           </Effect>
           <Wait id="stateful_wait" />
-          <SetGlobalContext key="actualState">$state.values</SetGlobalContext>
+          <SetGlobalContext key="actualState">$state["values"]</SetGlobalContext>
         </Stateful>
       `;
 
@@ -296,13 +296,13 @@ describe("Stateful", () => {
             <NestedValue key="testNum">5</NestedValue>
           </InitState>
           <EffectHandler type="changeNum" payloadKey="payload">
-            <SetState key="testNum">$ctx.payload.val</SetState>
+            <SetState key="testNum">$ctx["payload"]["val"]</SetState>
           </EffectHandler>
           <Effect type="changeNum">
             <NestedValue key="val">18</NestedValue>
           </Effect>
           <Wait id="stateful_wait" />
-          <SetGlobalContext key="actualState">$state.testNum</SetGlobalContext>
+          <SetGlobalContext key="actualState">$state["testNum"]</SetGlobalContext>
         </Stateful>
       `;
 
@@ -319,14 +319,14 @@ describe("Stateful", () => {
             <NestedValue key="testAddedVal">"new state"</NestedValue>
           </InitState>
           <EffectHandler type="changeNum" payloadKey="payload">
-            <SetState key="testNum">$ctx.payload.val</SetState>
+            <SetState key="testNum">$ctx["payload"]["val"]</SetState>
           </EffectHandler>
           <Effect type="changeNum">
             <NestedValue key="val">18</NestedValue>
           </Effect>
           <Wait id="stateful_wait" />
-          <SetGlobalContext key="testNum">$state.testNum</SetGlobalContext>
-          <SetGlobalContext key="testAddedVal">$state.testAddedVal</SetGlobalContext>
+          <SetGlobalContext key="testNum">$state["testNum"]</SetGlobalContext>
+          <SetGlobalContext key="testAddedVal">$state["testAddedVal"]</SetGlobalContext>
         </Stateful>
       `;
 
@@ -349,8 +349,8 @@ describe("Stateful", () => {
             <InitState>
               <NestedValue key="otherVal">7</NestedValue>
             </InitState>
-            <SetGlobalContext key="val">$state.val</SetGlobalContext>
-            <SetGlobalContext key="otherVal">$state.otherVal</SetGlobalContext>
+            <SetGlobalContext key="val">$state["val"]</SetGlobalContext>
+            <SetGlobalContext key="otherVal">$state["otherVal"]</SetGlobalContext>
           </Stateful>
         </Stateful>
       `;
@@ -373,7 +373,7 @@ describe("Stateful", () => {
             <InitState>
               <NestedValue key="val">7</NestedValue>
             </InitState>
-            <SetGlobalContext key="val">$state.val</SetGlobalContext>
+            <SetGlobalContext key="val">$state["val"]</SetGlobalContext>
           </Stateful>
         </Stateful>
       `;
@@ -404,7 +404,7 @@ describe("Stateful", () => {
             </EffectHandler>
             <Effect type="update"></Effect>
             <Wait />
-            <SetGlobalContext key="val">$state.val</SetGlobalContext>
+            <SetGlobalContext key="val">$state["val"]</SetGlobalContext>
           </Stateful>
         </Stateful>
       `;
