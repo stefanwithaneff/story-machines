@@ -67,7 +67,7 @@ describe("Leaf machines", () => {
       const story = `
         <Sequence>
           <SetGlobalContext key="num">7</SetGlobalContext>
-          <DevLog>Adding 3: {{$ctx.num + 3}}</DevLog>
+          <DevLog>Adding 3: {{$ctx["num"] + 3}}</DevLog>
         </Sequence>
       `;
       const player = new TestPlayer(runtime, story);

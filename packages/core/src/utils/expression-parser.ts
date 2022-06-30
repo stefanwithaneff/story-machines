@@ -1,4 +1,3 @@
-import { toPath } from "lodash";
 import Parsimmon, { Parser } from "parsimmon";
 import { STATE } from "../machines/state";
 import { Context } from "../types";
@@ -16,9 +15,12 @@ class Constant implements Expression {
 }
 
 class VariableRef implements Expression {
-  constructor(private target: "$ctx" | "$state", private dotAccessor: string) {}
+  constructor(
+    private target: "$ctx" | "$state",
+    private expressions: Expression[]
+  ) {}
   calc(context: Context) {
-    const path = toPath(this.dotAccessor);
+    const path = this.expressions.map((expr) => expr.calc(context));
     if (this.target === "$ctx") {
       return getFromContext(context, path);
     } else if (this.target === "$state") {
@@ -130,9 +132,15 @@ const BooleanParser = Parsimmon.alt(
   Parsimmon.string("true"),
   Parsimmon.string("false")
 ).map((str) => str === "true");
-const StringParser = Parsimmon.string('"')
-  .then(Parsimmon.takeWhile((char) => char !== '"'))
-  .skip(Parsimmon.string('"'));
+const StringParser = Parsimmon.alt(
+  Parsimmon.string('"'),
+  Parsimmon.string("'"),
+  Parsimmon.string("`")
+).chain((start) => {
+  return Parsimmon.takeWhile((char) => char !== start).skip(
+    Parsimmon.string(start)
+  );
+});
 const NumberParser = Parsimmon.regexp(/-?[0-9]+(\.[0-9]+)?/).map((res) =>
   Number(res)
 );
@@ -144,14 +152,16 @@ const ConstantParser = Parsimmon.alt(
   NullParser
 ).map((val) => new Constant(val));
 
-const DotAccessorParser = Parsimmon.regexp(/(\.[a-zA-Z0-9_]+)*/i).map(
-  (accessPath) => accessPath.slice(1) // Remove the leading '.' for easier usage
+const AccessorParser = Parsimmon.lazy(() =>
+  Parsimmon.seq(Parsimmon.string("["), ExpressionParser, Parsimmon.string("]"))
+    .map(([_, expr]) => expr)
+    .many()
 );
 
 const VariableRefParser = Parsimmon.seqMap(
   Parsimmon.alt(Parsimmon.string("$ctx"), Parsimmon.string("$state")),
-  DotAccessorParser,
-  (target, dotAccessor) => new VariableRef(target, dotAccessor)
+  AccessorParser,
+  (target, expressions) => new VariableRef(target, expressions)
 );
 
 const ListParser = Parsimmon.lazy(() =>

@@ -44,8 +44,16 @@ describe("Expression Parser", () => {
         input: "-4",
         expected: -4,
       },
-      "parses strings": {
+      "parses strings with double quotes": {
         input: '"hello world"',
+        expected: "hello world",
+      },
+      "parses strings with single quotes": {
+        input: "'hello world'",
+        expected: "hello world",
+      },
+      "parses strings with backticks": {
+        input: "`hello world`",
         expected: "hello world",
       },
       "parses the empty string": {
@@ -74,12 +82,12 @@ describe("Expression Parser", () => {
   describe("Variable Reference", () => {
     const tests: TestSuite = {
       "references the value corresponding to the access path provided": {
-        input: "$ctx.test",
+        input: "$ctx['test']",
         context: { test: "abc123" },
         expected: "abc123",
       },
       "references the value on a scope": {
-        input: "$ctx.test.subtest",
+        input: "$ctx['test']['subtest']",
         context: {
           [SCOPES]: [{ id: "123", scope: { test: { subtest: "abc123" } } }],
         },
@@ -95,12 +103,12 @@ describe("Expression Parser", () => {
         expected: [134, "hello", false, null],
       },
       "parses variable references inside of a list": {
-        input: `[$ctx.foo, $ctx.bar]`,
+        input: `[$ctx['foo'], $ctx['bar']]`,
         context: { foo: "test", bar: 535 },
         expected: ["test", 535],
       },
       "parses function calls inside of a list": {
-        input: `[14, $ctx.addAll(2, 3, 5), 17]`,
+        input: `[14, $ctx["addAll"](2, 3, 5), 17]`,
         context: {
           addAll(...args: number[]) {
             let num = 0;
@@ -118,7 +126,7 @@ describe("Expression Parser", () => {
   describe("Function calls", () => {
     const tests: TestSuite = {
       "calls the function referenced with the arguments provided": {
-        input: '$ctx.call(3, "a", true)',
+        input: '$ctx["call"](3, "a", true)',
         context: {
           call(num: number, str: string, bool: boolean) {
             return `It's ${bool} that I said ${str} ${num} times`;
@@ -127,7 +135,7 @@ describe("Expression Parser", () => {
         expected: "It's true that I said a 3 times",
       },
       "supports expressions inside the function call": {
-        input: "$ctx.call(7 * $ctx.exp(2, 3))",
+        input: "$ctx['call'](7 * $ctx['exp'](2, 3))",
         context: {
           call(val: number) {
             return val;
@@ -182,7 +190,7 @@ describe("Expression Parser", () => {
         expected: 3,
       },
       "operates with variable references": {
-        input: "$ctx.num + 5",
+        input: "$ctx['num'] + 5",
         context: { num: 7 },
         expected: 12,
       },
@@ -228,7 +236,7 @@ describe("Expression Parser", () => {
         expected: true,
       },
       "operates with variable references": {
-        input: "$ctx.num gt 5",
+        input: "$ctx['num'] gt 5",
         context: { num: 7 },
         expected: true,
       },
@@ -251,7 +259,7 @@ describe("Expression Parser", () => {
       },
       "supports complex conditions": {
         input:
-          '(($ctx.test gt 5) and ($ctx.other neq 13)) ? "hello" : "goodbye"',
+          '(($ctx["test"] gt 5) and ($ctx["other"] neq 13)) ? "hello" : "goodbye"',
         context: { test: 7, other: 21 },
         expected: "hello",
       },
@@ -261,7 +269,7 @@ describe("Expression Parser", () => {
   describe("Interpolation helpers", () => {
     it("parses, evaluates, and replaces expressions inside double curly braces", () => {
       const str =
-        'Hello, {{$ctx.name}}! You have {{$ctx.itemCount}} {{($ctx.itemCount eq 1) ? "item" : "items" }}';
+        'Hello, {{$ctx["name"]}}! You have {{$ctx["itemCount"]}} {{($ctx["itemCount"] eq 1) ? "item" : "items" }}';
 
       const context = {
         ...createEmptyContext(),
@@ -275,7 +283,7 @@ describe("Expression Parser", () => {
     });
     it("extracts the expressions from inside double curly braces in a string", () => {
       const str =
-        'Hello, {{$ctx.name}}! You have {{$ctx.itemCount}} {{($ctx.itemCount eq 1) ? "item" : "items" }}';
+        'Hello, {{$ctx["name"]}}! You have {{$ctx["itemCount"]}} {{($ctx["itemCount"] eq 1) ? "item" : "items" }}';
 
       const expressions = parseAll(str);
 
@@ -286,7 +294,7 @@ describe("Expression Parser", () => {
     });
     it("injects the output of a list of expressions into a given interpolated string", () => {
       const str =
-        'Hello, {{$ctx.name}}! You have {{$ctx.itemCount}} {{($ctx.itemCount eq 1) ? "item" : "items" }}';
+        'Hello, {{$ctx["name"]}}! You have {{$ctx["itemCount"]}} {{($ctx["itemCount"] eq 1) ? "item" : "items" }}';
 
       const expressions = parseAll(str);
       const context = {
