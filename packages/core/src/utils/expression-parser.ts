@@ -76,6 +76,8 @@ class Math implements Expression {
         return leftResult * rightResult;
       case "/":
         return leftResult / rightResult;
+      case "%":
+        return leftResult % rightResult;
     }
   }
 }
@@ -203,7 +205,7 @@ const ExpressionAtomParser: Parser<Expression> = Parsimmon.alt(
 
 const MathParser: Parser<Expression> = Parsimmon.seq(
   ExpressionAtomParser,
-  Parsimmon.oneOf("+-*/"),
+  Parsimmon.oneOf("+-*/%"),
   ExpressionAtomParser
 ).map(([leftOp, operator, rightOp]) => new Math(operator, leftOp, rightOp));
 

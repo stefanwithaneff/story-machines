@@ -189,6 +189,10 @@ describe("Expression Parser", () => {
         input: "57 / 19",
         expected: 3,
       },
+      "takes the modulo of two numbers": {
+        input: "13 % 4",
+        expected: 1,
+      },
       "operates with variable references": {
         input: "$ctx['num'] + 5",
         context: { num: 7 },
