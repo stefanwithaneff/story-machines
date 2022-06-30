@@ -12,6 +12,7 @@ interface Test {
   input: string;
   context?: Partial<Context>;
   expected: any;
+  only?: boolean;
 }
 
 type TestSuite = Record<string, Test>;
@@ -20,9 +21,10 @@ const emptyContext = createEmptyContext();
 
 function runTests(tests: TestSuite) {
   for (const [name, test] of Object.entries(tests)) {
-    const { input, expected, context } = test;
+    const { input, expected, context, only } = test;
     const ctx = { ...emptyContext, ...context };
-    it(name, () => {
+    const testFn = only ? it.only : it;
+    testFn(name, () => {
       const expression = ExpressionParser.tryParse(input);
       expect(expression.calc(ctx)).toEqual(expected);
     });
@@ -202,6 +204,10 @@ describe("Expression Parser", () => {
         input: "6 * (1 + 5)",
         expected: 36,
       },
+      "chains without parentheses": {
+        input: "1 + 7 * 4 - 2 / 2",
+        expected: 28,
+      },
     };
     runTests(tests);
   });
@@ -248,6 +254,10 @@ describe("Expression Parser", () => {
         input: "true AND (false OR true)",
         expected: true,
       },
+      "chains without parentheses": {
+        input: "1 lt 2 + 32 * 7 and 3 gt 4 eq true or `hello` neq `hi`",
+        expected: true,
+      },
     };
     runTests(tests);
   });
@@ -266,6 +276,16 @@ describe("Expression Parser", () => {
           '(($ctx["test"] gt 5) and ($ctx["other"] neq 13)) ? "hello" : "goodbye"',
         context: { test: 7, other: 21 },
         expected: "hello",
+      },
+      "supports complex conditions without parentheses": {
+        input:
+          '$ctx["test"] gt 5 and $ctx["other"] neq 13 ? "hello" : "goodbye"',
+        context: { test: 7, other: 21 },
+        expected: "hello",
+      },
+      "supports arbitrary nesting of ternary expressions": {
+        input: '1 gt 5 ? "hello" : 3 lte 4 ? "whatever" : "goodbye"',
+        expected: "whatever",
       },
     };
     runTests(tests);
