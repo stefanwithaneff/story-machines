@@ -114,7 +114,7 @@ describe("Choice machines", () => {
         <Choice id="choice1">
           <ChoiceText>Choice 1</ChoiceText>
         </Choice>
-        <MultiChoice id="choice2">
+        <ChoiceGroup id="choice2">
           <Choice id="subChoice1">
             <ChoiceText>SubChoice 1</ChoiceText>
           </Choice>
@@ -123,7 +123,7 @@ describe("Choice machines", () => {
           </Choice>
           <Wait />
           <SetGlobalContext key="foo">"bar"</SetGlobalContext>
-        </MultiChoice>
+        </ChoiceGroup>
       </Choices>
     `;
     const player = new ChoiceTestPlayer(runtime, story);

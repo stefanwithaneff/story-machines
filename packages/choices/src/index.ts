@@ -4,7 +4,7 @@ import {
   ChoiceMetadataCompiler,
   ChoicesCompiler,
   ChoiceTextCompiler,
-  MultiChoiceCompiler,
+  ChoiceGroupCompiler,
 } from "./machines";
 
 export * from "./machines";
@@ -17,5 +17,5 @@ export const ChoiceElements: Record<string, StoryMachineCompiler> = {
   Choices: ChoicesCompiler,
   ChoiceText: ChoiceTextCompiler,
   ChoiceMetadata: ChoiceMetadataCompiler,
-  MultiChoice: MultiChoiceCompiler,
+  ChoiceGroup: ChoiceGroupCompiler,
 };

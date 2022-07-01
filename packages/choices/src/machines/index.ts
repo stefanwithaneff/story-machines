@@ -5,4 +5,4 @@ export * from "./choice";
 export * from "./choices";
 export * from "./constants";
 export * from "./make-choice";
-export * from "./multi-choice";
+export * from "./choice-group";
