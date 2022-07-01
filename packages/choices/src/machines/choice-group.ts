@@ -22,12 +22,12 @@ import {
   MAKE_CHOICE,
 } from "./make-choice";
 
-interface MultiChoiceAttributes extends StoryMachineAttributes {
+interface ChoiceGroupAttributes extends StoryMachineAttributes {
   choices: StoryMachine[];
   nodes: StoryMachine[];
 }
 
-export class MultiChoice extends ProcessorMachine<MultiChoiceAttributes> {
+export class ChoiceGroup extends ProcessorMachine<ChoiceGroupAttributes> {
   private handlers: HandlerMap = {
     [MAKE_CHOICE]: (_, effect: Effect) => {
       if (isMakeChoiceEffect(effect)) {
@@ -61,12 +61,12 @@ export class MultiChoice extends ProcessorMachine<MultiChoiceAttributes> {
   }
 }
 
-export const MultiChoiceCompiler: StoryMachineCompiler = {
+export const ChoiceGroupCompiler: StoryMachineCompiler = {
   compile(runtime, tree) {
     const children = runtime.compileChildElements(tree.elements);
     const choices = children.filter((child) => isOfType(child, CHOICE));
     const nodes = children.filter((child) => !isOfType(child, CHOICE));
 
-    return new MultiChoice({ ...tree.attributes, choices, nodes });
+    return new ChoiceGroup({ ...tree.attributes, choices, nodes });
   },
 };
