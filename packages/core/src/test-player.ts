@@ -1,6 +1,6 @@
 import { StoryMachine } from "./base-classes";
 import { StoryMachineRuntime } from "./runtime";
-import { Context, Input, Output, SaveData, StoryMachineStatus } from "./types";
+import { Context, Output, SaveData, StoryMachineStatus } from "./types";
 import { createEmptyContext } from "./utils/create-empty-context";
 
 export class TestPlayer {
