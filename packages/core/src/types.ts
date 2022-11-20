@@ -1,21 +1,5 @@
 export type StoryMachineStatus = "Running" | "Completed" | "Terminated";
 
-// export type Metadata = Record<string, any>;
-
-// export interface Passage {
-//   text: string;
-//   metadata: Metadata;
-// }
-
-// export interface ChoiceInput {
-//   type: "Choice";
-//   payload: {
-//     id: string;
-//   };
-// }
-
-// export type Input = ChoiceInput;
-
 type AnyRecord = Record<string, any>;
 
 interface TypedPayload<T extends AnyRecord> {
