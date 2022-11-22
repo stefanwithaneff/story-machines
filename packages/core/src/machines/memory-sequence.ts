@@ -1,9 +1,23 @@
-import { CompositeMachine, StoryMachineCompiler } from "../base-classes";
-import { Context, Result, SaveData, StoryMachineStatus } from "../types";
+import { CompositeMachine, StoryMachineClass } from "../base-classes";
+import { StoryMachineRuntime } from "../runtime";
+import {
+  Context,
+  ElementTree,
+  Result,
+  SaveData,
+  StoryMachineStatus,
+} from "../types";
+import { StaticImplements } from "../utils/static-implements";
 
+@StaticImplements<StoryMachineClass>()
 export class MemorySequence extends CompositeMachine {
   private index = 0;
   private status: StoryMachineStatus = "Running";
+
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { children } = runtime.compileChildElements(tree.elements);
+    return new MemorySequence({ ...tree.attributes, children });
+  }
 
   init() {
     super.init();
@@ -56,10 +70,3 @@ export class MemorySequence extends CompositeMachine {
     return result;
   }
 }
-
-export const MemorySequenceCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const children = runtime.compileChildElements(tree.elements);
-    return new MemorySequence({ ...tree.attributes, children });
-  },
-};

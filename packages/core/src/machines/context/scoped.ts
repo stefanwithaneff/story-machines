@@ -1,13 +1,21 @@
-import { Context, Result } from "../../types";
-import { DecoratorMachine, StoryMachineCompiler } from "../../base-classes";
+import { Context, ElementTree, Result } from "../../types";
+import { DecoratorMachine, StoryMachineClass } from "../../base-classes";
 import { SCOPES } from "./constants";
+import { StaticImplements } from "../../utils/static-implements";
+import { StoryMachineRuntime } from "../../runtime";
 
 interface Scope {
   id: string;
   scope: Record<string, any>;
 }
 
+@StaticImplements<StoryMachineClass>()
 export class Scoped extends DecoratorMachine {
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { children } = runtime.compileChildElements(tree.elements);
+    return new Scoped({ ...tree.attributes, child: children[0] });
+  }
+
   process(context: Context): Result {
     const newScope: Scope = { id: this.id, scope: {} };
 
@@ -20,10 +28,3 @@ export class Scoped extends DecoratorMachine {
     return result;
   }
 }
-
-export const ScopedCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const [child] = runtime.compileChildElements(tree.elements);
-    return new Scoped({ child });
-  },
-};

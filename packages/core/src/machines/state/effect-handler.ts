@@ -1,20 +1,20 @@
-import { Context, Effect, EffectHandlerFn, Result } from "../../types";
+import { Context, Effect, ElementTree } from "../../types";
 import { getFromContext, setOnContext } from "../../utils/scope";
 import {
-  CompositeMachine,
   CompositeMachineAttributes,
+  DataElementClass,
+  ProcessorMachine,
   StoryMachine,
-  StoryMachineCompiler,
+  StoryMachineClass,
 } from "../../base-classes";
 import { Sequence } from "../sequence";
 import {
-  CAN_ALTER_STATE,
-  HANDLERS,
   RETURNED_EFFECTS,
-  STATE_BUILDER,
   HandlerEntry,
   INCOMING_EFFECT_PAYLOAD,
 } from "./constants";
+import { StaticImplements } from "../../utils/static-implements";
+import { StoryMachineRuntime } from "../../runtime";
 
 interface EffectHandlerAttributes extends CompositeMachineAttributes {
   type: string;
@@ -40,40 +40,29 @@ function createEffectHandler(
   };
 }
 
-export class EffectHandler extends CompositeMachine<EffectHandlerAttributes> {
-  machineTypes: symbol[] = [STATE_BUILDER];
-  private handler: EffectHandlerFn;
-  constructor(attrs: EffectHandlerAttributes) {
-    super(attrs);
+@StaticImplements<DataElementClass>()
+export class EffectHandlers {
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { children } = runtime.compileChildElements(tree.elements);
 
-    const processor = new Sequence({
-      children: this.children,
-    });
+    const handlerMachines = children.filter(
+      (child) => child instanceof EffectHandler
+    ) as EffectHandler[];
 
-    this.handler = createEffectHandler(this.attrs, processor);
-  }
-  process(context: Context): Result {
-    const handlerList: HandlerEntry[] = getFromContext(context, HANDLERS);
+    const effectHandlers: HandlerEntry[] = handlerMachines.map((handler) => ({
+      type: handler.attrs.type,
+      handler: createEffectHandler(handler.attrs, handler),
+    }));
 
-    const handlerEntry: HandlerEntry = {
-      type: this.attrs.type,
-      handler: this.handler,
-    };
-
-    if (handlerList) {
-      handlerList.push(handlerEntry);
-    } else {
-      setOnContext(context, HANDLERS, [handlerEntry]);
-    }
-
-    return { status: "Completed" };
+    return { effectHandlers };
   }
 }
 
-export const EffectHandlerCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
+@StaticImplements<StoryMachineClass>()
+export class EffectHandler extends ProcessorMachine<EffectHandlerAttributes> {
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
     const { type, payloadKey } = tree.attributes;
-    const children = runtime.compileChildElements(tree.elements);
+    const { children } = runtime.compileChildElements(tree.elements);
 
     return new EffectHandler({
       ...tree.attributes,
@@ -81,5 +70,9 @@ export const EffectHandlerCompiler: StoryMachineCompiler = {
       payloadKey,
       children,
     });
-  },
-};
+  }
+
+  protected createProcessor() {
+    return new Sequence({ children: this.attrs.children });
+  }
+}

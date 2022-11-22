@@ -1,7 +1,13 @@
-import { DecoratorMachine, StoryMachineCompiler } from "../base-classes";
-import { Context, Result } from "../types";
+import { DecoratorMachine } from "../base-classes";
+import { StoryMachineRuntime } from "../runtime";
+import { Context, ElementTree, Result } from "../types";
 
 export class LoopTilTerminated extends DecoratorMachine {
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { children } = runtime.compileChildElements(tree.elements);
+    return new LoopTilTerminated({ ...tree.attributes, child: children[0] });
+  }
+
   process(context: Context): Result {
     const result = this.child.process(context);
     if (result.status === "Terminated") {
@@ -10,10 +16,3 @@ export class LoopTilTerminated extends DecoratorMachine {
     return { status: "Running" };
   }
 }
-
-export const LoopTilTerminatedCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const [child] = runtime.compileChildElements(tree.elements);
-    return new LoopTilTerminated({ child });
-  },
-};

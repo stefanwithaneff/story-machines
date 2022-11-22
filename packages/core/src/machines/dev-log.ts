@@ -1,4 +1,4 @@
-import { Context, Result } from "../types";
+import { Context, ElementTree, Result } from "../types";
 import {
   Expression,
   parseAll,
@@ -7,14 +7,22 @@ import {
 import {
   StoryMachine,
   StoryMachineAttributes,
-  StoryMachineCompiler,
+  StoryMachineClass,
 } from "../base-classes";
+import { StaticImplements } from "../utils/static-implements";
+import { StoryMachineRuntime } from "../runtime";
 
 interface DevLogAttributes extends StoryMachineAttributes {
   expressions: Expression[];
 }
 
+@StaticImplements<StoryMachineClass>()
 export class DevLog extends StoryMachine<DevLogAttributes> {
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const expressions: Expression[] = parseAll(tree.attributes.textContent);
+    return new DevLog({ ...tree.attributes, expressions });
+  }
+
   process(context: Context): Result {
     const evalText = replaceWithParsedExpressions(
       context,
@@ -25,11 +33,3 @@ export class DevLog extends StoryMachine<DevLogAttributes> {
     return { status: "Completed" };
   }
 }
-
-export const DevLogCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const expressions: Expression[] = parseAll(tree.attributes.textContent);
-
-    return new DevLog({ ...tree.attributes, expressions });
-  },
-};

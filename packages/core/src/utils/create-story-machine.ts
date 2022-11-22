@@ -9,6 +9,9 @@ const staticMixin = {
   init() {},
   save() {},
   load() {},
+  getData() {
+    return staticMixin.attrs;
+  },
 };
 
 export function createStoryMachine(fn: ProcessFn): StoryMachine {

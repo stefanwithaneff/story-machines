@@ -12,4 +12,4 @@ export {
   isDevWarnEffect,
   createDevWarnEffect,
 } from "./dev-warn";
-export { EffectMachine, EffectCompiler } from "./effect";
+export { EffectMachine } from "./effect";

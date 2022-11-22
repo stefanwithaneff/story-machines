@@ -1,47 +1,39 @@
-import { Context, Effect, Result } from "../../types";
-import { getFromContext, setOnContext } from "../../utils/scope";
+import { Context, Effect, ElementTree, Result } from "../../types";
+import { getFromContext } from "../../utils/scope";
 import {
-  CompositeMachine,
-  CompositeMachineAttributes,
-  StoryMachineCompiler,
+  StoryMachine,
+  StoryMachineAttributes,
+  StoryMachineClass,
 } from "../../base-classes";
-import { KEY_PREFIX } from "../object-builders";
 import { RETURNED_EFFECTS } from "./constants";
+import { StaticImplements } from "../../utils/static-implements";
+import { StoryMachineRuntime } from "../../runtime";
+import { recursivelyCalculateExpressions } from "../../utils/expression-parser";
 
-interface ReturnedEffectAttributes extends CompositeMachineAttributes {
+interface ReturnedEffectAttributes extends StoryMachineAttributes {
   type: string;
+  data: Record<string, any>;
 }
 
-export class ReturnedEffect extends CompositeMachine<ReturnedEffectAttributes> {
+@StaticImplements<StoryMachineClass>()
+export class ReturnedEffect extends StoryMachine<ReturnedEffectAttributes> {
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { type } = tree.attributes;
+    const { data } = runtime.compileChildElements(tree.elements);
+
+    return new ReturnedEffect({ ...tree.attributes, type, data });
+  }
+
   process(context: Context): Result {
-    const { type } = this.attrs;
+    const { type, data } = this.attrs;
 
     const returnedEffects: Effect[] = getFromContext(context, RETURNED_EFFECTS);
-    const keyPrefix = [RETURNED_EFFECTS, returnedEffects.length, "payload"];
-    setOnContext(context, KEY_PREFIX, keyPrefix);
 
-    returnedEffects.push({ type, payload: {} });
-
-    for (const child of this.children) {
-      const result = child.process(context);
-
-      if (result.status === "Terminated") {
-        return result;
-      }
-    }
+    returnedEffects.push({
+      type,
+      payload: recursivelyCalculateExpressions(context, data),
+    });
 
     return { status: "Completed" };
   }
 }
-
-export const ReturnedEffectCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const children = runtime.compileChildElements(tree.elements);
-
-    return new ReturnedEffect({
-      ...tree.attributes,
-      type: tree.attributes.type,
-      children,
-    });
-  },
-};

@@ -23,7 +23,26 @@ export abstract class StoryMachine<
   init(): void {}
   save(saveData: SaveData): void {}
   load(saveData: SaveData): void {}
+  getData(): A {
+    return this.attrs;
+  }
 }
+
+export interface CompilableClass {
+  compile(runtime: StoryMachineRuntime, tree: ElementTree): any;
+}
+
+export interface StoryMachineClass extends CompilableClass {
+  compile(runtime: StoryMachineRuntime, tree: ElementTree): StoryMachine;
+}
+
+export interface DataElementClass extends CompilableClass {
+  compile(runtime: StoryMachineRuntime, tree: ElementTree): Record<string, any>;
+}
+
+export type Compilable = StoryMachineClass | DataElementClass;
+
+export type CompilationResult = ReturnType<Compilable["compile"]>;
 
 export interface StoryMachineCompiler {
   compile(

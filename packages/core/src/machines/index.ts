@@ -10,7 +10,6 @@ export * from "./loop-til-terminated";
 export * from "./memory-fallback";
 export * from "./memory-sequence";
 export * from "./not";
-export * from "./object-builders";
 export * from "./once";
 export * from "./running";
 export * from "./sequence";

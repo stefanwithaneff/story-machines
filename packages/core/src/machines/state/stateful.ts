@@ -1,44 +1,55 @@
-import { HandlerMap, SaveData } from "../../types";
+import { ElementTree, HandlerMap, SaveData } from "../../types";
 import {
   createConditionalMachine,
   createStoryMachine,
 } from "../../utils/create-story-machine";
 import { handleEffects } from "../../utils/effects";
-import { getFromContext } from "../../utils/scope";
-import { isOfType } from "../../utils/tree-utils";
 import {
   ProcessorMachine,
   StoryMachine,
   StoryMachineAttributes,
-  StoryMachineCompiler,
+  StoryMachineClass,
 } from "../../base-classes";
 import { Fallback } from "../fallback";
 import { ImmediateSequence } from "../immediate-sequence";
 import { MemorySequence } from "../memory-sequence";
 import { Sequence } from "../sequence";
 import { Scoped, SetContextInternal } from "../context";
-import {
-  HandlerEntry,
-  HANDLERS,
-  INITIAL_STATE,
-  STATE,
-  STATE_BUILDER,
-} from "./constants";
+import { HandlerEntry, STATE } from "./constants";
+import { StaticImplements } from "../../utils/static-implements";
+import { StoryMachineRuntime } from "../../runtime";
+import { recursivelyCalculateExpressions } from "../../utils/expression-parser";
 
 interface StatefulAttributes extends StoryMachineAttributes {
-  builders: StoryMachine[];
-  nodes: StoryMachine[];
+  children: StoryMachine[];
+  initialState: Record<string, any>;
+  effectHandlers: HandlerEntry[];
 }
 
+@StaticImplements<StoryMachineClass>()
 export class Stateful extends ProcessorMachine<StatefulAttributes> {
   private initialized: boolean = false;
   private state: Record<string, any> = {};
-  private handlers: HandlerMap = {};
+  private handlers: HandlerMap = this.getHandlerMap();
+
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { children, data } = runtime.compileChildElements(tree.elements);
+
+    const initialState = data.initialState ?? {};
+    const effectHandlers = data.effectHandlers ?? [];
+
+    return new Stateful({
+      ...tree.attributes,
+      children,
+      effectHandlers,
+      initialState,
+    });
+  }
 
   init() {
     this.initialized = false;
     this.state = {};
-    this.handlers = {};
+    this.handlers = this.getHandlerMap();
   }
 
   save(saveData: SaveData) {
@@ -54,32 +65,28 @@ export class Stateful extends ProcessorMachine<StatefulAttributes> {
     super.load(saveData);
   }
 
+  private getHandlerMap(): HandlerMap {
+    return Object.fromEntries(
+      this.attrs.effectHandlers.map(({ type, handler }) => [type, handler])
+    );
+  }
+
   private createInitializerProcessor(): StoryMachine {
     // Initialize state if it hasn't been already
     return new Scoped({
       child: new Fallback({
         children: [
           createConditionalMachine(() => this.initialized),
-          new Sequence({
-            children: [
-              ...this.attrs.builders,
-              createStoryMachine((context) => {
-                const state = getFromContext(context, INITIAL_STATE);
-                const handlers: HandlerEntry[] =
-                  getFromContext(context, HANDLERS) ?? [];
-
-                if (!state) {
-                  return { status: "Terminated" };
-                }
-
-                this.state = { ...state, ...this.state };
-                for (const { type, handler } of handlers) {
-                  this.handlers[type] = handler;
-                }
-                this.initialized = true;
-                return { status: "Completed" };
-              }),
-            ],
+          createStoryMachine((context) => {
+            const initialState = recursivelyCalculateExpressions(
+              context,
+              this.attrs.initialState
+            );
+            // Patch existing state over initial state to allow loaded save data to override
+            // existing state while still allowing new state keys to be filled in
+            this.state = { ...initialState, ...this.state };
+            this.initialized = true;
+            return { status: "Completed" };
           }),
         ],
       }),
@@ -94,7 +101,7 @@ export class Stateful extends ProcessorMachine<StatefulAttributes> {
           new SetContextInternal({ key: STATE, valFn: () => this.state }),
           new MemorySequence({
             id: this.generateId("memory_seq"),
-            children: this.attrs.nodes,
+            children: this.attrs.children,
           }),
           createStoryMachine((context) => {
             try {
@@ -118,14 +125,3 @@ export class Stateful extends ProcessorMachine<StatefulAttributes> {
     });
   }
 }
-
-export const StatefulCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const children = runtime.compileChildElements(tree.elements);
-
-    const builders = children.filter((child) => isOfType(child, STATE_BUILDER));
-    const nodes = children.filter((child) => !isOfType(child, STATE_BUILDER));
-
-    return new Stateful({ ...tree.attributes, builders, nodes });
-  },
-};
