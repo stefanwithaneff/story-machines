@@ -1,21 +1,30 @@
-import { Context, Result } from "../../types";
+import { Context, ElementTree, Result } from "../../types";
 import { Expression, ExpressionParser } from "../../utils/expression-parser";
-import { getFromContext, updateContext } from "../../utils/scope";
+import { updateContext } from "../../utils/scope";
 import {
   StoryMachine,
   StoryMachineAttributes,
-  StoryMachineCompiler,
+  StoryMachineClass,
 } from "../../base-classes";
 import { createDevErrorEffect } from "../effects";
-import { CAN_ALTER_STATE, STATE } from "./constants";
+import { STATE } from "./constants";
 import { addEffectToOutput } from "../../utils/effects";
+import { StaticImplements } from "../../utils/static-implements";
+import { StoryMachineRuntime } from "../../runtime";
 
 interface SetStateAttributes extends StoryMachineAttributes {
   key: string;
   expression: Expression;
 }
 
+@StaticImplements<StoryMachineClass>()
 export class SetState extends StoryMachine<SetStateAttributes> {
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { key, textContent } = tree.attributes;
+    const expression = ExpressionParser.tryParse(textContent);
+    return new SetState({ ...tree.attributes, key, expression });
+  }
+
   process(context: Context): Result {
     const { key, expression } = this.attrs;
     const val = expression.calc(context);
@@ -35,11 +44,3 @@ export class SetState extends StoryMachine<SetStateAttributes> {
     return { status: "Completed" };
   }
 }
-
-export const SetStateCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const { key, textContent } = tree.attributes;
-    const expression = ExpressionParser.tryParse(textContent);
-    return new SetState({ ...tree.attributes, key, expression });
-  },
-};
