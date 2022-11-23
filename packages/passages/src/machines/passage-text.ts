@@ -1,44 +1,40 @@
 import {
-  Context,
-  Result,
-  Expression,
-  parseAll,
-  replaceWithParsedExpressions,
-  setOnContext,
   StoryMachine,
   StoryMachineAttributes,
   StoryMachineCompiler,
+  Expression,
+  parseAll,
+  ProcessorMachine,
+  StaticImplements,
+  StoryMachineClass,
+  StoryMachineRuntime,
+  ElementTree,
 } from "@story-machines/core";
-import { PASSAGE_BUILDER, PASSAGE_TEXT } from "./constants";
+import { PassageMachine } from "./passage";
 
-interface PassageTextAttributes extends StoryMachineAttributes {
-  expressions: Expression[];
+interface TextAttributes extends StoryMachineAttributes {
+  text: string;
+  textExpressions: Expression[];
 }
 
-export class PassageText extends StoryMachine<PassageTextAttributes> {
-  machineTypes: symbol[] = [PASSAGE_BUILDER];
-  process(context: Context): Result {
-    const evalText = replaceWithParsedExpressions(
-      context,
-      this.attrs.expressions,
-      this.attrs.textContent ?? ""
-    );
-
-    const cleanedText = evalText.replace(/\s+/gm, " ");
-
-    setOnContext(context, PASSAGE_TEXT, cleanedText);
-    return { status: "Completed" };
-  }
-}
-
-export const PassageTextCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const expressions: Expression[] = parseAll(
-      tree.attributes.textContent ?? ""
-    );
+@StaticImplements<StoryMachineClass>()
+export class PassageText extends ProcessorMachine<TextAttributes> {
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const textExpressions: Expression[] = parseAll(tree.attributes.textContent);
     return new PassageText({
       ...tree.attributes,
-      expressions,
+      text: tree.attributes.textContent,
+      textExpressions,
     });
-  },
-};
+  }
+
+  protected createProcessor(): StoryMachine {
+    return new PassageMachine({
+      id: this.generateId("passage"),
+      text: this.attrs.text,
+      textExpressions: this.attrs.textExpressions,
+      metadata: {},
+      children: [],
+    });
+  }
+}

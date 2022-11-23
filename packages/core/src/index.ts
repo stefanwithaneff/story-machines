@@ -6,6 +6,7 @@ export * from "./utils/effects";
 export * from "./utils/errors";
 export * from "./utils/expression-parser";
 export * from "./utils/scope";
+export * from "./utils/static-implements";
 export * from "./utils/tree-utils";
 export * from "./runtime";
 export * from "./test-player";
