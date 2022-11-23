@@ -1,2 +1,0 @@
-export const EFFECT_TYPE = "EFFECT_TYPE";
-export const EFFECT_PAYLOAD = "EFFECT_PAYLOAD";

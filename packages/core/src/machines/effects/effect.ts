@@ -13,7 +13,7 @@ import { recursivelyCalculateExpressions } from "../../utils/expression-parser";
 
 interface EffectAttributes extends StoryMachineAttributes {
   type: string;
-  data: Record<string, any>;
+  payload: Record<string, any>;
 }
 
 // Naming it "EffectMachine" rather than "Effect" to avoid collision with the Effect type
@@ -24,7 +24,7 @@ export class EffectMachine extends ProcessorMachine<EffectAttributes> {
     return new EffectMachine({
       ...tree.attributes,
       type: tree.attributes.type,
-      data,
+      payload: data,
     });
   }
 
@@ -37,7 +37,7 @@ export class EffectMachine extends ProcessorMachine<EffectAttributes> {
         }
         const effect: Effect = {
           type: this.attrs.type,
-          payload: recursivelyCalculateExpressions(context, this.attrs.data),
+          payload: recursivelyCalculateExpressions(context, this.attrs.payload),
         };
         addEffectToOutput(context, effect);
         return { status: "Completed" };
