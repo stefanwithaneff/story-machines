@@ -1,95 +1,98 @@
 import { parseXMLToTree } from "./utils/parse-xml-to-tree";
-import { StoryMachine, StoryMachineCompiler } from "./base-classes";
+import { Compilable, CompilationResult, StoryMachine } from "./base-classes";
 import { ElementTree } from "./types";
 import {
-  AddEffectCompiler,
-  CompletedCompiler,
-  ConditionCompiler,
-  DevLogCompiler,
-  EffectCompiler,
-  EffectHandlerCompiler,
-  FallbackCompiler,
-  ImmediateFallbackCompiler,
-  ImmediateSequenceCompiler,
-  InitStateCompiler,
-  ListCompiler,
-  LoopTilTerminatedCompiler,
-  MemoryFallbackCompiler,
-  MemorySequenceCompiler,
-  NestedListCompiler,
-  NestedObjectCompiler,
-  NestedValueCompiler,
-  NotCompiler,
-  ObjectCompiler,
-  OnceCompiler,
-  ReturnedEffectCompiler,
-  RunningCompiler,
-  ScopedCompiler,
-  SequenceCompiler,
-  SetContextCompiler,
-  SetGlobalContextCompiler,
-  SetStateCompiler,
-  StatefulCompiler,
-  TerminatedCompiler,
-  ValueCompiler,
-  WaitCompiler,
+  Completed,
+  Condition,
+  DevLog,
+  EffectHandler,
+  EffectHandlers,
+  EffectMachine,
+  Fallback,
+  ImmediateFallback,
+  ImmediateSequence,
+  InitialState,
+  LoopTilTerminated,
+  MemoryFallback,
+  MemorySequence,
+  Not,
+  Once,
+  ReturnedEffect,
+  Running,
+  Scoped,
+  Sequence,
+  SetContext,
+  SetGlobalContext,
+  SetState,
+  Stateful,
+  Terminated,
+  Wait,
 } from "./machines";
+import {
+  List,
+  Machine,
+  Metadata,
+  ObjectElement,
+  Text,
+  Value,
+} from "./data-elements";
 
 export class StoryMachineRuntime {
-  private registeredMachines: Map<string, StoryMachineCompiler> = new Map();
+  private registeredElements: Map<string, Compilable> = new Map();
 
   constructor() {
-    this.registerMachines(baseElements);
+    this.registerElements(baseElements);
   }
 
-  registerMachine(
-    name: string | string[],
-    compiler: StoryMachineCompiler
-  ): void {
+  registerElement(name: string | string[], compiler: Compilable): void {
     const elementNames = Array.isArray(name) ? name : [name];
     for (const elName of elementNames) {
-      this.registeredMachines.set(elName.toLowerCase(), compiler);
+      this.registeredElements.set(elName.toLowerCase(), compiler);
     }
   }
 
-  registerMachines(machineDefs: Record<string, StoryMachineCompiler>): void {
+  registerElements(machineDefs: Record<string, Compilable>): void {
     for (const [name, compiler] of Object.entries(machineDefs)) {
-      this.registerMachine(name, compiler);
+      this.registerElement(name, compiler);
     }
   }
 
-  getMachineCompilerForTypename(typename: string) {
-    const compiler = this.registeredMachines.get(typename.toLowerCase());
+  getCompilerForTypename(typename: string) {
+    const compiler = this.registeredElements.get(typename.toLowerCase());
     if (!compiler) {
       throw new Error(`Element type not supported: ${typename}`);
     }
     return compiler;
   }
 
-  hasMachineCompilerForTypename(typename: string): boolean {
-    return this.registeredMachines.has(typename.toLowerCase());
+  hasCompilerForTypename(typename: string): boolean {
+    return this.registeredElements.has(typename.toLowerCase());
   }
 
-  compileChildElements(elements: ElementTree[]): StoryMachine[] {
-    const childMachines: StoryMachine[] = [];
+  compileChildElements(elements: ElementTree[]): {
+    children: StoryMachine[];
+    data: Record<string, any>;
+  } {
+    const children: StoryMachine[] = [];
+    let data: Record<string, any> = {};
     for (const element of elements) {
-      const compiler = this.getMachineCompilerForTypename(element.type);
-      const machine = compiler.compile(this, element);
-      if (Array.isArray(machine)) {
-        childMachines.push(...machine);
+      const compiler = this.getCompilerForTypename(element.type);
+      const machineOrData = compiler.compile(this, element);
+      if (machineOrData instanceof StoryMachine) {
+        children.push(machineOrData);
       } else {
-        childMachines.push(machine);
+        data = { ...data, ...machineOrData };
       }
     }
-    return childMachines;
+    return { children, data };
   }
 
-  compileXML(xmlString: string): StoryMachine {
+  compileXML(xmlString: string): CompilationResult {
     const tree = parseXMLToTree(xmlString);
     return this.compileJSON(tree);
   }
 
-  compileJSON(json: string | ElementTree): StoryMachine {
+  compileJSON(json: string | ElementTree): CompilationResult {
     let tree: ElementTree;
     if (typeof json === "string") {
       tree = JSON.parse(json);
@@ -97,47 +100,43 @@ export class StoryMachineRuntime {
       tree = json;
     }
 
-    const compiler = this.getMachineCompilerForTypename(tree.type);
-    const machine = compiler.compile(this, tree);
+    const compiler = this.getCompilerForTypename(tree.type);
+    const result = compiler.compile(this, tree);
 
-    if (Array.isArray(machine)) {
-      throw new Error("Compilation resulted in multiple root elements");
-    }
-
-    return machine;
+    return result;
   }
 }
 
-const baseElements: Record<string, StoryMachineCompiler> = {
-  AddEffect: AddEffectCompiler,
-  Completed: CompletedCompiler,
-  Condition: ConditionCompiler,
-  DevLog: DevLogCompiler,
-  Effect: EffectCompiler,
-  EffectHandler: EffectHandlerCompiler,
-  Fallback: FallbackCompiler,
-  ImmediateFallback: ImmediateFallbackCompiler,
-  ImmediateSequence: ImmediateSequenceCompiler,
-  InitState: InitStateCompiler,
-  List: ListCompiler,
-  LoopTilTerminated: LoopTilTerminatedCompiler,
-  MemoryFallback: MemoryFallbackCompiler,
-  MemorySequence: MemorySequenceCompiler,
-  NestedList: NestedListCompiler,
-  NestedObject: NestedObjectCompiler,
-  NestedValue: NestedValueCompiler,
-  Not: NotCompiler,
-  Object: ObjectCompiler,
-  Once: OnceCompiler,
-  ReturnedEffect: ReturnedEffectCompiler,
-  Running: RunningCompiler,
-  Scoped: ScopedCompiler,
-  Sequence: SequenceCompiler,
-  SetContext: SetContextCompiler,
-  SetGlobalContext: SetGlobalContextCompiler,
-  SetState: SetStateCompiler,
-  Stateful: StatefulCompiler,
-  Terminated: TerminatedCompiler,
-  Value: ValueCompiler,
-  Wait: WaitCompiler,
+const baseElements: Record<string, Compilable> = {
+  Completed,
+  Condition,
+  DevLog,
+  Effect: EffectMachine,
+  EffectHandler,
+  EffectHandlers,
+  Fallback,
+  ImmediateFallback,
+  ImmediateSequence,
+  InitialState,
+  List,
+  LoopTilTerminated,
+  Machine,
+  Metadata,
+  MemoryFallback,
+  MemorySequence,
+  Not,
+  Object: ObjectElement,
+  Once,
+  ReturnedEffect,
+  Running,
+  Scoped,
+  Sequence,
+  SetContext,
+  SetGlobalContext,
+  SetState,
+  Stateful,
+  Terminated,
+  Text,
+  Value,
+  Wait,
 };

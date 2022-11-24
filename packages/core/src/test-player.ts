@@ -9,7 +9,15 @@ export class TestPlayer {
   currentStatus: StoryMachineStatus | undefined;
   currentContext: Context | undefined;
   constructor(private readonly runtime: StoryMachineRuntime, story: string) {
-    this.story = runtime.compileXML(story);
+    const result = runtime.compileXML(story);
+
+    if (!(result instanceof StoryMachine)) {
+      throw new Error(
+        "Provided XML string does not compile to a valid story machine"
+      );
+    }
+
+    this.story = result;
   }
 
   init() {
@@ -41,7 +49,15 @@ export class TestPlayer {
   }
 
   loadStory(xml: string) {
-    this.story = this.runtime.compileXML(xml);
+    const result = this.runtime.compileXML(xml);
+
+    if (!(result instanceof StoryMachine)) {
+      throw new Error(
+        "Provided XML string does not compile to a valid story machine"
+      );
+    }
+
+    this.story = result;
     this.init();
     return this;
   }

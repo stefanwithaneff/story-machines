@@ -1,54 +1,81 @@
 import {
   StoryMachine,
   StoryMachineAttributes,
-  StoryMachineCompiler,
-  Sequence,
   ImmediateSequence,
   Scoped,
   Once,
   Wait,
-  isOfType,
   ProcessorMachine,
+  StaticImplements,
+  StoryMachineClass,
+  StoryMachineRuntime,
+  ElementTree,
+  Expression,
+  createStoryMachine,
+  Context,
+  replaceWithParsedExpressions,
+  recursivelyCalculateExpressions,
 } from "@story-machines/core";
-
-import { AddPassage } from "./add-passage";
-import { PASSAGE_BUILDER } from "./constants";
+import { isEmpty } from "lodash";
+import { Passage } from "../types";
+import { addPassageToOutput } from "../utils/add-passage-to-output";
 
 interface PassageAttributes extends StoryMachineAttributes {
-  builders: StoryMachine[];
-  nodes: StoryMachine[];
+  metadata: Record<string, any>;
+  text: string;
+  textExpressions: Expression[];
+  children: StoryMachine[];
 }
 
+@StaticImplements<StoryMachineClass>()
 export class PassageMachine extends ProcessorMachine<PassageAttributes> {
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { children, data } = runtime.compileChildElements(tree.elements);
+
+    const metadata = data.metadata ?? {};
+    const text = data.text ?? "";
+    const textExpressions = data.textExpressions ?? [];
+
+    return new PassageMachine({
+      ...tree.attributes,
+      children,
+      metadata,
+      text,
+      textExpressions,
+    });
+  }
+
   protected createProcessor() {
     return new ImmediateSequence({
       children: [
         new Scoped({
           child: new Once({
             id: this.generateId("once"),
-            child: new Sequence({
-              children: [...this.attrs.builders, new AddPassage({})],
+            child: createStoryMachine((context: Context) => {
+              const evalText = replaceWithParsedExpressions(
+                context,
+                this.attrs.textExpressions,
+                this.attrs.text
+              );
+              const passage: Passage = {
+                text: evalText,
+                metadata: recursivelyCalculateExpressions(
+                  context,
+                  this.attrs.metadata
+                ),
+              };
+
+              if (evalText !== "" || !isEmpty(this.attrs.metadata)) {
+                addPassageToOutput(context, passage);
+              }
+
+              return { status: "Completed" };
             }),
           }),
         }),
-        ...this.attrs.nodes,
+        ...this.attrs.children,
         new Wait({ id: this.generateId("wait") }),
       ],
     });
   }
-}
-
-export const PassageCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const children = runtime.compileChildElements(tree.elements);
-
-    const builders = children.filter((node) => isPassageBuilder(node));
-    const nodes = children.filter((node) => !isPassageBuilder(node));
-
-    return new PassageMachine({ ...tree.attributes, builders, nodes });
-  },
-};
-
-function isPassageBuilder(node: StoryMachine): boolean {
-  return isOfType(node, PASSAGE_BUILDER);
 }

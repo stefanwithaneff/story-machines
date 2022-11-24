@@ -5,6 +5,7 @@ import {
   evalAndReplace,
   ExpressionParser,
   parseAll,
+  recursivelyCalculateExpressions,
   replaceWithParsedExpressions,
 } from "../expression-parser";
 
@@ -330,6 +331,32 @@ describe("Expression Parser", () => {
       expect(replaceWithParsedExpressions(context, expressions, str)).toEqual(
         "Hello, Test! You have 3 items"
       );
+    });
+  });
+  describe("Evaluator helpers", () => {
+    it("calculates a parsed expression", () => {
+      const obj = ExpressionParser.tryParse("4");
+      expect(
+        recursivelyCalculateExpressions(createEmptyContext(), obj)
+      ).toEqual(4);
+    });
+    it("calculates an object containing parsed expressions", () => {
+      const obj = { test: ExpressionParser.tryParse("4"), id: 5 };
+      expect(
+        recursivelyCalculateExpressions(createEmptyContext(), obj)
+      ).toEqual({ test: 4, id: 5 });
+    });
+    it("calculates a list containing parsed expressions", () => {
+      const obj = [
+        ExpressionParser.tryParse('$ctx["num"] + 7'),
+        { test: ExpressionParser.tryParse("4"), id: 5 },
+      ];
+      expect(
+        recursivelyCalculateExpressions(
+          { ...createEmptyContext(), num: 3 },
+          obj
+        )
+      ).toEqual([10, { test: 4, id: 5 }]);
     });
   });
 });

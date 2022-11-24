@@ -9,16 +9,20 @@ import {
   ProcessorMachine,
   StoryMachine,
   StoryMachineAttributes,
-  StoryMachineCompiler,
   ImmediateFallback,
   SetContextInternal,
   Scoped,
   Sequence,
+  StoryMachineRuntime,
+  ElementTree,
+  StaticImplements,
+  StoryMachineClass,
 } from "@story-machines/core";
 import { CHOSEN_ID, PRESENTED_CHOICE_IDS } from "./constants";
 import { isMakeChoiceEffect, MAKE_CHOICE } from "./make-choice";
 import { isPresentChoiceEffect, PRESENT_CHOICE } from "./present-choice";
 
+@StaticImplements<StoryMachineClass>()
 export class Choices extends ProcessorMachine<CompositeMachineAttributes> {
   private chosenId: string | null = null;
   private presentedChoices: string[] | null = null;
@@ -39,6 +43,12 @@ export class Choices extends ProcessorMachine<CompositeMachineAttributes> {
       return [];
     },
   };
+
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { children } = runtime.compileChildElements(tree.elements);
+
+    return new Choices({ ...tree.attributes, children });
+  }
 
   protected createProcessor(): StoryMachine<StoryMachineAttributes> {
     return new Scoped({
@@ -87,11 +97,3 @@ export class Choices extends ProcessorMachine<CompositeMachineAttributes> {
     return result;
   }
 }
-
-export const ChoicesCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const children = runtime.compileChildElements(tree.elements);
-
-    return new Choices({ ...tree.attributes, children });
-  },
-};

@@ -8,9 +8,9 @@ describe("Decorator machines", () => {
     it("runs until its child terminates", () => {
       const story = `
         <Stateful>
-          <InitState>
-            <NestedValue key="count">1</NestedValue>
-          </InitState>
+          <InitialState>
+            <Value key="count">1</Value>
+          </InitialState>
           <LoopTilTerminated>
             <Sequence>
               <Condition>$state["count"] lt 3</Condition>

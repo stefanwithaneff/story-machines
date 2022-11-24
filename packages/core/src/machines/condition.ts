@@ -1,18 +1,26 @@
-import { Context, Result } from "../types";
+import { Context, ElementTree, Result } from "../types";
 import { Expression, ExpressionParser } from "../utils/expression-parser";
 import {
   StoryMachine,
   StoryMachineAttributes,
-  StoryMachineCompiler,
+  StoryMachineClass,
 } from "../base-classes";
 import { createDevErrorEffect } from "./effects";
 import { addEffectToOutput } from "../utils/effects";
+import { StaticImplements } from "../utils/static-implements";
+import { StoryMachineRuntime } from "../runtime";
 
 interface ConditionAttributes extends StoryMachineAttributes {
   expression: Expression;
 }
 
+@StaticImplements<StoryMachineClass>()
 export class Condition extends StoryMachine<ConditionAttributes> {
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const expression = ExpressionParser.tryParse(tree.attributes.textContent);
+    return new Condition({ ...tree.attributes, expression });
+  }
+
   process(context: Context): Result {
     const result = this.attrs.expression.calc(context);
 
@@ -31,10 +39,3 @@ export class Condition extends StoryMachine<ConditionAttributes> {
     }
   }
 }
-
-export const ConditionCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const expression = ExpressionParser.tryParse(tree.attributes.textContent);
-    return new Condition({ ...tree.attributes, expression });
-  },
-};

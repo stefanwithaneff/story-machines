@@ -5,6 +5,7 @@
     "useUnknownInCatchVariables": false,
     "strict": true,
     "composite": true,
-    "declaration": true
+    "declaration": true,
+    "experimentalDecorators": true
   }
 }

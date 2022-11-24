@@ -3,52 +3,90 @@ import {
   createStoryMachine,
   StoryMachine,
   StoryMachineAttributes,
-  StoryMachineCompiler,
   Condition,
   Sequence,
-  SetContextInternal,
   Scoped,
-  isOfType,
   Fallback,
   getFromContext,
   ImmediateSequence,
   ProcessorMachine,
   Running,
-  AddEffectInternal,
+  StaticImplements,
+  StoryMachineClass,
+  StoryMachineRuntime,
+  ElementTree,
+  Expression,
+  Context,
+  replaceWithParsedExpressions,
+  recursivelyCalculateExpressions,
+  addEffectToOutput,
 } from "@story-machines/core";
-import { AddChoice } from "./add-choice";
-import {
-  CHOICE,
-  CHOICE_BUILDER,
-  CHOICE_ID,
-  CHOSEN_ID,
-  PRESENTED_CHOICE_IDS,
-} from "./constants";
+import { Choice } from "../types";
+import { addChoiceToOutput } from "../utils/add-choice-to-output";
+import { CHOICE, CHOSEN_ID, PRESENTED_CHOICE_IDS } from "./constants";
 import { createMakeChoiceEffect } from "./make-choice";
 import { createPresentChoiceEffect } from "./present-choice";
 
 interface ChoiceAttributes extends StoryMachineAttributes {
-  builders: StoryMachine[];
+  metadata: Record<string, any>;
+  text: string;
+  textExpressions: Expression[];
   conditions: StoryMachine[];
-  nodes: StoryMachine[];
+  children: StoryMachine[];
 }
 
+@StaticImplements<StoryMachineClass>()
 export class ChoiceMachine extends ProcessorMachine<ChoiceAttributes> {
   machineTypes: symbol[] = [CHOICE];
+
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { children, data } = runtime.compileChildElements(tree.elements);
+    const conditions: StoryMachine[] = children.filter(
+      (node) => node instanceof Condition
+    );
+
+    const nodes = children.filter((node) => !conditions.includes(node));
+
+    const text = data.text ?? "";
+    const textExpressions = data.textExpressions ?? [];
+    const metadata = data.metadata ?? {};
+
+    return new ChoiceMachine({
+      ...tree.attributes,
+      conditions,
+      children: nodes,
+      text,
+      textExpressions,
+      metadata,
+    });
+  }
 
   private createBuildChoiceProcessor() {
     return new Scoped({
       child: new Sequence({
         children: [
           ...this.attrs.conditions,
-          new SetContextInternal({
-            key: CHOICE_ID,
-            valFn: () => this.id,
-          }),
-          ...this.attrs.builders,
-          new AddChoice({}),
-          new AddEffectInternal({
-            effectFn: () => createPresentChoiceEffect({ choiceId: this.id }),
+          createStoryMachine((context: Context) => {
+            const choice: Choice = {
+              id: this.id,
+              text: replaceWithParsedExpressions(
+                context,
+                this.attrs.textExpressions,
+                this.attrs.text
+              ),
+              metadata: recursivelyCalculateExpressions(
+                context,
+                this.attrs.metadata
+              ),
+            };
+
+            addChoiceToOutput(context, choice);
+            addEffectToOutput(
+              context,
+              createPresentChoiceEffect({ choiceId: this.id })
+            );
+
+            return { status: "Completed" };
           }),
           new Running({}), // Emit a Running status at the end to wait til next tick for input checking
         ],
@@ -62,7 +100,7 @@ export class ChoiceMachine extends ProcessorMachine<ChoiceAttributes> {
         createConditionalMachine(
           (context) => getFromContext(context, CHOSEN_ID) === this.id
         ),
-        ...this.attrs.nodes,
+        ...this.attrs.children,
       ],
     });
   }
@@ -95,9 +133,13 @@ export class ChoiceMachine extends ProcessorMachine<ChoiceAttributes> {
         }),
         new ImmediateSequence({
           children: [
-            ...this.attrs.nodes,
-            new AddEffectInternal({
-              effectFn: () => createMakeChoiceEffect({ choiceId: this.id }),
+            ...this.attrs.children,
+            createStoryMachine((context: Context) => {
+              addEffectToOutput(
+                context,
+                createMakeChoiceEffect({ choiceId: this.id })
+              );
+              return { status: "Completed" };
             }),
           ],
         }),
@@ -113,30 +155,4 @@ export class ChoiceMachine extends ProcessorMachine<ChoiceAttributes> {
       ],
     });
   }
-}
-
-export const ChoiceCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const children = runtime.compileChildElements(tree.elements);
-    const conditions: StoryMachine[] = children.filter(
-      (node) => node instanceof Condition
-    );
-
-    const builders = children.filter(isChoiceBuilder);
-
-    const nodes = children.filter(
-      (node) => !builders.includes(node) && !conditions.includes(node)
-    );
-
-    return new ChoiceMachine({
-      ...tree.attributes,
-      builders,
-      conditions,
-      nodes,
-    });
-  },
-};
-
-function isChoiceBuilder(node: StoryMachine): boolean {
-  return isOfType(node, CHOICE_BUILDER);
 }

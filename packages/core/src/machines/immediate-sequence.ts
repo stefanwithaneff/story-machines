@@ -1,7 +1,15 @@
-import { CompositeMachine, StoryMachineCompiler } from "../base-classes";
-import { Context, Result } from "../types";
+import { CompositeMachine, StoryMachineClass } from "../base-classes";
+import { StoryMachineRuntime } from "../runtime";
+import { Context, ElementTree, Result } from "../types";
+import { StaticImplements } from "../utils/static-implements";
 
+@StaticImplements<StoryMachineClass>()
 export class ImmediateSequence extends CompositeMachine {
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { children } = runtime.compileChildElements(tree.elements);
+    return new ImmediateSequence({ ...tree.attributes, children });
+  }
+
   process(context: Context): Result {
     const results = this.children.map((child) => child.process(context));
 
@@ -15,11 +23,3 @@ export class ImmediateSequence extends CompositeMachine {
     return { status: "Running" };
   }
 }
-
-export const ImmediateSequenceCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const children = runtime.compileChildElements(tree.elements);
-
-    return new ImmediateSequence({ ...tree.attributes, children });
-  },
-};

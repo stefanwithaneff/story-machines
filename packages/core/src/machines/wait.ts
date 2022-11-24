@@ -1,8 +1,15 @@
-import { Context, Result, SaveData } from "../types";
-import { StoryMachine, StoryMachineCompiler } from "../base-classes";
+import { Context, ElementTree, Result, SaveData } from "../types";
+import { StoryMachine, StoryMachineClass } from "../base-classes";
+import { StaticImplements } from "../utils/static-implements";
+import { StoryMachineRuntime } from "../runtime";
 
+@StaticImplements<StoryMachineClass>()
 export class Wait extends StoryMachine {
   private hasRun: boolean = false;
+
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    return new Wait({ ...tree.attributes });
+  }
 
   init() {
     // Initing wait
@@ -30,9 +37,3 @@ export class Wait extends StoryMachine {
     return { status: "Running" };
   }
 }
-
-export const WaitCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    return new Wait({ ...tree.attributes });
-  },
-};

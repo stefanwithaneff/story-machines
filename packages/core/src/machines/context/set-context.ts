@@ -1,12 +1,14 @@
 import { toPath } from "lodash";
-import { Context, Result } from "../../types";
+import { Context, ElementTree, Result } from "../../types";
 import { Expression, ExpressionParser } from "../../utils/expression-parser";
 import { setOnContext } from "../../utils/scope";
 import {
   StoryMachine,
   StoryMachineAttributes,
-  StoryMachineCompiler,
+  StoryMachineClass,
 } from "../../base-classes";
+import { StaticImplements } from "../../utils/static-implements";
+import { StoryMachineRuntime } from "../../runtime";
 
 interface SetContextInternalAttributes extends StoryMachineAttributes {
   key: string;
@@ -28,7 +30,14 @@ interface SetContextAttributes extends StoryMachineAttributes {
   expression: Expression;
 }
 
+@StaticImplements<StoryMachineClass>()
 export class SetContext extends StoryMachine<SetContextAttributes> {
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { key, textContent } = tree.attributes;
+    const expression = ExpressionParser.tryParse(textContent);
+    return new SetContext({ ...tree.attributes, key, expression });
+  }
+
   process(context: Context): Result {
     const { key, expression } = this.attrs;
     const keyPath = toPath(key);
@@ -37,11 +46,3 @@ export class SetContext extends StoryMachine<SetContextAttributes> {
     return { status: "Completed" };
   }
 }
-
-export const SetContextCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const { key, textContent } = tree.attributes;
-    const expression = ExpressionParser.tryParse(textContent);
-    return new SetContext({ ...tree.attributes, key, expression });
-  },
-};

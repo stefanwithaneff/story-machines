@@ -2,25 +2,30 @@ import Parsimmon, { Parser } from "parsimmon";
 import { STATE } from "../machines/state";
 import { Context } from "../types";
 import { getFromContext } from "./scope";
+import { isPlainObject } from "lodash";
 
-export interface Expression {
-  calc(context: Context): any;
+export abstract class Expression {
+  abstract calc(context: Context): any;
 }
 
 type ExpressionClass = new (...args: any[]) => Expression;
 
-class Constant implements Expression {
-  constructor(private val: string | number | boolean | null) {}
+class Constant extends Expression {
+  constructor(private val: string | number | boolean | null) {
+    super();
+  }
   calc() {
     return this.val;
   }
 }
 
-class VariableRef implements Expression {
+class VariableRef extends Expression {
   constructor(
     private target: "$ctx" | "$state",
     private expressions: Expression[]
-  ) {}
+  ) {
+    super();
+  }
   calc(context: Context) {
     const path = this.expressions.map((expr) => expr.calc(context));
     if (this.target === "$ctx") {
@@ -31,8 +36,10 @@ class VariableRef implements Expression {
   }
 }
 
-class List implements Expression {
-  constructor(private items: Expression[]) {}
+class List extends Expression {
+  constructor(private items: Expression[]) {
+    super();
+  }
   calc(context: Context) {
     const list: any[] = [];
     for (const item of this.items) {
@@ -43,8 +50,10 @@ class List implements Expression {
   }
 }
 
-class FunctionCall implements Expression {
-  constructor(private variableRef: Expression, private args: Expression[]) {}
+class FunctionCall extends Expression {
+  constructor(private variableRef: Expression, private args: Expression[]) {
+    super();
+  }
   calc(context: Context) {
     const func = this.variableRef.calc(context);
     const args = this.args.map((arg) => arg.calc(context));
@@ -53,19 +62,23 @@ class FunctionCall implements Expression {
   }
 }
 
-class Negation implements Expression {
-  constructor(private expr: Expression) {}
+class Negation extends Expression {
+  constructor(private expr: Expression) {
+    super();
+  }
   calc(context: Context) {
     return !this.expr.calc(context);
   }
 }
 
-class Math implements Expression {
+class Math extends Expression {
   constructor(
     private operator: string,
     private leftOp: Expression,
     private rightOp: Expression
-  ) {}
+  ) {
+    super();
+  }
   calc(context: Context) {
     const leftResult = this.leftOp.calc(context);
     const rightResult = this.rightOp.calc(context);
@@ -84,12 +97,14 @@ class Math implements Expression {
   }
 }
 
-class Logic implements Expression {
+class Logic extends Expression {
   constructor(
     private operator: string,
     private leftOp: Expression,
     private rightOp: Expression
-  ) {}
+  ) {
+    super();
+  }
   calc(context: Context) {
     const leftResult = this.leftOp.calc(context);
 
@@ -125,12 +140,14 @@ class Logic implements Expression {
   }
 }
 
-class Ternary implements Expression {
+class Ternary extends Expression {
   constructor(
     private condition: Expression,
     private trueExpr: Expression,
     private falseExpr: Expression
-  ) {}
+  ) {
+    super();
+  }
   calc(context: Context) {
     const conditionResult = this.condition.calc(context);
 
@@ -346,4 +363,28 @@ export function replaceWithParsedExpressions(
   });
 
   return evalText;
+}
+
+export function recursivelyCalculateExpressions(
+  context: Context,
+  input: any
+): any {
+  if (input instanceof Expression) {
+    return input.calc(context);
+  }
+
+  if (Array.isArray(input)) {
+    return input.map((val) => recursivelyCalculateExpressions(context, val));
+  }
+
+  if (isPlainObject(input)) {
+    return Object.fromEntries(
+      Object.entries(input).map(([key, val]) => [
+        key,
+        recursivelyCalculateExpressions(context, val),
+      ])
+    );
+  }
+
+  return input;
 }
