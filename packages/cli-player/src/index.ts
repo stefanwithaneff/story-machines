@@ -134,8 +134,8 @@ function getEmptyContext(input?: Input): Context {
 
 async function run() {
   const runtime = new StoryMachineRuntime();
-  runtime.registerMachines(PassageElements);
-  runtime.registerMachines(ChoiceElements);
+  runtime.registerElements(PassageElements);
+  runtime.registerElements(ChoiceElements);
   const xmlString = fs.readFileSync(path.resolve(process.cwd(), xmlFilename), {
     encoding: "utf8",
   });
