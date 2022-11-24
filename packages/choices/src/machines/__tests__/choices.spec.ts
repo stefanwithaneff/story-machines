@@ -4,20 +4,20 @@ import { ChoiceTestPlayer } from "../../utils/choice-test-player";
 import { ChoiceInput } from "../../types";
 
 const runtime = new StoryMachineRuntime();
-runtime.registerMachines(ChoiceElements);
+runtime.registerElements(ChoiceElements);
 
 describe("Choice machines", () => {
   it("adds a set of choices to the machine output", () => {
     const story = `
       <Choices>
         <Choice id="choice1">
-          <ChoiceText>Choice 1</ChoiceText>
+          <Text>Choice 1</Text>
         </Choice>
         <Choice id="choice2">
-          <ChoiceText>Choice 2</ChoiceText>
-          <ChoiceMetadata>
-            <NestedValue key="meta">1234</NestedValue>
-          </ChoiceMetadata>
+          <Text>Choice 2</Text>
+          <Metadata>
+            <Value key="meta">1234</Value>
+          </Metadata>
         </Choice>
       </Choices>
     `;
@@ -33,13 +33,13 @@ describe("Choice machines", () => {
     const story = `
       <Choices>
         <Choice id="choice1">
-          <ChoiceText>Choice 1</ChoiceText>
+          <Text>Choice 1</Text>
         </Choice>
         <Choice id="choice2">
-          <ChoiceText>Choice 2</ChoiceText>
-          <ChoiceMetadata>
-            <NestedValue key="meta">1234</NestedValue>
-          </ChoiceMetadata>
+          <Text>Choice 2</Text>
+          <Metadata>
+            <Value key="meta">1234</Value>
+          </Metadata>
         </Choice>
       </Choices>
     `;
@@ -58,17 +58,17 @@ describe("Choice machines", () => {
     const story = `
       <Choices>
         <Choice id="choice1">
-          <ChoiceText>Choice 1</ChoiceText>
+          <Text>Choice 1</Text>
         </Choice>
         <Choice id="choice2">
-          <ChoiceText>Choice 2</ChoiceText>
+          <Text>Choice 2</Text>
           <Choices>
             <Choice id="choice2a">
-              <ChoiceText>Choice 2a</ChoiceText>
+              <Text>Choice 2a</Text>
               <SetGlobalContext key="foo">"bar"</SetGlobalContext>
             </Choice>
             <Choice id="choice2b">
-              <ChoiceText>Choice 2b</ChoiceText>
+              <Text>Choice 2b</Text>
           </Choices>
         </Choice>
       </Choices>
@@ -88,13 +88,13 @@ describe("Choice machines", () => {
     const story = `
       <Choices>
         <Choice id="choice1">
-          <ChoiceText>Choice 1</ChoiceText>
+          <Text>Choice 1</Text>
         </Choice>
         <Choice id="choice2">
-          <ChoiceText>Choice 2</ChoiceText>
-          <ChoiceMetadata>
-            <NestedValue key="meta">1234</NestedValue>
-          </ChoiceMetadata>
+          <Text>Choice 2</Text>
+          <Metadata>
+            <Value key="meta">1234</Value>
+          </Metadata>
         </Choice>
       </Choices>
     `;
@@ -112,14 +112,14 @@ describe("Choice machines", () => {
     const story = `
       <Choices>
         <Choice id="choice1">
-          <ChoiceText>Choice 1</ChoiceText>
+          <Text>Choice 1</Text>
         </Choice>
         <ChoiceGroup id="choice2">
           <Choice id="subChoice1">
-            <ChoiceText>SubChoice 1</ChoiceText>
+            <Text>SubChoice 1</Text>
           </Choice>
           <Choice id="subChoice2">
-            <ChoiceText>SubChoice 2</ChoiceText>
+            <Text>SubChoice 2</Text>
           </Choice>
           <Wait />
           <SetGlobalContext key="foo">"bar"</SetGlobalContext>
@@ -145,17 +145,17 @@ describe("Choice machines", () => {
     const story = `
       <Choices id="choices">
         <Choice id="choice1">
-          <ChoiceText>Choice 1</ChoiceText>
+          <Text>Choice 1</Text>
         </Choice>
         <Choice id="choice2">
-          <ChoiceText>Choice 2</ChoiceText>
+          <Text>Choice 2</Text>
           <Choices id="nestedChoices">
             <Choice id="choice2a">
-              <ChoiceText>Choice 2a</ChoiceText>
+              <Text>Choice 2a</Text>
               <SetGlobalContext key="foo">"bar"</SetGlobalContext>
             </Choice>
             <Choice id="choice2b">
-              <ChoiceText>Choice 2b</ChoiceText>
+              <Text>Choice 2b</Text>
             </Choice>
           </Choices>
         </Choice>
@@ -187,17 +187,17 @@ describe("Choice machines", () => {
     const story = `
       <Choices id="choices">
         <Choice id="choice1">
-          <ChoiceText>Choice 1</ChoiceText>
+          <Text>Choice 1</Text>
         </Choice>
         <Choice id="choice2">
-          <ChoiceText>Choice 2</ChoiceText>
+          <Text>Choice 2</Text>
           <Choices id="nestedChoices">
             <Choice id="choice2a">
-              <ChoiceText>Choice 2a</ChoiceText>
+              <Text>Choice 2a</Text>
               <SetGlobalContext key="foo">"bar"</SetGlobalContext>
             </Choice>
             <Choice id="choice2b">
-              <ChoiceText>Choice 2b</ChoiceText>
+              <Text>Choice 2b</Text>
             </Choice>
           </Choices>
         </Choice>
@@ -210,25 +210,25 @@ describe("Choice machines", () => {
     const updatedStory = `
       <Choices id="choices">
         <Choice id="choice1">
-          <ChoiceText>Choice 1</ChoiceText>
+          <Text>Choice 1</Text>
         </Choice>
         <Choice id="choice2">
-          <ChoiceText>Choice 2</ChoiceText>
+          <Text>Choice 2</Text>
           <Choices id="nestedChoices">
             <Choice id="choice2a">
-              <ChoiceText>Choice 2a</ChoiceText>
+              <Text>Choice 2a</Text>
               <SetGlobalContext key="foo">"bar"</SetGlobalContext>
             </Choice>
             <Choice id="choice2b">
-              <ChoiceText>Choice 2b</ChoiceText>
+              <Text>Choice 2b</Text>
             </Choice>
             <Choice id="choice2c">
-              <ChoiceText>Choice 2c</ChoiceText>
+              <Text>Choice 2c</Text>
             </Choice>
           </Choices>
         </Choice>
         <Choice id="choice3">
-          <ChoiceText>Choice 3</ChoiceText>
+          <Text>Choice 3</Text>
         </Choice>
       </Choices>
     `;

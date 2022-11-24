@@ -7,13 +7,16 @@ import {
   handleEffects,
   StoryMachine,
   StoryMachineAttributes,
-  StoryMachineCompiler,
   getFromContext,
   ProcessorMachine,
   ImmediateFallback,
   Fallback,
   Sequence,
   isOfType,
+  StaticImplements,
+  StoryMachineClass,
+  StoryMachineRuntime,
+  ElementTree,
 } from "@story-machines/core";
 import { CHOICE, CHOSEN_ID } from "./constants";
 import {
@@ -27,6 +30,7 @@ interface ChoiceGroupAttributes extends StoryMachineAttributes {
   nodes: StoryMachine[];
 }
 
+@StaticImplements<StoryMachineClass>()
 export class ChoiceGroup extends ProcessorMachine<ChoiceGroupAttributes> {
   private handlers: HandlerMap = {
     [MAKE_CHOICE]: (_, effect: Effect) => {
@@ -37,6 +41,15 @@ export class ChoiceGroup extends ProcessorMachine<ChoiceGroupAttributes> {
       return [];
     },
   };
+
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { children } = runtime.compileChildElements(tree.elements);
+    const choices = children.filter((child) => isOfType(child, CHOICE));
+    const nodes = children.filter((child) => !isOfType(child, CHOICE));
+
+    return new ChoiceGroup({ ...tree.attributes, choices, nodes });
+  }
+
   protected createProcessor() {
     const { choices, nodes } = this.attrs;
     return new Sequence({
@@ -60,13 +73,3 @@ export class ChoiceGroup extends ProcessorMachine<ChoiceGroupAttributes> {
     return result;
   }
 }
-
-export const ChoiceGroupCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const children = runtime.compileChildElements(tree.elements);
-    const choices = children.filter((child) => isOfType(child, CHOICE));
-    const nodes = children.filter((child) => !isOfType(child, CHOICE));
-
-    return new ChoiceGroup({ ...tree.attributes, choices, nodes });
-  },
-};
