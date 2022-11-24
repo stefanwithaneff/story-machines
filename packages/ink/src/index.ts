@@ -1,17 +1,21 @@
-import { StoryMachineCompiler } from "@story-machines/core";
+import { Compilable } from "@story-machines/core";
 import {
-  InkCompiler,
-  InkExternalFuncCompiler,
-  InkStoryCompiler,
-  InkSyncStateCompiler,
+  InkExternalFunc,
+  InkExternalFuncs,
+  InkMachine,
+  InkPreprocessors,
+  InkPostprocessors,
+  InkState,
 } from "./machines";
 
 export * from "./machines";
 export * from "./utils/effect-parser";
 
-export const InkElements: Record<string, StoryMachineCompiler> = {
-  Ink: InkCompiler,
-  InkExternalFunc: InkExternalFuncCompiler,
-  InkStory: InkStoryCompiler,
-  InkSyncState: InkSyncStateCompiler,
+export const InkElements: Record<string, Compilable> = {
+  Ink: InkMachine,
+  InkExternalFunc,
+  InkExternalFuncs,
+  InkPreprocessors,
+  InkPostprocessors,
+  InkState,
 };

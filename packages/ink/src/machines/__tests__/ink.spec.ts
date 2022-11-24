@@ -3,20 +3,20 @@ import { SaveData, StoryMachineRuntime } from "@story-machines/core";
 import { InkElements } from "../..";
 
 const runtime = new StoryMachineRuntime();
-runtime.registerMachines(InkElements);
+runtime.registerElements(InkElements);
 
 describe("Ink machines", () => {
   it("compiles and runs an Ink story", () => {
     const story = `
       <Ink id="ink">
-        <InkStory>
+        <Text>
           # @effect TEST_EFFECT key:"value"
           You are at a fork in the road. Which way do you go?
           + Go left
             You continue walking along the left path.
             -> END
           + Go right 
-        </InkStory>
+        </Text>
       </Ink>
     `;
 
@@ -60,7 +60,7 @@ describe("Ink machines", () => {
   it("loads from a previous save", () => {
     const story = `
       <Ink id="ink">
-        <InkStory id="story">
+        <Text>
           You are at a fork in the road. Which way do you go?
           + Go left
             You continue walking along the left path.
@@ -74,7 +74,7 @@ describe("Ink machines", () => {
     const saveData: SaveData = {};
     player.tick().chooseNthChoice(0).save(saveData);
     expect(saveData).toEqual({
-      story: { json: expect.any(String) },
+      ink: { json: expect.any(String) },
       __CHOICE_TEST_PLAYER_SAVE_DATA__: expect.any(Object),
     });
     player.init().load(saveData).tick();
@@ -92,16 +92,18 @@ describe("Ink machines", () => {
   it("syncs state with external values", () => {
     const story = `
       <StatefuL>
-        <InitState>
-          <NestedValue key="playerName">"Test Player"</NestedValue>
-        </InitState>
+        <InitialState>
+          <Value key="playerName">"Test Player"</Value>
+        </InitialState>
         <Ink id="ink">
-          <InkSyncState key="name">$state["playerName"]</InkSyncState>
-          <InkStory id="story">
+          <InkState>
+            <Value key="name">$state["playerName"]</Value>
+          </InkState>
+          <Text>
             VAR name = "Sam"
             Hello, {name}! Goodbye!
             -> END
-          </InkStory>
+          </Text>
         </Ink>
       </Stateful>
     `;
@@ -120,14 +122,16 @@ describe("Ink machines", () => {
   it("binds externally defined functions to the Ink story", () => {
     const story = `
       <Ink id="ink">
-        <InkExternalFunc name="exp">$ctx["exp"]</InkExternalFunc>
-        <InkExternalFunc name="printList" isGeneral="true">$ctx["printList"]</InkExternalFunc>
-        <InkStory id="story">
+        <InkExternalFuncs>
+          <InkExternalFunc name="exp">$ctx["exp"]</InkExternalFunc>
+          <InkExternalFunc name="printList" isGeneral="true">$ctx["printList"]</InkExternalFunc>
+        </InkExternalFuncs>
+        <Text>
           EXTERNAL exp(base, exponent)
           EXTERNAL printList(list)
           Math time! 2 ^ 3 equals {exp(2, 3)}
           -> END
-        </InkStory>
+        </Text>
       </Ink>
     `;
 
@@ -156,12 +160,12 @@ describe("Ink machines", () => {
   it("does not parse an effect tag with a syntax error", () => {
     const story = `
       <Ink id="ink">
-        <InkStory id="story">
+        <Text>
           # @effect BAD_EFFECT badKey:badValue
           # @effect TEST_EFFECT key:"value"
           Test text, please ignore.
           -> END
-        </InkStory>
+        </Text>
       </Ink>
     `;
 

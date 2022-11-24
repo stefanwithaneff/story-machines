@@ -1,32 +1,30 @@
-import { Story } from "inkjs/engine/Story";
 import {
   Context,
   Effect,
   StoryMachine,
   StoryMachineAttributes,
-  StoryMachineCompiler,
   ProcessorMachine,
   Sequence,
   Scoped,
   Fallback,
   createConditionalMachine,
   createStoryMachine,
-  getFromContext,
-  isOfType,
   SetContextInternal,
   addEffectToOutput,
+  StaticImplements,
+  StoryMachineClass,
+  StoryMachineRuntime,
+  ElementTree,
+  Expression,
+  recursivelyCalculateExpressions,
+  SaveData,
 } from "@story-machines/core";
 import { addChoiceToOutput } from "@story-machines/choices";
 import { addPassageToOutput } from "@story-machines/passages";
+import * as Ink from "inkjs";
+import { Story } from "inkjs/engine/Story";
 import { EffectParser } from "../utils/effect-parser";
-import {
-  InkExternalFunction,
-  INK_EXTERNAL_FUNCS,
-  INK_INITIALIZER,
-  INK_POSTPROCESSER,
-  INK_PREPROCESSER,
-  INK_STORY,
-} from "./constants";
+import { InkExternalFunction, INK_STORY } from "./constants";
 
 function parseEffectFromInkTag(tag: string): Effect | null {
   const result = EffectParser.parse(tag);
@@ -58,19 +56,59 @@ function getEffectsFromInkTags(tags: Story["currentTags"]): Effect[] {
 }
 
 interface InkMachineAttributes extends StoryMachineAttributes {
-  initializers: StoryMachine[];
-  preprocessors: StoryMachine[];
-  postprocessors: StoryMachine[];
+  storyText: string;
+  inkState: Record<string, any>;
+  inkExternalFuncs: Expression[];
+  inkPreprocessors: StoryMachine[];
+  inkPostprocessors: StoryMachine[];
 }
 
+@StaticImplements<StoryMachineClass>()
 export class InkMachine extends ProcessorMachine<InkMachineAttributes> {
-  private story: Story | undefined;
   private initialized: boolean = false;
+  private story: Story;
+
+  static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
+    const { data } = runtime.compileChildElements(tree.elements);
+
+    const storyText = data.text ?? "";
+    const inkState = data.inkState ?? {};
+    const inkExternalFuncs = data.inkExternalFuncs ?? [];
+    const inkPreprocessors = data.inkPreprocessors ?? [];
+    const inkPostprocessors = data.inkPostprocessors ?? [];
+
+    return new InkMachine({
+      ...tree.attributes,
+      storyText,
+      inkState,
+      inkExternalFuncs,
+      inkPreprocessors,
+      inkPostprocessors,
+    });
+  }
+
+  constructor(attrs: InkMachineAttributes) {
+    super(attrs);
+    this.story = new Ink.Compiler(this.attrs.storyText ?? "").Compile();
+  }
 
   init() {
     super.init();
     this.initialized = false;
-    this.story = undefined;
+    this.story = new Ink.Compiler(this.attrs.storyText ?? "").Compile();
+  }
+
+  save(saveData: SaveData) {
+    saveData[this.id] = {
+      json: this.story.state.toJson(),
+    };
+  }
+
+  load(saveData: SaveData) {
+    const json = saveData[this.id]?.json;
+    if (json) {
+      this.story.state.LoadJson(json);
+    }
   }
 
   private createStoryInitializerProcessor() {
@@ -79,20 +117,18 @@ export class InkMachine extends ProcessorMachine<InkMachineAttributes> {
         createConditionalMachine(() => this.initialized),
         new Sequence({
           children: [
-            ...this.attrs.initializers,
             createStoryMachine((context) => {
-              const story: Story = getFromContext(context, INK_STORY);
-
-              this.story = story;
-
               const externalFuncs: InkExternalFunction[] =
-                getFromContext(context, INK_EXTERNAL_FUNCS) ?? [];
+                recursivelyCalculateExpressions(
+                  context,
+                  this.attrs.inkExternalFuncs
+                );
 
               for (const { fn, name, isGeneral } of externalFuncs) {
                 if (isGeneral) {
-                  story.BindExternalFunctionGeneral(name, fn, false);
+                  this.story.BindExternalFunctionGeneral(name, fn, false);
                 } else {
-                  story.BindExternalFunction(name, fn, false);
+                  this.story.BindExternalFunction(name, fn, false);
                 }
               }
               this.initialized = true;
@@ -132,10 +168,21 @@ export class InkMachine extends ProcessorMachine<InkMachineAttributes> {
     return new Sequence({
       children: [
         new SetContextInternal({ key: INK_STORY, valFn: () => this.story }),
-        ...this.attrs.preprocessors,
+        ...this.attrs.inkPreprocessors,
         createStoryMachine((context) => {
           const { input } = context;
 
+          // Sync with external state
+          const externalState = recursivelyCalculateExpressions(
+            context,
+            this.attrs.inkState
+          );
+
+          for (const [key, val] of Object.entries(externalState)) {
+            this.story.state.variablesState.$(key, val);
+          }
+
+          // Advance story with given input
           if (
             input &&
             input.type === "Choice" &&
@@ -145,6 +192,7 @@ export class InkMachine extends ProcessorMachine<InkMachineAttributes> {
             this.story?.ChooseChoiceIndex(Number(choiceId));
           }
 
+          // Get story output
           if (this.story?.canContinue) {
             this.story.Continue();
             this.buildOutput(context);
@@ -153,7 +201,7 @@ export class InkMachine extends ProcessorMachine<InkMachineAttributes> {
 
           return { status: "Completed" };
         }),
-        ...this.attrs.postprocessors,
+        ...this.attrs.inkPostprocessors,
       ],
     });
   }
@@ -169,25 +217,3 @@ export class InkMachine extends ProcessorMachine<InkMachineAttributes> {
     });
   }
 }
-
-export const InkCompiler: StoryMachineCompiler = {
-  compile(runtime, tree) {
-    const children = runtime.compileChildElements(tree.elements);
-    const initializers = children.filter((child) =>
-      isOfType(child, INK_INITIALIZER)
-    );
-    const preprocessors = children.filter((child) =>
-      isOfType(child, INK_PREPROCESSER)
-    );
-    const postprocessors = children.filter((child) =>
-      isOfType(child, INK_POSTPROCESSER)
-    );
-
-    return new InkMachine({
-      ...tree.attributes,
-      initializers,
-      preprocessors,
-      postprocessors,
-    });
-  },
-};
