@@ -10,7 +10,7 @@ const staticMixin = {
   save() {},
   load() {},
   getData() {
-    return staticMixin.attrs;
+    return {};
   },
 };
 

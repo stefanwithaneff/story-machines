@@ -5,7 +5,11 @@ import { Context, Result, ElementTree, SaveData } from "../types";
 export interface StoryMachineAttributes {
   id?: string;
   textContent?: string;
+  metadata?: Record<string, any>;
 }
+
+export type StoryMachineMetadata<A extends StoryMachineAttributes> =
+  A["metadata"];
 
 export abstract class StoryMachine<
   A extends StoryMachineAttributes = StoryMachineAttributes
@@ -23,8 +27,9 @@ export abstract class StoryMachine<
   init(): void {}
   save(saveData: SaveData): void {}
   load(saveData: SaveData): void {}
-  getData(): A {
-    return this.attrs;
+  getData(): StoryMachineMetadata<A> {
+    // Deconstruct metadata into a new object to avoid allowing edits to original attributes object
+    return { ...this.attrs.metadata };
   }
 }
 
