@@ -39,7 +39,7 @@ export function useStory(params: StoryParams): StoryOutput {
   const runtime = useMemo(() => {
     const rt = new StoryMachineRuntime();
     if (params.additionalMachines) {
-      rt.registerMachines(params.additionalMachines);
+      rt.registerElements(params.additionalMachines);
     }
     return rt;
   }, []);
@@ -52,7 +52,9 @@ export function useStory(params: StoryParams): StoryOutput {
   useEffect(() => {
     if (!storyMachine && status === "Ready") {
       const machine = runtime.compileXML(stories[params.main]);
-      setStoryMachine(machine);
+      if (machine instanceof StoryMachine) {
+        setStoryMachine(machine);
+      }
     }
   }, [storyMachine, setStoryMachine, status, runtime, stories, params.main]);
 
