@@ -43,8 +43,12 @@ function displayOutput(result: Output) {
     }
     const chunks = [];
     let chunk = "";
-    for (let i = 0; i < passage.text.length; i++) {
-      chunk += passage.text[i];
+    const cleanedPassage = passage.text
+      .split("\n")
+      .map((s) => s.trim())
+      .join(" ");
+    for (let i = 0; i < cleanedPassage.length; i++) {
+      chunk += cleanedPassage[i];
       if (chunk.length === 80) {
         if (chunk[79] === " ") {
           chunks.push(chunk.slice(0, 79));
@@ -62,6 +66,7 @@ function displayOutput(result: Output) {
     for (const chunk of chunks) {
       console.log(chunk);
     }
+    console.log(""); // Add a new line after the last chunk of text
   });
 
   // Print choices
@@ -73,6 +78,7 @@ function displayOutput(result: Output) {
       }
       console.log(`${index + 1}. ${choice.text}`);
     });
+    console.log(""); // Add a new line after the choices
   }
 }
 
