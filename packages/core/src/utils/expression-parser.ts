@@ -340,6 +340,23 @@ export function evalAndReplace(context: Context, text: string) {
   );
 }
 
+export class TextWithExpressions {
+  private readonly text: string;
+  private readonly textExpressions: Expression[];
+  constructor(text: string) {
+    this.text = text;
+    this.textExpressions = parseAll(text);
+  }
+
+  evalText(context: Context) {
+    return replaceWithParsedExpressions(
+      context,
+      this.textExpressions,
+      this.text
+    );
+  }
+}
+
 export function parseAll(text?: string): Expression[] {
   if (!text) {
     return [];

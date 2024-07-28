@@ -7,6 +7,7 @@ import {
   parseAll,
   recursivelyCalculateExpressions,
   replaceWithParsedExpressions,
+  TextWithExpressions,
 } from "../expression-parser";
 
 interface Test {
@@ -329,6 +330,21 @@ describe("Expression Parser", () => {
       };
 
       expect(replaceWithParsedExpressions(context, expressions, str)).toEqual(
+        "Hello, Test! You have 3 items"
+      );
+    });
+    it("provides interpolation functionality via an accessible class interface", () => {
+      const str =
+        'Hello, {{$ctx["name"]}}! You have {{$ctx["itemCount"]}} {{($ctx["itemCount"] eq 1) ? "item" : "items" }}';
+
+      const textWithExpressions = new TextWithExpressions(str);
+      const context = {
+        ...createEmptyContext(),
+        name: "Test",
+        itemCount: 3,
+      };
+
+      expect(textWithExpressions.evalText(context)).toEqual(
         "Hello, Test! You have 3 items"
       );
     });
