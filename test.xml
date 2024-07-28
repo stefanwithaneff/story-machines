@@ -1,43 +1,41 @@
 <Sequence>
   <Passage>
-    <PassageText>
-      The Story Machine framework is designed to be a powerful, extensible
-      framework for declaring narrative structures that can be used in games.
-      The framework is based on a common AI abstraction: the Behavior Tree.
-    </PassageText>
+    The Story Machine framework is designed to be a powerful, extensible
+    framework for declaring narrative structures that can be used in games.
+    The framework is based on a common AI abstraction: the Behavior Tree.
     <Choices>
       <Choice>
-        <ChoiceText>Learn more about Behavior Trees</ChoiceText>
+        Learn more about Behavior Trees
         <Sequence>
-          <Text>
+          <Passage>
             In relatively simple terms, a Behavior Tree is a tree graph
             structure made up of individual data points called nodes. Each node
             may have zero or more children, which in turn may also have
             children.
-          </Text>
-          <Text>
+          </Passage>
+          <Passage>
             Nodes without children are called "Leaf Nodes" and represent
             commands that are run when the runtime reaches that node while
             traversing the tree.
-          </Text>
-          <Text>
+          </Passage>
+          <Passage>
             Nodes with children have different names based on how many children
             they expect. "Decorator Nodes" only support a single child node;
             whereas "Composite Nodes" support one or more children. Each
             Decorator and Composite node contains the instructions for which
             children should be run at any given time.
-          </Text>
-          <Text>
+          </Passage>
+          <Passage>
             A `&lt;Sequence&gt;` Composite Node, for example, runs each child node in order
             until one of its children fails to execute OR it successfully
             executes every child node.
-          </Text>
-          <Text>
+          </Passage>
+          <Passage>
             Meanwhile, a `&lt;Fallback&gt; Node runs each child node in order
             until one of its children succeeds in execution OR it fails to
             execute every child node.
-          </Text>
-          <Text>
+          </Passage>
+          <Passage>
             Behavior Trees handle timing in discrete steps called "ticks". A
             tick does not have any explicit meaning. It could be an explicit
             interval of time (e.g. every 16ms). It could also be an event-driven
@@ -45,82 +43,69 @@
             single tick of a Behavior Tree results in traversal of the tree
             until the root node completes its execution with one of three
             statuses: Success, Failure, or Running.
-          </Text>
-          <Text>
+          </Passage>
+          <Passage>
             These relatively simple abstractions can be combined to produce
             highly sophisticated sets of behavior. Thanks to the recursive
             nature of tree structures, they also lend themselves to modularity
             which makes them easy to share between projects/programs.
-          </Text>
+          </Passage>
           <ImmediateSequence>
-            <Text>
+            <Passage>
               If you would like to learn more about Behavior Trees, there are a number of great resources for this:
-            </Text>
-            <Text>
+            </Passage>
+            <Passage>
               - https://www.gamedeveloper.com/programming/behavior-trees-for-ai-how-they-work
-            </Text>
-            <Text>
+            </Passage>
+            <Passage>
               - https://robohub.org/introduction-to-behavior-trees/
-            </Text>
+            </Passage>
           </ImmediateSequence>
         </Sequence>
       </Choice>
-      <Choice>
-        <ChoiceText>I already know about Behavior Trees</ChoiceText>
-      </Choice>
+      <Choice>I already know about Behavior Trees</Choice>
     </Choices>
   </Passage>
-  <Text>
+  <Passage>
     The Story Machine framework provides a set of pre-defined behavior trees
     (referred to here as "elements") that can be used to construct complex
     graphs for narrative games.
-  </Text>
-  <Text>
+  </Passage>
+  <Passage>
     The `&lt;Passage&gt;` element is the container for a single decision point.
-    Adding a `&lt;PassageText&gt;` element with text inside will add that text
-    to the output, which a presentation layer can display.
-  </Text>
-  <Text>
+    Any standalone text in the Passage element will be added to the output, which
+    a presentation layer can display.
+  </Passage>
+  <Passage>
     The `&lt;Choices&gt;` element can be added to a Passage to provide a list of
     choices that can be displayed by a presentation layer.
-  </Text>
-  <Text>
+  </Passage>
+  <Passage>
     Inside of a Choices element, you can add a &lt;Choice&gt; element that
     represents an individual choice. Inside of the Choice element, you can add
-    the text for the choice using the `&lt;ChoiceText&gt;` element.
-  </Text>
-  <Text>
+    the text for the choice.
+  </Passage>
+  <Passage>
     If you include an element that isn't related to choices as a child of a
     Choice element (like a Passage element), the tree will run that child
     element if and only if the choice is picked by the player.
-  </Text>
+  </Passage>
   <Passage>
-    <PassageText>
-      For example, selecting one of the choices provided will result in the running of its child nodes:
-    </PassageText>
+    For example, selecting one of the choices provided will result in the running of its child nodes:
     <Choices>
       <Choice>
-        <ChoiceText>
-          Pick me to see something basic
-        </ChoiceText>
-        <Text>Hello, world!</Text>
+        Pick me to see something basic
+        <Passage>Hello, world!</Passage>
       </Choice>
       <Choice>
-        <ChoiceText>
-          Pick me to learn the secret of life, the universe, and everything
-        </ChoiceText>
-        <Text>42</Text>
+        Pick me to learn the secret of life, the universe, and everything
+        <Passage>42</Passage>
       </Choice>
     </Choices>
   </Passage>
-  <Text>
-    The `&lt;Text&gt;` element is equivalent to the Passage-PassageText
-    combination. It was added to make it easier to write text where Choices are
-    not needed.
-  </Text>
-  <Text>
+  <Passage>
     By mixing and matching these abstractions (and maybe building some of your
     own), it is possible to construct highly complex narrative structures in a
     relatively simple way.
-  </Text>
+  </Passage>
 </Sequence>

@@ -10,11 +10,10 @@ import {
   StoryMachineClass,
   StoryMachineRuntime,
   ElementTree,
-  Expression,
   createStoryMachine,
   Context,
-  replaceWithParsedExpressions,
   recursivelyCalculateExpressions,
+  TextWithExpressions,
 } from "@story-machines/core";
 import { isEmpty } from "lodash";
 import { Passage } from "../types";
@@ -22,8 +21,7 @@ import { addPassageToOutput } from "../utils/add-passage-to-output";
 
 interface PassageAttributes extends StoryMachineAttributes {
   metadata: Record<string, any>;
-  text: string;
-  textExpressions: Expression[];
+  text: TextWithExpressions;
   children: StoryMachine[];
 }
 
@@ -33,15 +31,15 @@ export class PassageMachine extends ProcessorMachine<PassageAttributes> {
     const { children, data } = runtime.compileChildElements(tree.elements);
 
     const metadata = data.metadata ?? {};
-    const text = data.text ?? "";
-    const textExpressions = data.textExpressions ?? [];
+    const text = new TextWithExpressions(
+      data.text ?? tree.attributes.textContent ?? ""
+    );
 
     return new PassageMachine({
       ...tree.attributes,
       children,
       metadata,
       text,
-      textExpressions,
     });
   }
 
@@ -52,11 +50,7 @@ export class PassageMachine extends ProcessorMachine<PassageAttributes> {
           child: new Once({
             id: this.generateId("once"),
             child: createStoryMachine((context: Context) => {
-              const evalText = replaceWithParsedExpressions(
-                context,
-                this.attrs.textExpressions,
-                this.attrs.text
-              );
+              const evalText = this.attrs.text.evalText(context);
               const passage: Passage = {
                 text: evalText,
                 metadata: recursivelyCalculateExpressions(
