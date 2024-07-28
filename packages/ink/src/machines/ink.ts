@@ -71,7 +71,7 @@ export class InkMachine extends ProcessorMachine<InkMachineAttributes> {
   static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
     const { data } = runtime.compileChildElements(tree.elements);
 
-    const storyText = data.text ?? "";
+    const storyText = data.text ?? tree.attributes.textContent ?? "";
     const inkState = data.inkState ?? {};
     const inkExternalFuncs = data.inkExternalFuncs ?? [];
     const inkPreprocessors = data.inkPreprocessors ?? [];

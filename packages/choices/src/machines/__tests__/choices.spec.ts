@@ -29,6 +29,28 @@ describe("Choice machines", () => {
       { id: "choice2", text: "Choice 2", metadata: { meta: 1234 } },
     ]);
   });
+  it("supports text display using the Choice tag's text content", () => {
+    const story = `
+      <Choices>
+        <Choice id="choice1">
+          Choice 1
+        </Choice>
+        <Choice id="choice2">
+          Choice 2
+          <Metadata>
+            <Value key="meta">1234</Value>
+          </Metadata>
+        </Choice>
+      </Choices>
+    `;
+    const player = new ChoiceTestPlayer(runtime, story);
+    player.tick();
+    expect(player.currentStatus).toBe("Running");
+    expect(player.currentOutput?.choices).toEqual([
+      { id: "choice1", text: "Choice 1", metadata: {} },
+      { id: "choice2", text: "Choice 2", metadata: { meta: 1234 } },
+    ]);
+  });
   it("runs until a matching input has been provided", () => {
     const story = `
       <Choices>

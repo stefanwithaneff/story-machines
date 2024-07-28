@@ -28,11 +28,32 @@ describe("Passage", () => {
     expect(player.currentStatus).toEqual("Completed");
   });
 
-  it("does not output a passage if only an empty PassageText is provided", () => {
+  it("outputs the text even if it is provided as a direct child of Passage", () => {
     const story = `
       <Passage>
-        <Text></Text>
+        <Metadata>
+          <Value key="testNum">7</Value>
+          <Value key="testStr">"hello"</Value>
+        </Metadata>
+        test
       </Passage>
+    `;
+
+    const player = new TestPlayer(runtime, story);
+    player.tick();
+
+    expect(player.currentStatus).toEqual("Running");
+    expect(player.currentOutput?.passages).toEqual([
+      { text: "test", metadata: { testNum: 7, testStr: "hello" } },
+    ]);
+
+    player.tick();
+    expect(player.currentStatus).toEqual("Completed");
+  });
+
+  it("does not output a passage if no text is provided", () => {
+    const story = `
+      <Passage></Passage>
     `;
 
     const player = new TestPlayer(runtime, story);
@@ -68,52 +89,11 @@ describe("Passage", () => {
     expect(player.currentStatus).toEqual("Completed");
   });
 
-  it("can display text in a simpler form using the Text element", () => {
-    const story = `
-        <PassageText>test</PassageText>
-    `;
-
-    const player = new TestPlayer(runtime, story);
-    player.tick();
-
-    expect(player.currentStatus).toEqual("Running");
-    expect(player.currentOutput?.passages).toEqual([
-      { text: "test", metadata: {} },
-    ]);
-
-    player.tick();
-    expect(player.currentStatus).toEqual("Completed");
-  });
-  it("loads a save for the simplified Text form", () => {
-    const story = `
-        <PassageText id="text">test</PassageText>
-    `;
-
-    const player = new TestPlayer(runtime, story);
-    player.tick();
-
-    const saveData = {};
-    player.save(saveData);
-
-    expect(saveData).toEqual({
-      text_passage_wait: { hasRun: true },
-      text_passage_once: { status: "Completed" },
-    });
-
-    player.init().load(saveData).tick();
-
-    expect(player.currentStatus).toEqual("Completed");
-  });
-
   it("can add multiple passages at the same time", () => {
     const story = `
       <ImmediateSequence>
-        <Passage>
-          <PassageText>test1</PassageText>
-        </Passage>
-        <Passage>
-          <PassageText>test2</PassageText>
-        </Passage>
+        <Passage>test1</Passage>
+        <Passage>test2</Passage>
       </ImmediateSequence>
     `;
 

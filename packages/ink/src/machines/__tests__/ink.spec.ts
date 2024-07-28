@@ -176,4 +176,34 @@ describe("Ink machines", () => {
     ]);
     expect(player.currentStatus).toEqual("Running");
   });
+  it("parses a story from the text content of the Ink tag", () => {
+    const story = `
+      <Ink id="ink">
+        # @effect TEST_EFFECT key:"value"
+        You are at a fork in the road. Which way do you go?
+        + Go left
+          You continue walking along the left path.
+          -> END
+        + Go right 
+      </Ink>
+    `;
+
+    const player = new ChoiceTestPlayer(runtime, story);
+    player.tick();
+    expect(player.currentOutput).toEqual({
+      passages: [
+        {
+          text: expect.stringContaining(
+            "You are at a fork in the road. Which way do you go?"
+          ),
+          metadata: {},
+        },
+      ],
+      effects: [{ type: "TEST_EFFECT", payload: { key: "value" } }],
+      choices: [
+        { id: "ink#0", text: "Go left", metadata: {} },
+        { id: "ink#1", text: "Go right", metadata: {} },
+      ],
+    });
+  });
 });

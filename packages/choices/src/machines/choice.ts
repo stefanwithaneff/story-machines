@@ -20,6 +20,7 @@ import {
   replaceWithParsedExpressions,
   recursivelyCalculateExpressions,
   addEffectToOutput,
+  TextWithExpressions,
 } from "@story-machines/core";
 import { Choice } from "../types";
 import { addChoiceToOutput } from "../utils/add-choice-to-output";
@@ -29,8 +30,7 @@ import { createPresentChoiceEffect } from "./present-choice";
 
 interface ChoiceAttributes extends StoryMachineAttributes {
   metadata: Record<string, any>;
-  text: string;
-  textExpressions: Expression[];
+  text: TextWithExpressions;
   conditions: StoryMachine[];
   children: StoryMachine[];
 }
@@ -47,8 +47,9 @@ export class ChoiceMachine extends ProcessorMachine<ChoiceAttributes> {
 
     const nodes = children.filter((node) => !conditions.includes(node));
 
-    const text = data.text ?? "";
-    const textExpressions = data.textExpressions ?? [];
+    const text = new TextWithExpressions(
+      data.text ?? tree.attributes.textContent ?? ""
+    );
     const metadata = data.metadata ?? {};
 
     return new ChoiceMachine({
@@ -56,7 +57,6 @@ export class ChoiceMachine extends ProcessorMachine<ChoiceAttributes> {
       conditions,
       children: nodes,
       text,
-      textExpressions,
       metadata,
     });
   }
@@ -69,11 +69,7 @@ export class ChoiceMachine extends ProcessorMachine<ChoiceAttributes> {
           createStoryMachine((context: Context) => {
             const choice: Choice = {
               id: this.id,
-              text: replaceWithParsedExpressions(
-                context,
-                this.attrs.textExpressions,
-                this.attrs.text
-              ),
+              text: this.attrs.text.evalText(context),
               metadata: recursivelyCalculateExpressions(
                 context,
                 this.attrs.metadata
