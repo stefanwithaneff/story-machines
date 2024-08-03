@@ -28,9 +28,9 @@
   },
   "workspaces": [
     "packages/core",
-    "packages/ink",
     "packages/passages",
     "packages/choices",
+    "packages/ink",
     "packages/cli-player",
     "packages/web-player"
   ]
