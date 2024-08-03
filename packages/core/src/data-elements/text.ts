@@ -8,6 +8,6 @@ import { StaticImplements } from "../utils/static-implements";
 export class Text {
   static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
     const { textContent } = tree.attributes;
-    return { text: new TextWithExpressions(textContent ?? "") };
+    return { text: textContent ?? "" };
   }
 }

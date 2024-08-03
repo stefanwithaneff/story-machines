@@ -10,9 +10,16 @@ import {
   Context,
   Input,
   Effect,
+  isLoadFileEffect,
+  setFileOnContext,
 } from "@story-machines/core";
 import { ChoiceInput, Choice, ChoiceElements } from "@story-machines/choices";
 import { Passage, PassageElements } from "@story-machines/passages";
+
+interface RuntimeInfo {
+  entryPath: string;
+  rootDir: string;
+}
 
 const rl = readline.createInterface(process.stdin, process.stdout);
 const xmlFilename = process.argv[2];
@@ -88,10 +95,21 @@ function promptUser(prompt: string): Promise<string> {
   });
 }
 
+function readFile(src: string): string {
+  return fs.readFileSync(src, {
+    encoding: "utf8",
+  });
+}
+
 async function promptForChoice(
   result: Output
 ): Promise<ChoiceInput | undefined> {
   const hasChoices = result.choices.length > 0;
+  const hasContent = result.passages.length > 0;
+
+  if (!hasChoices && !hasContent) {
+    return undefined;
+  }
 
   const prompt = hasChoices
     ? "What do you want to do?\n"
@@ -138,13 +156,34 @@ function getEmptyContext(input?: Input): Context {
   };
 }
 
+async function handleEffects(
+  runtimeInfo: RuntimeInfo,
+  output: Output,
+  newCtx: Context
+) {
+  for (const effect of output.effects) {
+    if (isLoadFileEffect(effect)) {
+      const fileContents = readFile(
+        path.resolve(runtimeInfo.rootDir, effect.payload.src)
+      );
+      setFileOnContext(newCtx, effect.payload.src, fileContents);
+    }
+  }
+}
+
 async function run() {
   const runtime = new StoryMachineRuntime();
   runtime.registerElements(PassageElements);
   runtime.registerElements(ChoiceElements);
-  const xmlString = fs.readFileSync(path.resolve(process.cwd(), xmlFilename), {
+  const entryPath = path.resolve(process.cwd(), xmlFilename);
+  const xmlString = fs.readFileSync(entryPath, {
     encoding: "utf8",
   });
+
+  const runtimeInfo: RuntimeInfo = {
+    entryPath,
+    rootDir: path.resolve(entryPath, ".."),
+  };
 
   const machine = runtime.compileXML(xmlString);
   let context: Context = getEmptyContext();
@@ -152,9 +191,16 @@ async function run() {
 
   // Run empty context through machine with optional input
   do {
+    const newContext: Context = getEmptyContext();
+    // TODO: should handle effects run before or after displaying the output
+    // Or should effect handling just be part of displaying output?
+    await handleEffects(runtimeInfo, context.output, newContext);
     displayOutput(context.output);
+
     const input = await promptForChoice(context.output);
-    context = getEmptyContext(input);
+    newContext.input = input;
+
+    context = newContext;
     result = machine.process(context);
   } while (result.status === "Running");
 

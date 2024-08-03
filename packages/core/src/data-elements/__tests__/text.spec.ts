@@ -11,7 +11,7 @@ describe("Text", () => {
 
     const result = runtime.compileXML(xml);
 
-    expect(result).toEqual({ text: "This is a test.", textExpressions: [] });
+    expect(result).toEqual({ text: "This is a test." });
   });
   it("returns the parsed expressions from the text", () => {
     const xml = `
@@ -22,7 +22,6 @@ describe("Text", () => {
 
     expect(result).toEqual({
       text: 'Parsed expressions: {{ "expression 1" }} {{ "expression 2" }}',
-      textExpressions: [expect.any(Expression), expect.any(Expression)],
     });
   });
 });
