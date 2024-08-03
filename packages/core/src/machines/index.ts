@@ -4,6 +4,7 @@ export * from "./condition";
 export * from "./dev-log";
 export * from "./effects";
 export * from "./fallback";
+export * from "./file-loaders";
 export * from "./immediate-fallback";
 export * from "./immediate-sequence";
 export * from "./loop-til-terminated";
