@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/stefanwithaneff/story-machines#readme",
   "dependencies": {
-    "inkjs": "^2.1.0",
+    "inkjs": "~2.1.0",
     "parsimmon": "^1.18.1"
   }
 }

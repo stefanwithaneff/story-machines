@@ -1,6 +1,6 @@
-import fs from "fs";
-import path from "path";
-import readline from "readline";
+import * as fs from "fs";
+import * as path from "path";
+import * as readline from "readline";
 import { isEmpty } from "lodash";
 import {
   StoryMachineRuntime,
