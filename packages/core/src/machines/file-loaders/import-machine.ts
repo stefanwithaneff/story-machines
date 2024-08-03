@@ -1,13 +1,10 @@
-import { Context, ElementTree, Result } from "../../types";
-import { Expression, ExpressionParser } from "../../utils/expression-parser";
-import { updateContext } from "../../utils/scope";
+import { Context, ElementTree, Result, SaveData } from "../../types";
 import {
   StoryMachine,
   StoryMachineAttributes,
   StoryMachineClass,
 } from "../../base-classes";
 import { createDevErrorEffect } from "../effects";
-import { GLOBAL_FILES_CONTEXT_KEY } from "./constants";
 import { addEffectToOutput } from "../../utils/effects";
 import { StaticImplements } from "../../utils/static-implements";
 import { StoryMachineRuntime } from "../../runtime";
@@ -21,12 +18,30 @@ interface ImportMachineAttributes extends StoryMachineAttributes {
 
 @StaticImplements<StoryMachineClass>()
 export class ImportMachine extends StoryMachine<ImportMachineAttributes> {
-  private machineContents: string | undefined;
   private machine: StoryMachine | undefined;
+  private saveData: SaveData | undefined;
 
   static compile(runtime: StoryMachineRuntime, tree: ElementTree) {
     const { src } = tree.attributes;
     return new ImportMachine({ ...tree.attributes, src, runtime });
+  }
+
+  init(): void {
+    this.machine = undefined;
+    this.saveData = undefined;
+  }
+
+  save(saveData: SaveData): void {
+    if (this.machine) {
+      this.machine.save(saveData);
+    }
+  }
+
+  load(saveData: SaveData): void {
+    // Store the saveData on the class because the imported machine has not been compiled yet
+    // We could keep the machine contents in save data, but that makes it impossible to
+    // update the machine once it is saved
+    this.saveData = saveData;
   }
 
   process(context: Context): Result {
@@ -51,6 +66,12 @@ export class ImportMachine extends StoryMachine<ImportMachineAttributes> {
     }
 
     this.machine = machine;
+
+    // Load save data to imported machine if necessary
+    if (this.saveData) {
+      this.machine.load(this.saveData);
+    }
+
     return this.machine.process(context);
   }
 }
